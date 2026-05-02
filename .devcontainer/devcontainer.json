@@ -18,5 +18,7 @@
         }
     },
     // コンテナ内で使用するユーザー名
-    "remoteUser": "vscode"
+    "remoteUser": "vscode",
+    // コンテナ作成後に実行するコマンド（git hooks を自動で有効化）
+    "postCreateCommand": "git config core.hooksPath .githooks"
 }
