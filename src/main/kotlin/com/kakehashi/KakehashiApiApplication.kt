@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class KakehashiApiApplication
 
 fun main(args: Array<String>) {
-	runApplication<KakehashiApiApplication>(*args)
+    runApplication<KakehashiApiApplication>(*args)
 }
