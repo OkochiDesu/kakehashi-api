@@ -1,0 +1,76 @@
+# Spring Initializr が生成する補助ドキュメント
+HELP.md
+# Gradle のローカルキャッシュ/実行情報
+.gradle
+# ビルド生成物ディレクトリ
+build/
+# ただし Gradle Wrapper の JAR はリポジトリに含める
+!gradle/wrapper/gradle-wrapper.jar
+# src/main 配下に名前が build のソース用フォルダがある場合は除外しない
+!**/src/main/**/build/
+# src/test 配下に名前が build のソース用フォルダがある場合は除外しない
+!**/src/test/**/build/
+
+### STS ###
+# Spring Tool Suite の自動生成ファイル
+.apt_generated
+# Eclipse/STS のクラスパス設定
+.classpath
+# Eclipse/STS のアノテーション処理設定
+.factorypath
+# Eclipse/STS のプロジェクト設定
+.project
+# Eclipse/STS のワークスペース設定
+.settings
+# Spring ツールのメタ情報
+.springBeans
+# STS4 のキャッシュ
+.sts4-cache
+# 生成バイナリ出力
+bin/
+# src/main 配下に名前が bin のソース用フォルダがある場合は除外しない
+!**/src/main/**/bin/
+# src/test 配下に名前が bin のソース用フォルダがある場合は除外しない
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+# IntelliJ IDEA のプロジェクト設定
+.idea
+# IntelliJ のワークスペースファイル
+*.iws
+# IntelliJ のモジュール設定
+*.iml
+# IntelliJ のプロジェクト設定（旧形式）
+*.ipr
+# IntelliJ の出力ディレクトリ
+out/
+# src/main 配下に名前が out のソース用フォルダがある場合は除外しない
+!**/src/main/**/out/
+# src/test 配下に名前が out のソース用フォルダがある場合は除外しない
+!**/src/test/**/out/
+
+### NetBeans ###
+# NetBeans の個人設定
+/nbproject/private/
+# NetBeans のビルド設定
+/nbbuild/
+# NetBeans の配布出力
+/dist/
+# NetBeans の配布ビルド出力
+/nbdist/
+# NetBeans の Gradle メタ情報
+/.nb-gradle/
+
+### VS Code ###
+# VS Code のローカル設定
+.vscode/
+
+### Environment Variables ###
+# ルートの .env（機密情報を含み得る）
+.env
+# .env で始まるファイル全般（例: .env.local）
+.env.*
+
+### Kotlin ###
+# Kotlin コンパイラの作業ディレクトリ
+.kotlin

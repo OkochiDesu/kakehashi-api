@@ -1,0 +1,22 @@
+{
+    // Dev Container の表示名
+    "name": "Kotlin & Postgres Dev Environment",
+    // 使用する Docker Compose ファイルを指定
+    "dockerComposeFile": "docker-compose.yml",
+    // docker-compose.yml 内でアタッチするサービス名
+    "service": "app",
+    // コンテナ内のワークスペースルートディレクトリ
+    "workspaceFolder": "/kakehashi-api",
+    // VS Code の設定（拡張機能など）
+    "customizations": {
+        "vscode": {
+            // コンテナ起動時に自動インストールする拡張機能
+            "extensions": [
+                "fwcd.kotlin", // Kotlinサポート
+                "vscjava.vscode-java-pack" // Javaツールパック（デバッガ・ビルドツール等）
+            ]
+        }
+    },
+    // コンテナ内で使用するユーザー名
+    "remoteUser": "vscode"
+}

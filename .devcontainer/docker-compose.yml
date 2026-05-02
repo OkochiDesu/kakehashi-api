@@ -1,0 +1,50 @@
+services:
+  # 開発用アプリケーションコンテナ
+  app:
+    # Java 21 ベースの Dev Container 公式イメージ（Debian bullseye）
+    image: mcr.microsoft.com/devcontainers/java:21-bullseye
+    volumes:
+      # リポジトリルート（..）をコンテナ内の /kakehashi-api にマウント（cachedでI/O高速化）
+      - ..:/kakehashi-api:cached
+    depends_on:
+      db:
+        # db サービスのヘルスチェックが成功してから app を起動する
+        condition: service_healthy
+    # コンテナ内で使用するユーザー
+    user: vscode
+    # コンテナを起動し続けるためのダミーコマンド（VS Code がアタッチするまで待機）
+    command: sleep infinity
+
+  # PostgreSQL データベースコンテナ
+  db:
+    # PostgreSQL 15 の公式イメージ
+    image: postgres:15
+    # コンテナが停止・クラッシュした場合に自動再起動
+    restart: always
+    # .env ファイルから環境変数を読み込む（.env は .gitignore で除外済み）
+    env_file:
+      - .env
+    environment:
+      # 作成するデータベース名（.env の POSTGRES_DB を参照）
+      POSTGRES_DB: ${POSTGRES_DB}
+      # 接続ユーザー名（.env の POSTGRES_USER を参照）
+      POSTGRES_USER: ${POSTGRES_USER}
+      # 接続パスワード（.env の POSTGRES_PASSWORD を参照）
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      # pg_isready コマンドで DB が接続受付可能か確認（ユーザー・DB名は指定しない）
+      test: ["CMD-SHELL", "pg_isready"]
+      # ヘルスチェックの実行間隔
+      interval: 10s
+      # ヘルスチェックのタイムアウト
+      timeout: 5s
+      # 失敗を unhealthy と判定するまでのリトライ回数
+      retries: 5
+    ports:
+      # ホストの 5432 ポートをコンテナの 5432 ポートに転送
+      - "5432:5432"
+
+networks:
+  default:
+    # デフォルトのブリッジネットワークを使用（コンテナ間通信が可能）
+    driver: bridge
