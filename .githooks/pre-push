@@ -1,0 +1,40 @@
+#!/bin/bash
+# pre-push フック
+# push されるコミットに含まれる Kotlin ソースファイルに
+# 対応するテストコードが存在しない場合は push を中断する
+
+missing_tests=()
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # リモートブランチが存在しない場合（新規ブランチ）は最初のコミットを基点にする
+    if [[ "$remote_sha" == "0000000000000000000000000000000000000000" ]]; then
+        base=$(git rev-list --max-parents=0 "$local_sha")
+    else
+        base="$remote_sha"
+    fi
+
+    while IFS= read -r file; do
+        base_name=$(basename "$file" .kt)
+        dir_path=$(dirname "$file" | sed 's|^src/main/kotlin/||')
+        test1="src/test/kotlin/${dir_path}/${base_name}Test.kt"
+        test2="src/test/kotlin/${dir_path}/${base_name}Tests.kt"
+
+        if [[ ! -f "$test1" && ! -f "$test2" ]]; then
+            missing_tests+=("$file")
+        fi
+    done < <(git diff --name-only "$base" "$local_sha" | grep '^src/main/kotlin/.*\.kt$')
+done
+
+if [[ ${#missing_tests[@]} -gt 0 ]]; then
+    echo ""
+    echo "[pre-push] 以下のファイルにテストコードが存在しません:"
+    for f in "${missing_tests[@]}"; do
+        echo "  - $f"
+    done
+    echo ""
+    echo "テストコードを追加するか、--no-verify でスキップできます:"
+    echo "  git push --no-verify"
+    exit 1
+fi
+
+exit 0
