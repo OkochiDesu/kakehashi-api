@@ -1,0 +1,49 @@
+# GitHub Actions のワークフロー名（Actionsタブに表示される）
+name: CI
+
+# push（全ブランチ）と main向けPRで実行
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  # このワークフローがリポジトリに対して持つ権限（最小権限で read のみにする）
+  contents: read
+
+concurrency:
+  # 同じrefで古い実行が残っている場合はキャンセルして最新のみ実行
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # ジョブの表示名（チェック結果に表示される）
+    name: Unit Test
+    # 実行環境（GitHubが用意するUbuntu仮想環境）
+    runs-on: ubuntu-latest
+
+    steps:
+      # ソースコードをワークフロー実行環境に取得する
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Gradle/Kotlin の実行に必要なJava 21をセットアップする
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          # OpenJDKディストリビューション（Temurin）
+          distribution: temurin
+          # プロジェクトで利用するJavaのバージョン
+          java-version: "21"
+
+      # Gradleの依存関係キャッシュを有効化してCIを高速化する
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run formatting check and unit tests
+        # フォーマット違反またはテスト失敗でジョブを失敗させる
+        run: ./gradlew spotlessCheck test --no-daemon
