@@ -7,18 +7,23 @@
     "service": "app",
     // コンテナ内のワークスペースルートディレクトリ
     "workspaceFolder": "/kakehashi-api",
+    // リビルド後もワークスペース内に Gradle キャッシュを保持する
+    "remoteEnv": {
+        "GRADLE_USER_HOME": "/kakehashi-api/.gradle-user-home"
+    },
     // VS Code の設定（拡張機能など）
     "customizations": {
         "vscode": {
             // コンテナ起動時に自動インストールする拡張機能
             "extensions": [
                 "fwcd.kotlin", // Kotlinサポート
-                "vscjava.vscode-java-pack" // Javaツールパック（デバッガ・ビルドツール等）
+                "vscjava.vscode-java-pack", // Javaツールパック（デバッガ・ビルドツール等）
+                "ryanluker.vscode-coverage-gutters" // テストカバレッジのガター表示
             ]
         }
     },
     // コンテナ内で使用するユーザー名
     "remoteUser": "vscode",
-    // コンテナ作成後に実行するコマンド（git hooks を自動で有効化）
-    "postCreateCommand": "git config core.hooksPath .githooks"
+    // コンテナ作成後に実行するコマンド（git hooks 有効化と Gradle Wrapper の事前取得）
+    "postCreateCommand": "sh -lc 'mkdir -p \"$GRADLE_USER_HOME\" && git config core.hooksPath .githooks && ./gradlew --version'"
 }

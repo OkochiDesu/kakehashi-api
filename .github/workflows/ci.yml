@@ -1,0 +1,170 @@
+# GitHub Actions のワークフロー名（Actionsタブに表示される）
+name: CI
+
+# push（全ブランチ）と main向けPRで実行
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  # このワークフローがリポジトリに対して持つ権限（最小権限で read のみにする）
+  contents: read
+  # PRへカバレッジコメントを書き込むために必要
+  pull-requests: write
+
+concurrency:
+  # 同じrefで古い実行が残っている場合はキャンセルして最新のみ実行
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    # マージ可否を決める必須チェック（フォーマット + テスト + JaCoCo生成）
+    name: Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run formatting check and unit tests
+        # フォーマット違反またはテスト失敗でジョブを失敗させる
+        run: ./gradlew spotlessCheck test jacocoTestReport --no-daemon
+
+      - name: Upload JaCoCo XML
+        # 次ジョブのPRカバレッジコメントで利用する
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          if-no-files-found: warn
+          path: build/reports/jacoco/test/jacocoTestReport.xml
+
+  reports:
+    # レポート作成・PRコメントを担当（verify成功後のみ実行）
+    name: Reports
+    runs-on: ubuntu-latest
+    needs: verify
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        # 複雑度レポート作成ツール（lizard）をインストールするために利用
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install complexity analyzer
+        # 再現性確保のためバージョン固定
+        run: python3 -m pip install --user "lizard==1.22.1"
+
+      - name: Generate complexity report
+        # push/PRごとに複雑度レポート（XML/TXT）を生成
+        run: |
+          mkdir -p build/reports/complexity
+          python3 -m lizard src/main/kotlin -X > build/reports/complexity/lizard.xml
+          python3 -m lizard src/main/kotlin > build/reports/complexity/lizard.txt
+
+      - name: Build complexity comment body
+        # PRコメント投稿用に高複雑度の上位N件を要約する（しきい値判定は未適用）
+        if: github.event_name == 'pull_request'
+        run: |
+          TOP_N=10
+          awk '
+            /^[[:space:]]*[0-9]+[[:space:]]+[0-9]+[[:space:]]+[0-9]+[[:space:]]+[0-9]+[[:space:]]+[0-9]+[[:space:]]+/ {
+              nloc=$1
+              ccn=$2
+              token=$3
+              param=$4
+              length=$5
+              location=$6
+              print ccn "\t" nloc "\t" token "\t" param "\t" length "\t" location
+            }
+          ' build/reports/complexity/lizard.txt | sort -t $'\t' -k1,1nr -k2,2nr | head -n "$TOP_N" > build/reports/complexity/top_complexity.tsv
+
+          {
+            echo "### 複雑度レポート"
+            echo
+            echo "> **見方**"
+            echo "> | 指標 | 意味 | 目安 |"
+            echo "> |---|---|---|"
+            echo "> | **CCN** | サイクロマティック複雑度。分岐の多さ。高いほどテストが難しい | 〜10: 良好 / 11〜15: 要注意 / 16〜: 要リファクタリング |"
+            echo "> | **NLOC** | コメント・空行を除いた実行行数 | 目安は関数あたり 50 行以下 |"
+            echo "> | **Token** | トークン数（演算子・識別子の合計）。多いほど密度が高い | 参考値 |"
+            echo "> | **Param** | 引数の数。多すぎると責務が広い可能性がある | 4 以下が目安 |"
+            echo "> | **Length** | 開始行〜終了行のスパン | 参考値 |"
+            echo
+            echo "> しきい値での CI 失敗は未適用（TODO で管理中）。"
+            echo
+            if [ -s build/reports/complexity/top_complexity.tsv ]; then
+              echo "CCN 上位 ${TOP_N} 関数（CCN 降順）:"
+              echo
+              echo "| CCN | NLOC | Token | Param | Length | 場所 |"
+              echo "|---:|---:|---:|---:|---:|---|"
+              while IFS=$'\t' read -r ccn nloc token param length location; do
+                escaped_location=$(printf '%s' "$location" | sed 's/|/\\|/g')
+                echo "| ${ccn} | ${nloc} | ${token} | ${param} | ${length} | ${escaped_location} |"
+              done < build/reports/complexity/top_complexity.tsv
+            else
+              echo "関数レベルの複雑度データが見つかりませんでした。"
+              echo
+              echo "lizard 生成レポート（先頭 40 行）:"
+              echo '```text'
+              head -n 40 build/reports/complexity/lizard.txt
+              echo '```'
+            fi
+          } > build/reports/complexity/comment.md
+
+      - name: Comment complexity on pull request
+        # PR時のみ、複雑度の要約をPRコメントとして自動投稿する
+        if: github.event_name == 'pull_request'
+        # v2.9.4 をSHA固定
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405
+        with:
+          header: complexity-report
+          path: build/reports/complexity/comment.md
+
+      - name: Download JaCoCo XML
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test
+
+      - name: Comment coverage on pull request
+        # PR時のみ、JaCoCoレポートをPRコメントとして自動投稿する
+        if: github.event_name == 'pull_request'
+        # v1.7.2 をSHA固定
+        uses: madrapps/jacoco-report@50d3aff4548aa991e6753342d9ba291084e63848
+        with:
+          title: Code Coverage Report
+          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: true
+          min-coverage-overall: 0
+          min-coverage-changed-files: 0
+
+      - name: Upload quality reports
+        # CI結果の確認用にレポートをArtifactsへ保存する
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports
+          if-no-files-found: warn
+          path: |
+            build/reports/jacoco/test
+            build/reports/complexity

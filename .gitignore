@@ -2,6 +2,8 @@
 HELP.md
 # Gradle のローカルキャッシュ/実行情報
 .gradle
+# Dev Container 再作成後も使い回すワークスペース内 Gradle キャッシュ
+.gradle-user-home/
 # ビルド生成物ディレクトリ
 build/
 # ただし Gradle Wrapper の JAR はリポジトリに含める
