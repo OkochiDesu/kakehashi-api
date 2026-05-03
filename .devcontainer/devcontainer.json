@@ -17,7 +17,8 @@
             // コンテナ起動時に自動インストールする拡張機能
             "extensions": [
                 "fwcd.kotlin", // Kotlinサポート
-                "vscjava.vscode-java-pack" // Javaツールパック（デバッガ・ビルドツール等）
+                "vscjava.vscode-java-pack", // Javaツールパック（デバッガ・ビルドツール等）
+                "ryanluker.vscode-coverage-gutters" // テストカバレッジのガター表示
             ]
         }
     },

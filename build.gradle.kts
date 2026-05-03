@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.diffplug.spotless") version "6.25.0"
+    jacoco
 }
 
 group = "com.kakehashi"
@@ -48,6 +49,24 @@ spotless {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy("jacocoTestReport")
+}
+
+tasks.named<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.withType<Test>())
+    // トップレベル関数からKotlinコンパイラが自動生成するクラス（例: *Kt）を除外
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) { exclude("**/*Kt.class") }
+            },
+        ),
+    )
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
 }
 
 tasks.named("build") { dependsOn("spotlessApply") }
