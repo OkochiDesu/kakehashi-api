@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.spring") version "2.2.21"
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("com.diffplug.spotless") version "6.25.0"
 }
 
 group = "com.kakehashi"
@@ -34,14 +34,22 @@ kotlin {
     }
 }
 
-ktlint {
-    version.set("1.5.0")
+spotless {
+    kotlin {
+        ktlint("1.5.0")
+        target("src/**/*.kt")
+    }
+    kotlinGradle {
+        ktlint("1.5.0")
+        target("*.gradle.kts")
+    }
+    // MyBatis導入時にXML/SQL/JSONのフォーマット設定を追加予定
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.named("build") { dependsOn("ktlintFormat") }
-tasks.named("bootRun") { dependsOn("ktlintFormat") }
-tasks.withType<Test> { dependsOn("ktlintFormat") }
+tasks.named("build") { dependsOn("spotlessApply") }
+tasks.named("bootRun") { dependsOn("spotlessApply") }
+tasks.withType<Test> { dependsOn("spotlessApply") }
