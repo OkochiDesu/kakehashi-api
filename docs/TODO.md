@@ -1,0 +1,65 @@
+# TODO
+
+## コーディング規約
+
+### .editorconfig の追加
+
+- Spotless（ktlint）は `.editorconfig` を参照してインデントや改行のルールを適用する
+- 現在はktlintのデフォルト設定で動いているが、チーム内で設定を明示するためにリポジトリに追加する
+  - 設定候補: インデント幅、文字コード（UTF-8）、改行コード（LF）、ファイル末尾改行
+
+## カバレッジ
+
+### CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント
+
+- GitHub Actions ワークフローを追加し、PR時に `./gradlew test` を実行
+- CI環境のクリーンな状態でテストを実行し、その場で生成された `jacocoTestReport.xml` を使用する
+  - コミット済みのXMLは使用しない
+- 生成されたXMLをもとにカバレッジ率を計算し、PRに自動コメントする
+  - 例: [madrapps/jacoco-report](https://github.com/madrapps/jacoco-report) などのGitHub Actionsを利用
+
+### カバレッジルール（DDD / クリーンアーキテクチャ向け）
+
+- レイヤーごとに異なるカバレッジ閾値を設定する
+  - 例: ドメイン層（エンティティ・ユースケース）は80%以上を必須
+  - 例: インフラ層（MyBatis Mapper・設定クラス）はカバレッジ計測から除外
+- `jacocoCoverageVerification` タスクに除外パターンと閾値を設定する
+  - MyBatis導入後にパッケージ構成が固まってから対応する
+
+## コード品質
+
+### push時のGitHub Actionsで複雑度レポートを作成
+
+- コードの複雑度（循環的複雑度など）を計測してレポートを生成する
+- 候補ツール:
+  - [Detekt](https://detekt.dev/)（Kotlin向け静的解析ツール、複雑度レポート機能あり）
+  - SonarCloud（GitHub Actionsと連携可能、複雑度・バグ・臭いを一括レポート）
+- push または PR時にGitHub Actionsで実行し、レポートをアーティファクトとして保存またはPRにコメントする
+
+## CI パフォーマンス
+
+### プロジェクト拡大時のCIビルド高速化
+
+- プロジェクトが大きくなりCIの実行時間が問題になった場合に対応する
+- 候補:
+  - Gradle ビルドキャッシュの活用（`--build-cache`）
+  - Gradle 並列実行（`--parallel`）の有効化
+  - テストの並列分割（GitHub Actions の `matrix` 戦略でモジュール分割）
+  - マルチモジュール化による差分ビルド
+
+## Copilot 活用
+
+### CopilotへのRVレビュー依頼観点をファイルで統一
+
+- レビュー依頼時の観点（セキュリティ・パフォーマンス・可読性など）を `.github/copilot-instructions.md` に記載する
+- これにより「毎回チャットで観点を説明する」手間をなくし、チーム内で統一したレビュー観点を維持できる
+- 後述の実装ルール設定ファイルと同一ファイルで管理可能
+
+### VS Code上でCopilotが実装ルールを守れるよう設定ファイルを追加
+
+- アーキテクチャ選定・命名規則・レイヤー責務などのルールを Copilot に読み込ませる
+- 設定方法:
+  - `.github/copilot-instructions.md`（リポジトリ全体に適用）
+  - `.vscode/*.instructions.md`（VS Code エージェントモード向け）
+- 内容候補: パッケージ構成ルール、レイヤー間依存の方向、命名規則、禁止パターンなど
+- アーキテクチャが固まってから作成する
