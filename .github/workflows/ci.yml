@@ -98,23 +98,32 @@ jobs:
           ' build/reports/complexity/lizard.txt | sort -t $'\t' -k1,1nr -k2,2nr | head -n "$TOP_N" > build/reports/complexity/top_complexity.tsv
 
           {
-            echo "### Complexity Report"
+            echo "### 複雑度レポート"
             echo
-            echo "Threshold enforcement: not enabled (tracked in TODO)."
+            echo "> **見方**"
+            echo "> | 指標 | 意味 | 目安 |"
+            echo "> |---|---|---|"
+            echo "> | **CCN** | サイクロマティック複雑度。分岐の多さ。高いほどテストが難しい | 〜10: 良好 / 11〜15: 要注意 / 16〜: 要リファクタリング |"
+            echo "> | **NLOC** | コメント・空行を除いた実行行数 | 目安は関数あたり 50 行以下 |"
+            echo "> | **Token** | トークン数（演算子・識別子の合計）。多いほど密度が高い | 参考値 |"
+            echo "> | **Param** | 引数の数。多すぎると責務が広い可能性がある | 4 以下が目安 |"
+            echo "> | **Length** | 開始行〜終了行のスパン | 参考値 |"
+            echo
+            echo "> しきい値での CI 失敗は未適用（TODO で管理中）。"
             echo
             if [ -s build/reports/complexity/top_complexity.tsv ]; then
-              echo "Top ${TOP_N} high-complexity functions (sorted by CCN):"
+              echo "CCN 上位 ${TOP_N} 関数（CCN 降順）:"
               echo
-              echo "| CCN | NLOC | Token | Param | Length | Location |"
+              echo "| CCN | NLOC | Token | Param | Length | 場所 |"
               echo "|---:|---:|---:|---:|---:|---|"
               while IFS=$'\t' read -r ccn nloc token param length location; do
                 escaped_location=$(printf '%s' "$location" | sed 's/|/\\|/g')
                 echo "| ${ccn} | ${nloc} | ${token} | ${param} | ${length} | ${escaped_location} |"
               done < build/reports/complexity/top_complexity.tsv
             else
-              echo "No function-level complexity rows were found in lizard output."
+              echo "関数レベルの複雑度データが見つかりませんでした。"
               echo
-              echo "Raw report (head):"
+              echo "lizard 生成レポート（先頭 40 行）:"
               echo '```text'
               head -n 40 build/reports/complexity/lizard.txt
               echo '```'
