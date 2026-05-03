@@ -10,14 +10,6 @@
 
 ## カバレッジ
 
-### CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント
-
-- GitHub Actions ワークフローを追加し、PR時に `./gradlew test` を実行
-- CI環境のクリーンな状態でテストを実行し、その場で生成された `jacocoTestReport.xml` を使用する
-  - コミット済みのXMLは使用しない
-- 生成されたXMLをもとにカバレッジ率を計算し、PRに自動コメントする
-  - 例: [madrapps/jacoco-report](https://github.com/madrapps/jacoco-report) などのGitHub Actionsを利用
-
 ### カバレッジルール（DDD / クリーンアーキテクチャ向け）
 
 - レイヤーごとに異なるカバレッジ閾値を設定する
@@ -25,16 +17,6 @@
   - 例: インフラ層（MyBatis Mapper・設定クラス）はカバレッジ計測から除外
 - `jacocoCoverageVerification` タスクに除外パターンと閾値を設定する
   - MyBatis導入後にパッケージ構成が固まってから対応する
-
-## コード品質
-
-### push時のGitHub Actionsで複雑度レポートを作成
-
-- コードの複雑度（循環的複雑度など）を計測してレポートを生成する
-- 候補ツール:
-  - [Detekt](https://detekt.dev/)（Kotlin向け静的解析ツール、複雑度レポート機能あり）
-  - SonarCloud（GitHub Actionsと連携可能、複雑度・バグ・臭いを一括レポート）
-- push または PR時にGitHub Actionsで実行し、レポートをアーティファクトとして保存またはPRにコメントする
 
 ## CI パフォーマンス
 
@@ -94,3 +76,8 @@
 - プレミアムリクエストを消費するため、自動実行はせず**手動で必要なときだけ使う**運用とする
   - 対象: レビュアーが多いPR、複雑な変更、大きめのPRなど
 - チームのCopilotプランの月間上限と照らし合わせて利用頻度を調整する
+
+## Done（履歴）
+
+- CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
+- push時のGitHub Actionsで複雑度レポートを作成: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
