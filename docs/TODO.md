@@ -90,6 +90,23 @@
   - 対象: レビュアーが多いPR、複雑な変更、大きめのPRなど
 - チームのCopilotプランの月間上限と照らし合わせて利用頻度を調整する
 
+## 認証・セキュリティ
+
+### Google SSO（IDトークン）を用いた認証基盤の構築
+- Nuxt（フロントエンド）側でGoogle SSOを行い、取得したIDトークン（JWT）をAPIリクエストの `Authorization: Bearer` ヘッダーに付与する。
+- Spring Boot側でGoogleの公開鍵を用いて毎リクエストごとにトークンを検証（署名チェック、有効期限確認など）する。
+  - Spring Securityの `oauth2ResourceServer` などの利用を想定。
+
+### アカウントのDB管理と照合処理
+- 認証のキーにはメールアドレスではなく、変更されるリスクのない Googleの内部ID（`sub` クレーム）を使用する。
+- 社員（Engineer集約）テーブルには `engineer_id` (システム主キー), `google_sub_id` (認証キー), `email` (表示用) を持たせる。
+- 毎リクエスト時に `google_sub_id` でDBを検索し、無効化されたアカウント（退職者など）を即座に弾けるようにする。
+
+### 認証処理の共通化とクリーンアーキテクチャの維持
+- Controllerの各メソッドに認証やDB検索のロジックを書かず、`HandlerMethodArgumentResolver` 等を利用して処理を共通化する。
+- Controller層で認証・変換を完結させ、引数としてドメインモデル（例: `@LoginEngineerId engineerId: EngineerId`）だけを受け取るようにする。
+- ユースケース層やドメイン層には、JWTやHTTPヘッダーなどWeb特有の概念を一切持ち込ませない。
+
 ## Done（履歴）
 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
