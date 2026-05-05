@@ -107,6 +107,13 @@
 - Controller層で認証・変換を完結させ、引数としてドメインモデル（例: `@LoginEngineerId engineerId: EngineerId`）だけを受け取るようにする。
 - ユースケース層やドメイン層には、JWTやHTTPヘッダーなどWeb特有の概念を一切持ち込ませない。
 
+## 認証・認可
+- JIT(Just-In-Time)プロビジョニングの導入
+  - Google SSO認証時に、Googleの `sub` ID をキーとしてDBを検索する。
+  - 未登録の場合は自動で `Engineer` 集約を作成し、DBへ保存するフローを実装する。
+- 初回ログイン時プロセスの検討
+  - ユーザー登録画面は作らず、SSO認証完了後にプロフィール情報が不足している場合のみ「プロフィール設定画面」へ誘導するフローを検討する。
+
 ## Done（履歴）
 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
