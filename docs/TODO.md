@@ -154,6 +154,50 @@
 - バックエンドのAPI実装が未完了でも、OpenAPIの定義（`openapi.yaml`）を先行して作成し、型安全にフロントエンド開発を進める
 - コンポーネントは表示ロジック中心とし、API呼び出しは composables / services 層へ分離する
 
+## 経歴書の帳票出力（Excel・PDF）
+
+> 対象: **経歴書**。レイアウト・項目は固定であり、Excel/PDF出力が必要。
+
+### Excel/PDF出力基盤の構築（Single Source of Truth 方式）
+- Excelをレイアウトの正本（マスター）とし、PDFは生成したExcelから変換する構成を採用する。
+- 理由: ExcelとPDFのレイアウト完全一致を実現し、デザイン修正の工数を半減させるため。
+
+### Jxlsを用いたテンプレートエンジンの実装
+- `Jxls-poi` を導入し、Excelファイルを雛形としたデータ埋め込み処理を実装する。
+- プロジェクト経歴などの繰り返し項目は、Excel内のコメントマークアップ（`jx:each`）を使用して制御する。
+- 実装箇所: `infrastructure/report/JxlsSkillSheetExporter.kt`
+
+### LibreOffice (Headless) によるPDF変換の実装
+- コンテナ内にインストールした LibreOffice (`soffice` コマンド) をバックエンドから呼び出し、ExcelをPDFに変換する。
+- **変換フロー**:
+  1. Jxlsでメモリ上（または一時ディレクトリ）にExcelを生成。
+  2. `ProcessBuilder` で `soffice --headless --convert-to pdf` を実行。
+  3. 生成されたPDFのバイナリをレスポンスとして返却する。
+
+### 日本語フォントの管理
+- コンテナ環境およびPDF出力時の文字化けを防ぐため、`fonts-noto-cjk` をインストールし、Excelテンプレート内のフォント指定と整合性を保つ。
+
+### アーキテクチャの分離
+- ユースケース層は `SkillSheetExporter` インターフェースのみに依存させる。
+- Excel操作や外部コマンド発行（LibreOffice）の具体的知識はすべてインフラ層に閉じ込め、将来的なライブラリ変更に備える。
+
+## キャリアシート・ダイナミックフォーム基盤
+
+> 対象: **キャリアシート**。レイアウト・項目が変更されうるため、Excel/PDF出力はなく、動的フォームとしてWeb上で管理する。
+
+### JSONマスタによるレイアウト定義の実装
+- JSON形式のメタデータ（項目名、型、順序）でキャリアシートのレイアウトを定義する。
+- `career_sheet_formats` テーブルで各バージョンのレイアウト定義を完全保存し、過去データの参照性を担保する。
+
+### JSONBによる可変データ構造の採用
+- PostgreSQLの JSONB 型を活用し、フォーマットバージョンごとに異なる入力値を、ひとつの `career_sheets` テーブルで柔軟に管理する。
+
+### フロントエンドでの動的レンダリング（Metadata-Driven UI）
+- Nuxt 3 において、取得したフォーマット定義JSONを元に、入力フォームや表示画面を動的に生成する共通コンポーネントを構築する。
+
+### バージョン移行ポリシーの策定
+- フォーマット更新時、過去のシートをどのタイミングで新バージョンへ移行させるか（自動移行、手動更新、閲覧のみなど）のドメインロジックを実装する。
+
 ## Done（履歴）
 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
