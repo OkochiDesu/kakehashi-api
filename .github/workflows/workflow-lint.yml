@@ -76,6 +76,8 @@ jobs:
         # docs/workflowのみの変更時だけ実行する
         if: steps.changed-files.outputs.only_meta == 'true'
         uses: reviewdog/action-actionlint@v1
+        with:
+          fail_level: error
 
       - name: Validate ADR filename convention
         # ADRの命名規則をCIで強制し、命名揺れを防ぐ
