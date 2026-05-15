@@ -1,0 +1,115 @@
+# Lightweight workflow for validating GitHub Actions workflow files
+name: Workflow Lint
+
+# Trigger on docs/workflow changes
+'on':
+  push:
+    branches:
+      - "**"
+    paths:
+      - "**/*.md"
+      - ".github/workflows/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**/*.md"
+      - ".github/workflows/**"
+
+permissions:
+  # コード内容の参照のみ行う
+  contents: read
+
+concurrency:
+  # 同じrefでは古い実行をキャンセルし、最新のみ残す
+  group: workflow-lint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-workflow:
+    name: Lint Workflow Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        # 変更差分を正しく取得するため履歴をすべて取得する
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect whether only docs/workflows changed
+        id: changed-files
+        shell: bash
+        run: |
+          # PR と push で diff の比較元が異なるため、イベント別に base/head を決定する
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+
+            # 新規ブランチ初回pushでは before が all-zero になるため、初回コミットを比較元にする
+            if [[ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+              BASE_SHA="$(git rev-list --max-parents=0 "$HEAD_SHA" | tail -n 1)"
+            fi
+          fi
+
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > changed_files.txt
+
+          ONLY_META=true
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+
+            # docs(workflow含む)以外が1つでも含まれていれば軽量ジョブはスキップする
+            if [[ "$file" =~ ^\.github/workflows/ ]] || [[ "$file" =~ \.md$ ]]; then
+              continue
+            fi
+
+            ONLY_META=false
+            break
+          done < changed_files.txt
+
+          echo "only_meta=${ONLY_META}" >> "$GITHUB_OUTPUT"
+
+      - name: Run actionlint for workflow files
+        # docs/workflowのみの変更時だけ実行する
+        if: steps.changed-files.outputs.only_meta == 'true'
+        uses: rhysd/actionlint@v1.7.12
+
+      - name: Validate ADR filename convention
+        # ADRの命名規則をCIで強制し、命名揺れを防ぐ
+        shell: bash
+        run: |
+          # 変更対象のうち ADR 本体（README除く）だけを抽出する
+          mapfile -t adr_files < <(grep -E '^docs/adr/.*\.md$' changed_files.txt | grep -v '^docs/adr/README\.md$' || true)
+
+          # ADR変更がない場合はチェック不要
+          if [[ ${#adr_files[@]} -eq 0 ]]; then
+            echo "No ADR file changes detected."
+            exit 0
+          fi
+
+          INVALID=0
+          for file in "${adr_files[@]}"; do
+            base_name="$(basename "$file")"
+
+            # 形式: ADR-連番4桁-日本語タイトル.md（スペース禁止）
+            if [[ ! "$base_name" =~ ^ADR-[0-9]{4}-[^[:space:]]+\.md$ ]]; then
+              echo "Invalid ADR filename: $file"
+              echo "Expected format: ADR-0001-タイトル.md (no spaces)"
+              INVALID=1
+            fi
+          done
+
+          if [[ "$INVALID" -ne 0 ]]; then
+            echo "ADR filename convention check failed."
+            exit 1
+          fi
+
+          echo "ADR filename convention check passed."
+
+      - name: Skip lightweight workflow lint when source code changed
+        # ソースコード変更が混在する場合は重いCIに任せ、ここは意図的にスキップする
+        if: steps.changed-files.outputs.only_meta != 'true'
+        run: echo "Skip workflow lint because non-doc/workflow files are included in this change."
