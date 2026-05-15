@@ -75,7 +75,7 @@ jobs:
       - name: Run actionlint for workflow files
         # docs/workflowのみの変更時だけ実行する
         if: steps.changed-files.outputs.only_meta == 'true'
-        uses: rhysd/actionlint@v1.7.12
+        uses: reviewdog/action-actionlint@v1
 
       - name: Validate ADR filename convention
         # ADRの命名規則をCIで強制し、命名揺れを防ぐ
