@@ -2,7 +2,10 @@
 
 ## ステータス
 
-Accepted
+- [ ] Proposed
+- [ ] Accepted
+- [x] Superseded ([ADR-0002: CIトリガー分離とWorkflow検証運用方針](ADR-0002-CIトリガー分離とWorkflow検証運用方針.md))
+- [ ] Rejected
 
 ## 日付
 
