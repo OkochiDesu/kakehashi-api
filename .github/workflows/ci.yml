@@ -1,14 +1,24 @@
 # GitHub Actions のワークフロー名（Actionsタブに表示される）
 name: CI
 
-# push（全ブランチ）と main向けPRで実行
+# アプリコード変更時のみ、push（全ブランチ）と main向けPRで実行
 on:
   push:
     branches:
       - "**"
+    paths-ignore:
+      # ドキュメントのみの変更では重いCIを起動しない
+      - "**/*.md"
+      # Workflow定義のみの変更は軽量Workflow検証側で扱う
+      - ".github/workflows/**"
   pull_request:
     branches:
       - main
+    paths-ignore:
+      # ドキュメントのみの変更では重いCIを起動しない
+      - "**/*.md"
+      # Workflow定義のみの変更は軽量Workflow検証側で扱う
+      - ".github/workflows/**"
 
 permissions:
   # このワークフローがリポジトリに対して持つ権限（最小権限で read のみにする）
