@@ -29,4 +29,33 @@ if [[ $found -eq 1 ]]; then
     exit 1
 fi
 
+# 現在のブランチに対応するPRがマージ済みの場合、新しい作業ブランチでのcommitを促す
+# gh CLIが未インストール・未認証の場合はチェックできないため、commitをブロックする（fail-closed）
+if ! command -v gh >/dev/null 2>&1; then
+    echo "[pre-commit] gh CLIが見つかりません。PRマージ済みチェックを実行できません。"
+    echo "devcontainerのリビルドでgh CLIが導入されます。"
+    echo "誤検知やこのチェックをスキップしたい場合は --no-verify でスキップできます:"
+    echo "  git commit --no-verify"
+    exit 1
+fi
+
+if ! gh auth status >/dev/null 2>&1; then
+    echo "[pre-commit] gh CLIが未認証のため、PRマージ済みチェックを実行できません。"
+    echo "先に 'gh auth login' を実行してください（手順: docs/troubleshooting/devcontainer-ssh-agent-forwarding.md）。"
+    echo "誤検知やこのチェックをスキップしたい場合は --no-verify でスキップできます:"
+    echo "  git commit --no-verify"
+    exit 1
+fi
+
+pr_state=$(gh pr view --json state -q .state 2>/dev/null)
+if [[ "$pr_state" == "MERGED" ]]; then
+    echo "[pre-commit] 現在のブランチに対応するPRはマージ済み（MERGED）です。"
+    echo "新しい作業ブランチを作成してからcommitしてください（CLAUDE.md の commit運用を参照）:"
+    echo "  git checkout -b feature/<内容> origin/main"
+    echo ""
+    echo "誤検知やこのチェックをスキップしたい場合は --no-verify でスキップできます:"
+    echo "  git commit --no-verify"
+    exit 1
+fi
+
 exit 0
