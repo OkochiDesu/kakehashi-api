@@ -77,12 +77,15 @@
 ## ADRエージェント運用
 
 このリポジトリでは、ADR更新を支援するエージェント/スキルを Git 管理している。
-Copilot チャットで `@ADR Governance` を呼び出すことで、以下を自動化できる。
+以下を自動化できる。
 
 - git diff からの影響分析
 - 新規 ADR ドラフトの作成
 - 既存 ADR の Supersede 処理
 - 命名・ステータス・リンク整合の検証
+
+- **ClaudeCode**: `/adr-governance` スキルを実行する、または `adr-governance` サブエージェントを呼び出す。
+- **GitHub Copilot**: Copilot チャットで `@ADR Governance` を呼び出す。
 
 ## ADR テンプレート
 
@@ -128,16 +131,22 @@ YYYY-MM-DD
 どのような状況になったら再検討するか。
 ```
 
-- カスタムエージェント:
-  - `.github/agents/adr-governance.agent.md`
-  - `.github/agents/adr-search.agent.md`
-  - `.github/agents/adr-validator.agent.md`
-- スキル:
+- ClaudeCode用エージェント:
+  - [.claude/agents/adr-governance.md](../../.claude/agents/adr-governance.md)
+  - [.claude/agents/adr-search.md](../../.claude/agents/adr-search.md)
+  - [.claude/agents/adr-validator.md](../../.claude/agents/adr-validator.md)
+- ClaudeCode用スキル:
+  - [.claude/skills/adr-governance/SKILL.md](../../.claude/skills/adr-governance/SKILL.md)
+- GitHub Copilot用エージェント（互換のため維持）:
+  - `.github/agents/adr/adr-governance.agent.md`
+  - `.github/agents/adr/adr-search.agent.md`
+  - `.github/agents/adr/adr-validator.agent.md`
+- GitHub Copilot用スキル（互換のため維持）:
   - `.github/skills/adr-governance/SKILL.md`
 
 ### 基本フロー
 
-1. `ADR Governance` エージェントを起動する。
+1. ClaudeCodeでは `/adr-governance` スキル（または `adr-governance` サブエージェント）を起動する。Copilotでは `@ADR Governance` を起動する。
 2. 差分と関連ADRの確認結果を提示し、更新方針（既存修正/新規追加/置換）を人間が承認する。
 3. 承認後にADRを編集し、命名・ステータス・関連リンクを検証する。
 
