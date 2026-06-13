@@ -1,0 +1,139 @@
+# コミットメッセージ（Conventional Commits）からPR本文の「変更内容」セクションを自動生成するワークフロー
+name: PR Summary
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  # コード内容の参照のみ行う
+  contents: read
+  # PR本文・コメントを書き込むために必要
+  pull-requests: write
+
+concurrency:
+  # 同じPRでは古い実行をキャンセルし、最新のみ残す
+  group: pr-summary-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  summary:
+    name: Generate PR Summary
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        # base/headの差分コミットを取得するため履歴をすべて取得する
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build commit summary
+        # コミットメッセージのプレフィックス（docs/conventions/git-prefixes.md）ごとに分類する
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          mkdir -p build/reports/pr-summary
+          git log --no-merges --reverse --pretty=format:"%s" "${BASE_SHA}..${HEAD_SHA}" > build/reports/pr-summary/commits.txt
+
+          declare -A TITLES=(
+            [feat]="機能追加 (feat)"
+            [fix]="バグ修正 (fix)"
+            [docs]="ドキュメント (docs)"
+            [refactor]="リファクタリング (refactor)"
+            [test]="テスト (test)"
+            [ci]="CI設定変更 (ci)"
+            [chore]="その他の保守作業 (chore)"
+          )
+          ORDER=(feat fix docs refactor test ci chore)
+
+          {
+            echo "<!-- このセクションはCI（pr-summary）がコミットメッセージから自動生成・更新します。手動で編集しないでください。 -->"
+            echo
+
+            for type in "${ORDER[@]}"; do
+              MATCHES=$(grep -E "^${type}: " build/reports/pr-summary/commits.txt || true)
+              if [ -n "$MATCHES" ]; then
+                echo "**${TITLES[$type]}**"
+                echo
+                while IFS= read -r line; do
+                  echo "- ${line#${type}: }"
+                done <<< "$MATCHES"
+                echo
+              fi
+            done
+
+            OTHERS=$(grep -Ev "^(feat|fix|docs|refactor|test|chore|ci): " build/reports/pr-summary/commits.txt || true)
+            if [ -n "$OTHERS" ]; then
+              echo "**その他（Conventional Commits形式に従っていないコミット）**"
+              echo
+              while IFS= read -r line; do
+                echo "- ${line}"
+              done <<< "$OTHERS"
+              echo
+            fi
+          } > build/reports/pr-summary/content.md
+
+          # マーカーが見つからない場合のフォールバック用コメント本文
+          {
+            echo "### 変更内容（コミットメッセージから自動生成）"
+            echo
+            cat build/reports/pr-summary/content.md
+            echo "> PRテンプレートの「変更内容」セクションに \`<!-- pr-summary:start -->\` / \`<!-- pr-summary:end -->\` マーカーが見つからなかったため、PR本文への反映の代わりにコメントとして投稿しています。"
+          } > build/reports/pr-summary/fallback_comment.md
+
+      - name: Fetch current PR body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr view "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --json body -q .body \
+            > build/reports/pr-summary/pr_body.txt
+
+      - name: Insert summary into PR body
+        id: insert
+        run: |
+          python3 - <<'PYEOF'
+          import os
+          import re
+
+          with open("build/reports/pr-summary/pr_body.txt", encoding="utf-8") as f:
+              body = f.read()
+          with open("build/reports/pr-summary/content.md", encoding="utf-8") as f:
+              content = f.read().strip()
+
+          start_marker = "<!-- pr-summary:start -->"
+          end_marker = "<!-- pr-summary:end -->"
+          pattern = re.compile(re.escape(start_marker) + r".*?" + re.escape(end_marker), re.DOTALL)
+
+          found = "false"
+          if pattern.search(body):
+              replacement = f"{start_marker}\n{content}\n{end_marker}"
+              new_body = pattern.sub(replacement, body, count=1)
+              with open("build/reports/pr-summary/new_body.md", "w", encoding="utf-8") as f:
+                  f.write(new_body)
+              found = "true"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"markers_found={found}\n")
+          PYEOF
+
+      - name: Update PR body
+        # マーカーが見つかった場合のみ、その区間を自動生成内容で置き換える
+        if: steps.insert.outputs.markers_found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" \
+            --body-file build/reports/pr-summary/new_body.md
+
+      - name: Fallback comment when markers are missing
+        # マーカーがないPR（テンプレート未使用など）はコメントとして投稿する
+        if: steps.insert.outputs.markers_found == 'false'
+        # v2.9.4 をSHA固定
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405
+        with:
+          header: pr-summary
+          path: build/reports/pr-summary/fallback_comment.md

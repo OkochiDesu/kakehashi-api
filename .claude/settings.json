@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git stash*)",
+      "Bash(git show*)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "Bash(rm *)",
+      "Bash(rm)",
+      "Bash(rmdir*)",
+      "Bash(find* -delete*)",
+      "Bash(rsync* --delete*)",
+      "Bash(curl *http*)",
+      "Bash(wget *)",
+      "Bash(fetch *http*)"
+    ]
+  }
+}

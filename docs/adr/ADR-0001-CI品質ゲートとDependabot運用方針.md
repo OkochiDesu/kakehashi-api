@@ -55,6 +55,7 @@ GitHub Branch protection の Required checks は `CI / Verify` を必須とす�
 - PRコメントは高複雑度の上位N件のみ表示し、レビューしやすさを優先
 - しきい値による fail 判定は現時点では未導入
   - しきい値定義は TODO で管理し、後日導入する
+  - 補足: しきい値による fail 判定は [ADR-0003](ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) で導入済み（本項の記述はその範囲で更新されている）
 
 ### 5. サプライチェーン対策
 
@@ -93,5 +94,6 @@ GitHub Branch protection の Required checks は `CI / Verify` を必須とす�
 ## 今後の見直しポイント
 
 - 複雑度しきい値（CCN上限）の定義と fail 条件導入
+  - [ADR-0003](ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) で仮値（CCN上限10）として導入済み。運用しながら見直す
 - Dependabotの対象拡張（Gradle依存）可否
 - 公式ActionのSHA固定への段階的移行
