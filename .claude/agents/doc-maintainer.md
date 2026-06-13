@@ -18,7 +18,7 @@ model: sonnet
 ## チェック項目
 1. **索引の網羅性**: `docs/README.md` および [AGENTS.md](../../AGENTS.md) に記載されたディレクトリ・ファイルが実在するか。実在するドキュメントで索引に載っていないものがないか。
 2. **リンク整合性**: Markdown内の相対リンクが実在するパスを指しているか（リンク切れ検出）。
-3. **ADR整合性**: `docs/adr/` 配下のファイルが [docs/adr/README.md](../../docs/adr/README.md) の命名規則・ステータス運用ルールに従っているか。
+3. **ADR整合性**: `docs/adr/` 配下のファイルが [docs/adr/README.md](../../docs/adr/README.md) の命名規則・ステータス運用ルールに従っているか。また、すべてのADRが「ADR一覧（カテゴリ別索引）」に記載され、ステータス列が各ADR本文のステータスと一致しているか。
 4. **鮮度**: 内容が明らかにコードや設定と矛盾しているドキュメントがないか（例: 存在しないファイルパスへの言及、削除済み設定への参照）。
 5. **exec-plans整合性**: [docs/exec-plans/active/](../../docs/exec-plans/README.md) の各計画が、命名規則（4桁連番）に従っているか。「進捗状況」のチェック状態が、リポジトリの実際の状態（関連ファイルの有無など）と矛盾していないか。完了済みなのに `active/` に残っている計画がないか。
 6. **design-docs整合性**: [docs/design-docs/core-beliefs.md](../../docs/design-docs/core-beliefs.md) に記載された原則が、[CLAUDE.md](../../CLAUDE.md) / [AGENTS.md](../../AGENTS.md) など他のドキュメントと矛盾していないか。

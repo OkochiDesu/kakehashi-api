@@ -34,7 +34,7 @@ model: sonnet
    - ADR変更不要
    - スコープが不明な場合のみ `adr-search` を呼び出す
 4. 関連ADRが存在する場合、影響サマリーを提示してユーザーの確認を取る。
-5. 承認された編集を適用する（[ADRチェックリスト](../skills/adr-governance/references/adr-checklist.md)を参照）。
+5. 承認された編集を適用する（[ADRチェックリスト](../skills/adr-governance/references/adr-checklist.md)を参照）。新規/更新したADRは `docs/adr/README.md` の「ADR一覧（カテゴリ別索引）」にも反映する。
 6. `adr-validator` を呼び出し、検証結果を報告する。
 7. 変更ファイルを `git add` でステージングする（このエージェントはコミットしない。commitはユーザー確認後に呼び出し元が行う）。
 
