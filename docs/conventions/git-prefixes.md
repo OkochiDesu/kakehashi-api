@@ -28,6 +28,14 @@ fix: 認証エラー時に500になる不具合を修正
 docs: PRテンプレートの運用ルールを追記
 ```
 
+## 強制（commit-msgフック）
+
+コミットメッセージの先頭行が `<type>: <summary>` 形式に従っているかを、`.githooks/commit-msg` で自動チェックする。
+規約に従っていない場合はcommitが失敗する（merge/revertコミットは対象外）。
+
+- 誤検知やどうしても規約外のメッセージでcommitしたい場合は `git commit --no-verify` でスキップできる
+- `core.hooksPath` はdevcontainer経由で自動有効化されている（[Pre-commit Secret Check](pre-commit-secret-check.md)と同じ仕組み）
+
 ## レビューコメント
 
 レビューコメントのプレフィックスは、意図と優先度を明確にするためのチーム運用です。

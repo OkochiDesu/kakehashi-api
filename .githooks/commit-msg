@@ -1,0 +1,30 @@
+#!/bin/bash
+# commit-msg フック
+# コミットメッセージの先頭行が Conventional Commits 形式
+# （docs/conventions/git-prefixes.md）に従っているかを簡易チェックする
+
+COMMIT_MSG_FILE="$1"
+FIRST_LINE=$(head -n 1 "$COMMIT_MSG_FILE")
+
+# merge/revertコミットやコメント行はチェック対象外
+if [[ "$FIRST_LINE" =~ ^Merge ]] || [[ "$FIRST_LINE" =~ ^Revert ]] || [[ "$FIRST_LINE" =~ ^# ]]; then
+    exit 0
+fi
+
+PREFIXES="feat|fix|docs|refactor|test|chore|ci"
+
+if [[ ! "$FIRST_LINE" =~ ^(${PREFIXES}):[[:space:]] ]]; then
+    echo "[commit-msg] コミットメッセージの先頭行がプレフィックス規約に従っていません:"
+    echo "  \"${FIRST_LINE}\""
+    echo ""
+    echo "利用可能なプレフィックス: feat / fix / docs / refactor / test / chore / ci"
+    echo "形式: <type>: <summary>  (例: feat: ユーザー登録APIを追加)"
+    echo ""
+    echo "詳細: docs/conventions/git-prefixes.md"
+    echo ""
+    echo "誤検知やこのチェックをスキップしたい場合は --no-verify でスキップできます:"
+    echo "  git commit --no-verify"
+    exit 1
+fi
+
+exit 0
