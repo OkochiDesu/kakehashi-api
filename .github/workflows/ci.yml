@@ -68,6 +68,9 @@ jobs:
     name: Reports
     runs-on: ubuntu-latest
     needs: verify
+    env:
+      # CCN（サイクロマティック複雑度）の上限。超過する関数があるとこのジョブをfailさせる
+      CCN_THRESHOLD: 10
 
     steps:
       - name: Checkout
@@ -89,6 +92,24 @@ jobs:
           mkdir -p build/reports/complexity
           python3 -m lizard src/main/kotlin -X > build/reports/complexity/lizard.xml
           python3 -m lizard src/main/kotlin > build/reports/complexity/lizard.txt
+
+      - name: Check complexity threshold
+        # CCNが CCN_THRESHOLD を超える関数があればこのジョブをfailさせる（マージ必須チェックではない）
+        run: |
+          VIOLATIONS=$(awk -v threshold="$CCN_THRESHOLD" '
+            /^[[:space:]]*[0-9]+[[:space:]]+[0-9]+[[:space:]]+[0-9]+[[:space:]]+[0-9]+[[:space:]]+[0-9]+[[:space:]]+/ {
+              ccn=$2
+              if (ccn > threshold) {
+                print $0
+              }
+            }
+          ' build/reports/complexity/lizard.txt)
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo "CCN が ${CCN_THRESHOLD} を超える関数が見つかりました:"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
 
       - name: Build complexity comment body
         # PRコメント投稿用に高複雑度の上位N件を要約する（しきい値判定は未適用）
@@ -113,13 +134,13 @@ jobs:
             echo "> **見方**"
             echo "> | 指標 | 意味 | 目安 |"
             echo "> |---|---|---|"
-            echo "> | **CCN** | サイクロマティック複雑度。分岐の多さ。高いほどテストが難しい | 〜10: 良好 / 11〜15: 要注意 / 16〜: 要リファクタリング |"
+            echo "> | **CCN** | サイクロマティック複雑度。分岐の多さ。高いほどテストが難しい | 〜10: 良好 / 11〜: fail（要リファクタリング） |"
             echo "> | **NLOC** | コメント・空行を除いた実行行数 | 目安は関数あたり 50 行以下 |"
             echo "> | **Token** | トークン数（演算子・識別子の合計）。多いほど密度が高い | 参考値 |"
             echo "> | **Param** | 引数の数。多すぎると責務が広い可能性がある | 4 以下が目安 |"
             echo "> | **Length** | 開始行〜終了行のスパン | 参考値 |"
             echo
-            echo "> しきい値での CI 失敗は未適用（TODO で管理中）。"
+            echo "> CCN が ${CCN_THRESHOLD} を超える関数があると、このジョブ（Reports）が失敗します（マージ必須チェックではありません）。"
             echo
             if [ -s build/reports/complexity/top_complexity.tsv ]; then
               echo "CCN 上位 ${TOP_N} 関数（CCN 降順）:"
