@@ -26,7 +26,8 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 | [ADR-0001](ADR-0001-CI品質ゲートとDependabot運用方針.md) | CI品質ゲートとDependabot運用方針 | CI/CD | Superseded → ADR-0002 |
 | [ADR-0002](ADR-0002-CIトリガー分離とWorkflow検証運用方針.md) | CIトリガー分離とWorkflow検証運用方針 | CI/CD | Accepted |
 | [ADR-0003](ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) | 複雑度しきい値によるCIフェイル条件導入 | CI/CD | Accepted |
-| [ADR-0004](ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md) | コミットメッセージベースのPRサマリー自動コメント導入 | CI/CD | Accepted |
+| [ADR-0004](ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md) | コミットメッセージベースのPRサマリー自動コメント導入 | CI/CD | Accepted（決定4のみADR-0005で置換） |
+| [ADR-0005](ADR-0005-PR本文への変更内容自動反映方式への変更.md) | PR本文への変更内容自動反映方式への変更 | CI/CD | Accepted |
 
 ## ファイル命名規則
 

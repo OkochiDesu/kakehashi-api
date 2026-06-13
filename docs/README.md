@@ -28,7 +28,7 @@ ClaudeCodeでは `/adr-governance` スキル（または `adr-governance` サブ
 Copilotでは `@ADR Governance` を呼び出してください。
 
 - テンプレートと命名規則: [docs/adr/README.md](adr/README.md)
-- 次の ADR 番号: **0005**
+- 次の ADR 番号: **0006**
 
 ---
 
