@@ -11,12 +11,15 @@
 
 - [ADR-0001: CI品質ゲートとDependabot運用方針](adr/ADR-0001-CI品質ゲートとDependabot運用方針.md)
 - [ADR-0002: CIトリガー分離とWorkflow検証運用方針](adr/ADR-0002-CIトリガー分離とWorkflow検証運用方針.md)
+- [ADR-0003: 複雑度しきい値によるCIフェイル条件導入](adr/ADR-0003-複雑度しきい値によるCIフェイル条件導入.md)
+- [ADR-0004: コミットメッセージベースのPRサマリー自動コメント導入](adr/ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md)
 
 ## Conventions
 
 - [Git Prefixes](conventions/git-prefixes.md)
 - [Pre-push Test Check](conventions/pre-push-test-check.md)
 - [Pre-commit Secret Check](conventions/pre-commit-secret-check.md)
+- [PR Summary 自動生成](conventions/pr-summary-automation.md)
 
 ## ADR 作成方法
 
@@ -25,7 +28,7 @@ ClaudeCodeでは `/adr-governance` スキル（または `adr-governance` サブ
 Copilotでは `@ADR Governance` を呼び出してください。
 
 - テンプレートと命名規則: [docs/adr/README.md](adr/README.md)
-- 次の ADR 番号: **0003**
+- 次の ADR 番号: **0005**
 
 ---
 

@@ -1,0 +1,87 @@
+# コミットメッセージ（Conventional Commits）からPRサマリーを自動生成するワークフロー
+name: PR Summary
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  # コード内容の参照のみ行う
+  contents: read
+  # PRへサマリーコメントを書き込むために必要
+  pull-requests: write
+
+concurrency:
+  # 同じPRでは古い実行をキャンセルし、最新のみ残す
+  group: pr-summary-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  summary:
+    name: Generate PR Summary
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        # base/headの差分コミットを取得するため履歴をすべて取得する
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build commit summary
+        # コミットメッセージのプレフィックス（docs/conventions/git-prefixes.md）ごとに分類する
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          mkdir -p build/reports/pr-summary
+          git log --no-merges --reverse --pretty=format:"%s" "${BASE_SHA}..${HEAD_SHA}" > build/reports/pr-summary/commits.txt
+
+          declare -A TITLES=(
+            [feat]="機能追加 (feat)"
+            [fix]="バグ修正 (fix)"
+            [docs]="ドキュメント (docs)"
+            [refactor]="リファクタリング (refactor)"
+            [test]="テスト (test)"
+            [ci]="CI設定変更 (ci)"
+            [chore]="その他の保守作業 (chore)"
+          )
+          ORDER=(feat fix docs refactor test ci chore)
+
+          {
+            echo "### 変更内容（コミットメッセージから自動生成）"
+            echo
+
+            for type in "${ORDER[@]}"; do
+              MATCHES=$(grep -E "^${type}: " build/reports/pr-summary/commits.txt || true)
+              if [ -n "$MATCHES" ]; then
+                echo "**${TITLES[$type]}**"
+                echo
+                while IFS= read -r line; do
+                  echo "- ${line#${type}: }"
+                done <<< "$MATCHES"
+                echo
+              fi
+            done
+
+            OTHERS=$(grep -Ev "^(feat|fix|docs|refactor|test|chore|ci): " build/reports/pr-summary/commits.txt || true)
+            if [ -n "$OTHERS" ]; then
+              echo "**その他（Conventional Commits形式に従っていないコミット）**"
+              echo
+              while IFS= read -r line; do
+                echo "- ${line}"
+              done <<< "$OTHERS"
+              echo
+            fi
+
+            echo "> このセクションはコミットメッセージ（[Conventional Commits](../../docs/conventions/git-prefixes.md)）から自動生成されています。「概要」「動作確認」「気になる部分」は手動で記載してください。"
+          } > build/reports/pr-summary/comment.md
+
+      - name: Comment PR summary
+        # v2.9.4 をSHA固定
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405
+        with:
+          header: pr-summary
+          path: build/reports/pr-summary/comment.md
