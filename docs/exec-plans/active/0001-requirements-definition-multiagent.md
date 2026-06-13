@@ -82,6 +82,7 @@
 - 2026-06-13: タスク規模（フルexec-plan / 軽量プラン）の判定は、ClaudeCodeが提案し人間が確認する形にする。理由: 1機能・1PR単位でのヒューマンインザループを維持するため。
 - 2026-06-13: Phase 1.7（exec-plans/design-docs整備）完了。doc-maintainerのチェック項目拡張、AGENTS.md/CLAUDE.md/docs/README.md/docs/agents/README.mdの参照更新まで実施済み。
 - 2026-06-13: `.claude/settings.json` の deny リストから `Bash(git commit*)` を削除。CLAUDE.mdに「commit運用」セクションを新設し、コミットメッセージと `git diff --cached` をユーザーに提示して確認を得た場合のみAIが `git commit` を実行できる運用に変更（`git push` は引き続きdeny・人間のみ）。追加防御として `.githooks/pre-commit` によるシークレット簡易チェックを導入（[docs/conventions/pre-commit-secret-check.md](../../conventions/pre-commit-secret-check.md)）。ADR governanceエージェント/スキルは従来通りステージングまでとし、commitの判断は呼び出し元に委ねる方針に統一。
+- 2026-06-13: commit運用に「ブランチ自動切り替え」を追加。commit前に現在ブランチのPR状態を `gh pr view --json state,number` で確認し、マージ済みの場合はユーザーに新ブランチの意図を確認した上で `feature/<内容>` ブランチを作成・切り替えてからcommitする。理由: 本リポジトリはPRをsquash-mergeしているため、git上の祖先関係チェックでは「mainにマージ済みか」を正しく判定できず、マージ済みブランチでの作業継続を防ぐ必要がある。`feature/` をブランチ名プレフィックスの正式ルールとして [Git Prefixes](../../conventions/git-prefixes.md) に追記。`gh pr view` を使うため、devcontainerに `ghcr.io/devcontainers/features/github-cli:1` を追加（コンテナのリビルドが必要）。
 
 ## 残課題・引き継ぎ事項
 

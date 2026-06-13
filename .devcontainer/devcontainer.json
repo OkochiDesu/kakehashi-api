@@ -7,6 +7,10 @@
     "service": "app",
     // コンテナ内のワークスペースルートディレクトリ
     "workspaceFolder": "/kakehashi-api",
+    // 追加ツール（gh CLI: commit前のPRマージ状態確認やCI設定の手元検証に使用）
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
     // リビルド後もワークスペース内に Gradle キャッシュを保持する
     "remoteEnv": {
         "GRADLE_USER_HOME": "/kakehashi-api/.gradle-user-home"

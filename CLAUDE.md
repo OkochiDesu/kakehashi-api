@@ -12,6 +12,10 @@
 - `curl`, `wget` などでインターネットからファイルをダウンロードしない
 
 ### commit運用
+- `git commit` の前に、現在のブランチに対応するPRの状態を `gh pr view --json state,number` で確認する
+  - PRがマージ済み（`state: MERGED`）の場合、現在のブランチでの作業は完了済みとみなし、新しい作業ブランチを作成・切り替え（`git checkout -b feature/<内容>`）してからcommitを進める
+  - 新しいブランチ名は、作業内容をユーザーに確認したうえで決定する（[Git Prefixes](docs/conventions/git-prefixes.md)のブランチ名規約に従い `feature/` プレフィックスを付ける）
+  - PRが存在しない、または未マージ（`OPEN`等）の場合は、現在のブランチのままcommitを進める
 - `git commit` は、コミットメッセージと `git diff --cached` の内容をユーザーに提示し、明示的な確認を得た場合にのみ実行する
 - 変更が複数の関心事にまたがる場合は、意味のある単位で複数のcommitに分けることを提案する
 - commitのauthor/committerはユーザーのgit configに紐づくため、誰が確認・実行したかはcommitメタデータに残る

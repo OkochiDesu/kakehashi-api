@@ -36,6 +36,14 @@ docs: PRテンプレートの運用ルールを追記
 - 誤検知やどうしても規約外のメッセージでcommitしたい場合は `git commit --no-verify` でスキップできる
 - `core.hooksPath` はdevcontainer経由で自動有効化されている（[Pre-commit Secret Check](pre-commit-secret-check.md)と同じ仕組み）
 
+## ブランチ名
+
+作業ブランチ名は `feature/<内容>` の形式とする。
+
+- 例: `feature/setting_06_CreateAgent`
+- 新規ブランチを作成する際は、作業内容をユーザーに確認したうえで `<内容>` を決定する
+- 現在のブランチに対応するPRがマージ済みの場合、commit前に新しいブランチを作成・切り替える（[CLAUDE.md](../../CLAUDE.md)のcommit運用を参照）
+
 ## レビューコメント
 
 レビューコメントのプレフィックスは、意図と優先度を明確にするためのチーム運用です。
