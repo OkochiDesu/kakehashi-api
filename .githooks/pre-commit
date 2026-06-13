@@ -1,0 +1,32 @@
+#!/bin/bash
+# pre-commit フック
+# ステージされた変更に、よくある形式のシークレット（APIキー・トークン・秘密鍵等）が
+# 含まれていないかを簡易チェックする
+
+PATTERNS=(
+    'AKIA[0-9A-Z]{16}'                   # AWS Access Key ID
+    '-----BEGIN [A-Z ]*PRIVATE KEY-----'  # 秘密鍵
+    'AIza[0-9A-Za-z_-]{35}'               # Google API Key
+    'gh[pousr]_[0-9A-Za-z]{36,}'          # GitHub Token (PAT/OAuth/User/Server)
+    'xox[baprs]-[0-9A-Za-z-]{10,}'        # Slack Token
+)
+
+found=0
+while IFS= read -r file; do
+    [[ -f "$file" ]] || continue
+    for pattern in "${PATTERNS[@]}"; do
+        if git diff --cached -U0 -- "$file" | grep -E -q -- "$pattern"; then
+            echo "[pre-commit] ${file} にシークレットらしき文字列が含まれています（pattern: ${pattern}）"
+            found=1
+        fi
+    done
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
+if [[ $found -eq 1 ]]; then
+    echo ""
+    echo "シークレットを含む変更はcommitしないでください。誤検知の場合は --no-verify でスキップできます:"
+    echo "  git commit --no-verify"
+    exit 1
+fi
+
+exit 0
