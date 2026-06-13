@@ -36,6 +36,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 
 - [Dev Container Compose Compatibility](troubleshooting/devcontainer-compose-compatibility.md)
 - [Dev Container ClaudeCode Extension Missing](troubleshooting/devcontainer-claude-code-extension-missing.md)
+- [Dev Container SSH Agent Forwarding](troubleshooting/devcontainer-ssh-agent-forwarding.md)
 - [Gradle Java Home Invalid Folder](troubleshooting/gradle-javahome-invalid-folder.md)
 - [Gradle Wrapper Lock Contention](troubleshooting/gradle-wrapper-lock-contention.md)
 
