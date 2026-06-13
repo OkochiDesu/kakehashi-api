@@ -22,7 +22,8 @@
             "extensions": [
                 "fwcd.kotlin", // Kotlinサポート
                 "vscjava.vscode-java-pack", // Javaツールパック（デバッガ・ビルドツール等）
-                "ryanluker.vscode-coverage-gutters" // テストカバレッジのガター表示
+                "ryanluker.vscode-coverage-gutters", // テストカバレッジのガター表示
+                "anthropic.claude-code" // ClaudeCode拡張（リビルド後に消えるため明示的に指定）
             ]
         }
     },
