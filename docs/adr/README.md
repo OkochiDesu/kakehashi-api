@@ -67,6 +67,13 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 - Superseded の場合は、`[x] Superseded` の後ろに後継ADRへのリンクを付ける
 - ステータス欄の表記と、関連セクション（Supersedes / Superseded by）は整合させる
 
+## ADR対象か、exec-plan意思決定ログ対象か
+
+ADRは「kakehashi-api（製品・システム）に関する恒久的な決定」を対象とする。
+CLAUDE.md・`.claude/`・`.githooks/`・devcontainerなど、AIエージェント運用や開発プロセスに関する決定は
+ADRではなく対応するexec-planの意思決定ログに記録する。
+判断軸の詳細は [core-beliefs.md 原則7](../design-docs/core-beliefs.md#7-adrとexec-plan意思決定ログの使い分け) を参照。
+
 ## 既存ADRを修正するか、新規ADRを追加するか
 
 原則として次の基準で判断する。
