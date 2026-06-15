@@ -23,6 +23,7 @@ model: sonnet
 5. **exec-plans整合性**: [docs/exec-plans/active/](../../docs/exec-plans/README.md) の各計画が、命名規則（4桁連番）に従っているか。「進捗状況」のチェック状態が、リポジトリの実際の状態（関連ファイルの有無など）と矛盾していないか。完了済みなのに `active/` に残っている計画がないか。
 6. **design-docs整合性**: [docs/design-docs/core-beliefs.md](../../docs/design-docs/core-beliefs.md) に記載された原則が、[CLAUDE.md](../../CLAUDE.md) / [AGENTS.md](../../AGENTS.md) など他のドキュメントと矛盾していないか。
 7. **TODO実行可能性**: [docs/TODO.md](../../docs/TODO.md) の各項目に「〇〇が固まってから」「〇〇導入後に」のような前提条件が書かれている場合、その前提条件がリポジトリの現状（ファイル構成・設定・依存関係など）と照らして既に満たされていないかを確認する。満たされていそうな項目があれば、「exec-planとして着手を検討できる」候補として報告する。
+8. **ナビゲーション指標の閾値チェック**: [docs/agents/navigation-metrics.md](../../docs/agents/navigation-metrics.md) のログ末尾5件のうち3件以上で探索コストが3以上の場合、`AGENTS.md` / `docs/README.md` の目次構成（リンクの追加・分割・並び替え）について具体的な見直し案を提示する。
 
 ## 出力フォーマット
 - **OK**: 問題なし

@@ -50,6 +50,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 ## Agents（マルチエージェント構成）
 
 - [Agents概要・使い方（人間向け）](agents/README.md)
+- [ナビゲーション指標ログ](agents/navigation-metrics.md) - 目次（AGENTS.md/docs/README.md）の機能度を振り返るログ
 - [マルチエージェント構成 実行計画（exec-plan 0001）](exec-plans/active/0001-requirements-definition-multiagent.md)
 - [旧マルチエージェント構成セットアップガイド（移行済み・リダイレクト）](agents/multi-agent-setup-guide.md)
 

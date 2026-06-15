@@ -2,6 +2,7 @@
 
 このファイルはAIエージェント向けの「目次（マップ）」です。
 詳細なルールや知識は各リンク先のドキュメントに記載されています。すべてをここに書き込まないでください。
+目安として100行を超えそうになったら、内容を `docs/` 配下に移し、リンクに置き換えることを検討する。
 
 ## このリポジトリについて
 
@@ -62,6 +63,10 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ### 要件定義（準備中）
 マルチエージェント構成の詳細は [docs/exec-plans/active/0001-requirements-definition-multiagent.md](docs/exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
+
+### セッション終了時（ナビゲーション指標記録）
+ユーザーから明確な区切りがあったら、[docs/agents/navigation-metrics.md](docs/agents/navigation-metrics.md) に
+そのセッションの難易度・探索コストを1行追記する。閾値を超えた場合は同ファイルのルールに従い対応を提案する。
 
 ## 禁止事項・安全設定
 

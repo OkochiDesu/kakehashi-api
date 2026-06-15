@@ -13,6 +13,7 @@
 | [`docs/exec-plans/`](../exec-plans/README.md) | 実行計画（進行中/完了/技術的負債）の運用ルールと実体 | 人間（あなた）・Claude |
 | [`docs/design-docs/core-beliefs.md`](../design-docs/core-beliefs.md) | このリポジトリの運用原則・思想 | 人間（あなた）・Claude |
 | [`openAI_harness_enjineerring.md`](openAI_harness_enjineerring.md) | 参考にした元記事の転記 | 人間（あなた）・Claude |
+| [`.claude/hooks/session-start-compact.sh`](../../.claude/hooks/session-start-compact.sh) | コンテキスト圧縮後にCLAUDE.md/AGENTS.mdを再注入するhookスクリプト | ClaudeCode（圧縮後に自動実行） |
 
 ---
 
@@ -56,6 +57,29 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 - 1PR・1セッションで完結する小さな作業はexec-planファイルを作らず、TodoWriteのみで管理する。どちらにするかはClaudeCodeが提案し、人間が確認する。
 
 ---
+
+### 5. ナビゲーション指標ログ（navigation-metrics.md）
+
+[`navigation-metrics.md`](navigation-metrics.md) は、「AGENTS.mdを目次として使う」方針が
+実際に機能しているかを、ClaudeCodeがセッション終了時に自己評価して記録するログ。
+難易度・探索コストの2軸を1行追記する簡易フォーマットで、探索コストが続けて高い場合は
+`doc-maintainer`が目次構成の見直し案を提示する仕組みになっている。
+
+→ **使い方**: 特別な操作は不要。区切りの良いタイミングでClaudeCodeが自動的に追記する。
+ログを見て「最近探索コストが高いセッションが多いな」と感じたら、
+`doc-maintainerサブエージェントでナビゲーション指標をチェックして`と依頼すると整理案が出る。
+
+### 6. 会話圧縮後のルール再注入
+
+長いセッションでコンテキストが圧縮（要約）されると、`CLAUDE.md`/`AGENTS.md`の内容を読んだ記憶が
+要約で薄れ、初期に注意していたルールが徐々に考慮されなくなる懸念がある。
+
+これに対応するため、`.claude/settings.json`の`hooks.SessionStart`（`matcher: "compact"`）に
+[`session-start-compact.sh`](../../.claude/hooks/session-start-compact.sh)を登録した。
+圧縮（自動/手動問わず）が発生すると、このフックが`CLAUDE.md`と`AGENTS.md`の全文を
+`additionalContext`としてClaudeのコンテキストに再注入する。
+
+→ **使い方**: 特別な操作は不要。圧縮が起きると自動的に発火する。
 
 ## 今後の流れ（Phase 2）
 
