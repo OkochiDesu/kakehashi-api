@@ -95,12 +95,12 @@ ui-flows.md / data-models.mdで定義した機能要件を正しく満たすこ�
 - **認可**: `@PreAuthorize`によるロール制御に加え、`roles` / `account_roles` / `visibility_rules`（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）により、ロール単位で経歴書等の項目可視性を制御する。
 - **通信の暗号化**: HTTPS必須とする。
 - **認証情報の管理**: Google SSOのみを利用し、本システム独自のパスワード管理は行わない。
-- **責任追跡性（編集ログ）**: 経歴書・星取表等の編集操作について、「誰が・いつ・何を編集したか」を記録する。具体的には、各テーブルに更新者（`updated_by`、`accounts.id`参照）を持たせることに加え、変更履歴を残すログ・テーブルの追加を検討する。
+- **責任追跡性（編集ログ）**: 経歴書・星取表等の編集操作について、「誰が・いつ・何を編集したか」を記録する。具体的には、全テーブルに登録者・更新者（`created_by` / `updated_by`、`accounts.account_id`またはバッチのリクエストID、[data-models.md 0章](data-models.md#0-設計方針)）を持たせることに加え、変更履歴を残すログ・テーブルの追加を検討する。
 
-### data-models.mdへの追記が必要な項目（未確定事項）
+### data-models.mdへの反映済み事項
 
-- **更新者（updated_by）の追加**: `resumes` / `user_skills` / `user_skill_levels` / `skill_master_items` / `level_master_items`等、編集対象となるテーブルに`updated_by`（`accounts.id`参照）を追加する。
-- **編集履歴ログ**: 編集前後の値や編集日時を記録するログテーブル（例: `*_change_logs`）の必要範囲・粒度を検討する。1章の楽観ロック用カラムと合わせて、テーブル設計時にまとめて反映する。
+- **登録者・更新者（created_by / updated_by）**: 全テーブルに監査カラム（`created_at` / `updated_at` / `created_by` / `updated_by`）を付与する方針を[data-models.md 0章](data-models.md#0-設計方針)に反映済み。
+- **編集履歴ログ**: 編集前後の値や編集日時を記録する汎用ログテーブル`entity_change_logs`の方針を[data-models.md 0章](data-models.md#0-設計方針)に記載済み。対象テーブル・粒度の詳細は実装フェーズで確定する。
 
 ## 7. 保守性（Maintainability）
 

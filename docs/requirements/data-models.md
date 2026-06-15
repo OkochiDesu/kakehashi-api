@@ -15,9 +15,14 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 - **CQRS**:
   - Command側: 集約はドメインモデルを経由し、正規化テーブル（必要に応じてJSONB）に永続化する。
   - Query側: ドメイン層をバイパスし、MyBatisでJOIN結果・JSONBを直接DTOにマッピングして画面へ返す。
-- **編集系テーブルの共通カラム**: ユーザーが編集する主要テーブルには、楽観ロック用の`version`（integer、更新ごとにインクリメント）と、編集者記録用の`updated_by`（bigint, FK → accounts.id）を付与する（[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)）。
-- **編集履歴ログ**: 上記テーブルの変更履歴は、汎用の`entity_change_logs`（id, entity_type, entity_id, account_id, action, changed_at, before, after）で記録する想定。対象テーブル・粒度の詳細は実装フェーズで確定する。
-- 命名はテーブル名・カラム名ともsnake_case。各テーブルのPKは `id`（bigserial想定、確定はADRで行う）。
+- **監査カラム（全テーブル共通）**: 全テーブルに`created_at` / `updated_at`（timestamp）、`created_by` / `updated_by`（text）を付与する。`created_by` / `updated_by`には、ユーザー操作の場合は`accounts.account_id`（後述の文字列形式ID）、バッチ処理（SQL直接投入等）の場合は処理を識別するリクエストIDなどの文字列を格納する。値の種類が混在するためFK制約は持たせない。
+- **編集系テーブルの楽観ロック**: ユーザーが編集する主要テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `user_skill_levels` / `resumes`）には、楽観ロック用の`version`（integer、更新ごとにインクリメント）を付与する（[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)）。
+- **編集履歴ログ**: 上記テーブルの変更履歴は、汎用の`entity_change_logs`（id, entity_type, entity_id, created_by, action, changed_at, before, after）で記録する想定。対象テーブル・粒度の詳細は実装フェーズで確定する。
+- **命名規則**: テーブル名・カラム名ともsnake_case。各テーブルのPKカラム名は`<エンティティ名（単数形）>_id`とする（例: `account_id`, `role_id`, `skill_category_id`）。`id`という単独カラム名は使わない。
+- **PKの型・採番方式**:
+  - `accounts.account_id`: text型。`AZ0000`のようなプレフィックス付き連番形式（仮フォーマット、確定はADRで行う）。社員コード相当の識別子として、アプリ側で採番する。
+  - 上記以外のテーブルのPK: UUID（v7想定）。アプリ側で採番する。
+- **display_orderの運用**: 区分・項目の表示順は1始まりの連番とする（疎な整数は使わない）。並び替え時は対象範囲内の複数行の`display_order`を更新する。
 - 本章では各コンテキストの集約に対応するテーブルの**論理設計**（主なカラムと型の方向性）を整理する。物理設計（インデックス、制約の詳細等）はADR/マイグレーションファイルで確定する。
 
 ## 1. 認証・アカウントコンテキスト
@@ -28,14 +33,15 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
+| account_id | text | PK。`AZ0000`のようなプレフィックス付き連番形式（仮フォーマット）。社員コード相当の識別子で、アプリ側で採番する |
 | google_sub_hash | text (unique) | Google SSOの`sub`クレームの決定的ハッシュ（SHA-256等）。ログイン時はハッシュ化して比較し、平文の`sub`は保持しない |
 | email | text | Googleアカウントのメールアドレス |
 | name | text | 表示名（Googleプロフィールの`name`をそのまま保持） |
 | status | text/enum | アカウント状態（仮登録／本登録／停止） |
 | suspended_at | timestamp (nullable) | 停止開始日時。「停止から1年経過」の判定に使用（[quality-standards.md 1章](quality-standards.md#1-機能適合性functional-suitability)） |
 | version | integer | 楽観ロック用バージョン |
-| updated_by | bigint (FK → accounts.id, nullable) | 最終更新者（権限変更・停止操作を行った管理者等） |
+| created_by | text | 登録者（`accounts.account_id`またはバッチのリクエストID） |
+| updated_by | text | 最終更新者（権限変更・停止操作を行った管理者の`accounts.account_id`等） |
 | created_at | timestamp | 仮登録日時 |
 | updated_at | timestamp | 最終更新日時 |
 
@@ -43,28 +49,32 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
+| role_id | uuid | PK（アプリ側で採番） |
 | code | text (unique) | ロールコード（例: `general`, `admin`） |
 | name | text | ロール名 |
+| created_by / updated_by | text | 登録者・最終更新者 |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### account_roles（アカウント×ロール、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
-| account_id | bigint (FK → accounts.id) | 対象アカウント |
-| role_id | bigint (FK → roles.id) | 付与されたロール |
-| created_at | timestamp | 付与日時 |
+| account_role_id | uuid | PK（アプリ側で採番） |
+| account_id | text (FK → accounts.account_id) | 対象アカウント |
+| role_id | uuid (FK → roles.role_id) | 付与されたロール |
+| created_by / updated_by | text | 登録者・最終更新者 |
+| created_at / updated_at | timestamp | 付与日時・更新日時 |
 
 ### visibility_rules（ロール別の項目可視性ルール、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
-| role_id | bigint (FK → roles.id) | 対象ロール |
+| visibility_rule_id | uuid | PK（アプリ側で採番） |
+| role_id | uuid (FK → roles.role_id) | 対象ロール |
 | target_category | text/enum | 可視性を制御する対象区分（例: 経歴書の個人情報項目区分） |
 | can_view | boolean | 当該ロールが対象区分を閲覧可能か |
+| created_by / updated_by | text | 登録者・最終更新者 |
+| created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### 補足
 
@@ -74,7 +84,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 - **長期停止アカウントのマスク化**: `suspended_at`から1年以上経過したアカウントは、エンジニアページ等での表示がマスク対象となる（[quality-standards.md 1章](quality-standards.md#1-機能適合性functional-suitability)）。バッチでステータスを更新するか、参照時に`suspended_at`から動的判定するかは実装フェーズで決定する。
 - `roles` / `visibility_rules`は、4章「経歴書コンテキスト」のマスク済み経歴書・星取表閲覧（UC-R2/UC-S5）の可視性制御と直結する。「どの区分の項目を、どのロールに見せるか」を`visibility_rules`で表現する。`target_category`は経歴書（`resumes`/`resume_projects`の列単位）・星取表（`skill_categories`/`level_categories`単位）の両方を対象とする想定。
 - 会社ドメインチェック（CSVメモ「会社のドメイン（環境変数）をチェックしたい」）はアプリケーション設定（環境変数）で行うため、テーブル設計には影響しない。
-- 経歴書・星取表など他コンテキストのテーブルは`accounts.id`を外部キーとして参照する。
+- 経歴書・星取表など他コンテキストのテーブルは`accounts.account_id`を外部キーとして参照する。
 
 ## 2. メッセージコンテキスト
 
@@ -83,7 +93,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 ### 補足
 
 - UC-M1（エンジニアへのコンタクト）は、Googleメッセージ（外部サービス）を起点とするコンタクトであり、現時点では本リポジトリ側で永続化するデータモデルは想定しない。
-- **未確定事項**: 営業担当を介する運用（[ui-flows.md 2章の補足](ui-flows.md#補足-1)）が確定した場合、コンタクト履歴やコンタクト先（営業担当）の紐付けをRDBで管理する必要が出る可能性がある。その場合は`contacts`テーブル等を追加検討する。
+- Step1では営業担当を介する運用は対象外（[ui-flows.md 2章の補足](ui-flows.md#補足-1)）のため、`contacts`テーブル等の追加は不要。営業経由ルーティングをStep2で導入する場合は、コンタクト履歴・コンタクト先（営業担当）の紐付けを管理するテーブルを別途検討する。
 
 ## 3. 星取表コンテキスト
 
@@ -93,83 +103,85 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
+| skill_category_id | uuid | PK（アプリ側で採番） |
 | code | text (unique) | 区分コード（例: `language`, `framework`, `cloud`） |
 | name | text | 区分名 |
-| display_order | integer | 区分の表示順（疎な整数、10/100刻み等で運用） |
+| display_order | integer | 区分の表示順（1始まりの連番） |
+| created_by / updated_by | text | 登録者・最終更新者（管理者） |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### skill_master_items（星取表マスタ／スキル項目、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
+| skill_master_item_id | uuid | PK（アプリ側で採番） |
 | code | text (unique) | スキルコード（`skill_XX`形式、プレフィックスで項目種別を一意に管理） |
 | name | text | スキル項目名 |
-| category_id | bigint (FK → skill_categories.id) | 区分（言語／フレームワーク／クラウド等） |
+| skill_category_id | uuid (FK → skill_categories.skill_category_id) | 区分（言語／フレームワーク／クラウド等） |
 | status | text/enum | 状態（有効／アーカイブ） |
-| display_order | integer | 区分内での表示順（疎な整数、10/100刻み等で運用） |
+| display_order | integer | 区分内での表示順（1始まりの連番） |
 | version | integer | 楽観ロック用バージョン |
-| updated_by | bigint (FK → accounts.id) | 最終更新者（管理者） |
+| created_by / updated_by | text | 登録者・最終更新者（管理者） |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### level_categories（レベル区分マスタ、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
+| level_category_id | uuid | PK（アプリ側で採番） |
 | code | text (unique) | 区分コード（例: `infra`, `application`） |
 | name | text | 区分名 |
-| display_order | integer | 区分の表示順（疎な整数、10/100刻み等で運用） |
+| display_order | integer | 区分の表示順（1始まりの連番） |
+| created_by / updated_by | text | 登録者・最終更新者（管理者） |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### level_master_items（星取表マスタ／レベル項目、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
+| level_master_item_id | uuid | PK（アプリ側で採番） |
 | code | text (unique) | レベルコード（`level_xx`形式） |
 | name | text | レベル項目名（例: 初級／中級／上級など） |
 | description | text | レベルの説明 |
-| category_id | bigint (FK → level_categories.id) | 区分（インフラ／アプリケーション等、レベル定義が領域によって異なることに対応） |
+| level_category_id | uuid (FK → level_categories.level_category_id) | 区分（インフラ／アプリケーション等、レベル定義が領域によって異なることに対応） |
 | status | text/enum | 状態（有効／アーカイブ） |
-| display_order | integer | 区分内での表示順（疎な整数、10/100刻み等で運用） |
+| display_order | integer | 区分内での表示順（1始まりの連番） |
 | version | integer | 楽観ロック用バージョン |
-| updated_by | bigint (FK → accounts.id) | 最終更新者（管理者） |
+| created_by / updated_by | text | 登録者・最終更新者（管理者） |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### user_skills（星取表／スキル、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
-| account_id | bigint (FK → accounts.id) | 所有者 |
-| skill_master_item_id | bigint (FK → skill_master_items.id) | 登録したスキル項目 |
+| user_skill_id | uuid | PK（アプリ側で採番） |
+| account_id | text (FK → accounts.account_id) | 所有者 |
+| skill_master_item_id | uuid (FK → skill_master_items.skill_master_item_id) | 登録したスキル項目 |
 | version | integer | 楽観ロック用バージョン |
-| updated_by | bigint (FK → accounts.id) | 最終更新者（本人） |
-| created_at | timestamp | 登録日時 |
+| created_by / updated_by | text | 登録者・最終更新者（本人） |
+| created_at / updated_at | timestamp | 登録・更新日時 |
 
 ### user_skill_levels（星取表／レベル、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
-| account_id | bigint (FK → accounts.id) | 所有者 |
-| skill_master_item_id | bigint (FK → skill_master_items.id) | 対象スキル項目 |
-| level_master_item_id | bigint (FK → level_master_items.id) | 設定したレベル項目 |
+| user_skill_level_id | uuid | PK（アプリ側で採番） |
+| account_id | text (FK → accounts.account_id) | 所有者 |
+| skill_master_item_id | uuid (FK → skill_master_items.skill_master_item_id) | 対象スキル項目 |
+| level_master_item_id | uuid (FK → level_master_items.level_master_item_id) | 設定したレベル項目 |
 | version | integer | 楽観ロック用バージョン |
-| updated_by | bigint (FK → accounts.id) | 最終更新者（本人） |
-| updated_at | timestamp | 更新日時 |
+| created_by / updated_by | text | 登録者・最終更新者（本人） |
+| created_at / updated_at | timestamp | 登録・更新日時 |
 
 ### 補足
 
-- 「区分」は`skill_categories` / `level_categories`という専用マスタテーブルとして切り出し、`skill_master_items` / `level_master_items`から`category_id`で参照する（[ui-flows.md 3章の補足](ui-flows.md#補足-2)で確認した方針）。区分自体の並び替えは各categoriesテーブルの`display_order`、区分内の項目の並び替えは各master_itemsテーブルの`display_order`で行い、それぞれ疎な整数（10/100刻み等）で運用することで並び替え時の更新範囲を抑える。検索ページの「星取表（スキル×レベル）」条件や、エンジニアページ・マイページでのグルーピング表示・レイアウト切替（[ui-flows.md 3章の補足](ui-flows.md#補足-2)のUC-S5）に使用する想定。
+- 「区分」は`skill_categories` / `level_categories`という専用マスタテーブルとして切り出し、`skill_master_items` / `level_master_items`から`skill_category_id` / `level_category_id`で参照する（[ui-flows.md 3章の補足](ui-flows.md#補足-2)で確認した方針）。区分自体の並び替えは各categoriesテーブルの`display_order`、区分内の項目の並び替えは各master_itemsテーブルの`display_order`で行い、いずれも1始まりの連番で運用する（0章）。検索ページの「星取表（スキル×レベル）」条件や、エンジニアページ・マイページでのグルーピング表示・レイアウト切替（[ui-flows.md 3章の補足](ui-flows.md#補足-2)のUC-S5）に使用する想定。
 - `level_categories`（インフラ／アプリケーション等）により、レベル定義が領域ごとに異なる場合に対応する。
 - スキルコード／レベルコードは `skill_XX` / `level_xx` のように接頭辞でカテゴリを一意に管理する（CSVメモ「VOでスキルコード・レベルコードをチェックする」方針）。一意性のルール自体はDB制約では強制せず、コード発行・検証はアプリケーション側（値オブジェクト）で行う。
 - `user_skills`（スキルの保有登録）と`user_skill_levels`（スキルへのレベル設定）は、イベントストーミング上の登録・更新・削除イベントの粒度に合わせて別テーブルとした。**未確定事項**: 実装時に1テーブルへ統合するか（`user_skills`に`level_master_item_id`をnullable列として持たせるか）は、ドメインモデル設計（集約境界）と合わせて再検討する。
 - 一括登録系（星取表マスタ一括登録、星取表一括登録（星取表CSV））は[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)の方針通りAPI化せず、上記テーブルへのSQL直接投入で対応する。
 - マスタのアーカイブ／アーカイブ解除は`skill_master_items.status` / `level_master_items.status`の状態遷移で表現する。
-- `user_skills` / `user_skill_levels`への`version` / `updated_by`の付与は、[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)で確定した「編集系テーブルの共通カラム」方針（0章）に基づく。
+- `user_skills` / `user_skill_levels`への`version`の付与は、[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)で確定した「編集系テーブルの楽観ロック」方針（0章）に基づく。`created_by` / `updated_by`等の監査カラムは0章の方針により全テーブル共通で付与する。
 
 ## 4. 経歴書コンテキスト
 
@@ -181,34 +193,35 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
-| account_id | bigint (FK → accounts.id, unique) | 所有者（本人）。1アカウントにつき経歴書1件 |
+| resume_id | uuid | PK（アプリ側で採番） |
+| account_id | text (FK → accounts.account_id, unique) | 所有者（本人）。1アカウントにつき経歴書1件 |
 | age | integer | 年齢 |
-| nearest_station | text | 最寄り駅 |
-| final_education | text | 最終学歴 |
+| nearest_station | text | 最寄り駅。`visibility_rules.target_category = resume_personal_info`の対象列（マスク対象） |
+| final_education | text | 最終学歴。`visibility_rules.target_category = resume_personal_info`の対象列（マスク対象） |
 | self_pr | text | 自己PR |
 | status | text/enum | 状態（有効／アーカイブ） |
 | version | integer | 楽観ロック用バージョン |
-| updated_by | bigint (FK → accounts.id) | 最終更新者（本人） |
+| created_by / updated_by | text | 登録者・最終更新者（本人） |
 | created_at / updated_at | timestamp | 登録・更新日時 |
 
 ### resume_qualifications（経歴書／資格情報、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
-| resume_id | bigint (FK → resumes.id) | 所属する経歴書 |
+| resume_qualification_id | uuid | PK（アプリ側で採番） |
+| resume_id | uuid (FK → resumes.resume_id) | 所属する経歴書 |
 | name | text | 資格名 |
 | acquired_date | date (nullable) | 取得年月 |
-| display_order | integer | 表示順（疎な整数、10/100刻み等で運用） |
+| display_order | integer | 表示順（1始まりの連番） |
+| created_by / updated_by | text | 登録者・最終更新者 |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### resume_projects（経歴書／案件経歴、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
-| id | bigserial | PK |
-| resume_id | bigint (FK → resumes.id) | 所属する経歴書 |
+| resume_project_id | uuid | PK（アプリ側で採番） |
+| resume_id | uuid (FK → resumes.resume_id) | 所属する経歴書 |
 | period_start | date | 案件期間（開始） |
 | period_end | date (nullable) | 案件期間（終了、進行中はNULL） |
 | project_name | text | 案件名 |
@@ -218,17 +231,20 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | position | text | ポジション |
 | team_size | integer | 人数 |
 | process_phases | text[] | 工程（要件定義／設計／実装／テスト等、複数指定可） |
-| display_order | integer | 表示順（疎な整数、10/100刻み等で運用） |
+| display_order | integer | 表示順（1始まりの連番） |
+| created_by / updated_by | text | 登録者・最終更新者 |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### 補足
 
-- `resumes`を基本情報（旧テーブルA）と集約（旧テーブルD）を統合したテーブル、`resume_qualifications`を資格情報（旧テーブルB）、`resume_projects`を案件経歴（旧テーブルC）として正規化する。`resume_qualifications` / `resume_projects`は`resumes`の子テーブルであり、経歴書全体の編集（UC-R1）はトランザクション内で`resumes.version`を用いて楽観ロックする想定（子テーブル自体には`version`/`updated_by`を持たせない）。
+- `resumes`を基本情報（旧テーブルA）と集約（旧テーブルD）を統合したテーブル、`resume_qualifications`を資格情報（旧テーブルB）、`resume_projects`を案件経歴（旧テーブルC）として正規化する。`resume_qualifications` / `resume_projects`は`resumes`の子テーブルであり、経歴書全体の編集（UC-R1）はトランザクション内で`resumes.version`を用いて楽観ロックする想定（子テーブル自体には`version`を持たせない。`created_by` / `updated_by`等の監査カラムは0章の方針により全テーブル共通で付与する）。
 - 経歴書検索（「案件名×言語」、単体検索可）は`resumes`と`resume_projects`をJOINし、`resume_projects.project_name`（LIKE等）と`resume_projects.languages_tools`（`text[]`への`&&`/`@>`演算子）を条件に検索する。`languages_tools`にはGINインデックスを付与する。
 - 経歴書のアーカイブ／アーカイブ解除（UC-R3）は`resumes.status`の状態遷移で表現する。
 - 一括登録（経歴書CSV）は[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)の方針通りSQL直接投入で対応する。
 - **フォーマット変更への対応**: キャリアシートと異なり、経歴書のフォーマット変更（項目の追加等）はJSONBスキーマ管理ではなく、テーブルへのカラム追加マイグレーションで対応する（[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)で経歴書とキャリアシートのバージョニング要件を分離）。
-- **未確定事項**: 「（検索された）マスク有済み経歴書」（本人以外が閲覧する際のマスク対象項目）をどう実現するか。1章の`visibility_rules.target_category`を`resumes` / `resume_projects`のどの列単位で適用するか（カラム名ベースのマッピング等）は、UC-R2のQuery実装時に詳細化する。
+- **マスク済み経歴書（UC-R2）**: マスク対象は`resumes.nearest_station`（最寄り駅）と`resumes.final_education`（最終学歴）の2列とし、`visibility_rules`の`target_category = resume_personal_info`として管理する。`age`（年齢）・`self_pr`・`resume_qualifications`・`resume_projects`はマスク対象外で本人以外にも公開する。マスクの適用・解除は以下の通り判定する。
+  - 閲覧者が経歴書の所有者本人（`resumes.account_id` = 閲覧者の`account_id`）の場合: マスクしない（UC-R1のマイページ表示）。
+  - 閲覧者が本人以外の場合: `account_roles`経由で閲覧者が持つロールのいずれかが、`visibility_rules`で`target_category = resume_personal_info`に対し`can_view: true`（例: 管理者ロール）であればマスクしない。該当ロールがなければ`nearest_station` / `final_education`をNULL化（または非選択）して返す。
 - **未確定事項**: 「経歴書を更新するタイミングで星取表にスキルを反映できないか？」は、`resume_projects.languages_tools`と`user_skills`（3章）の連携方針が未確定のため、Step1での対応範囲は今後判断する。
 - 経歴書項目検索・一覧（UC-R4、管理者画面）はQuery側で`resumes` / `resume_projects`をJOINしてMyBatisで直接マッピングして返す想定。
 

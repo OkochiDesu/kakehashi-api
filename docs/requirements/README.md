@@ -105,3 +105,10 @@ Miroのイベントストーミング結果（[docs/requirements/inputs/miro/](i
 - 2026-06-14: quality-standards.mdで識別した未確定事項を`data-models.md`へ反映。`accounts`に`suspended_at`（長期停止判定用）、編集対象テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `user_skill_levels` / `resumes`）に`version`（楽観ロック）・`updated_by`（編集者記録）を追加。変更履歴は汎用の`entity_change_logs`で記録する方針とした（対象テーブル・粒度は実装フェーズで確定）。
 - 2026-06-14: 検索画面に新たな検索条件を追加: 経歴書は「案件名×言語」、星取表は「言語（ツール）×レベル」で検索可能とし、いずれも単体検索も可能とする（[quality-standards.md 1章](quality-standards.md#1-機能適合性functional-suitability)）。星取表のエンジニアページ表示は、全項目を一画面に出すのではなくレイアウト（区分）で切替可能とし、切替速度を性能目標に追加する（[quality-standards.md 2章](quality-standards.md#2-性能効率性performance-efficiency)）。
 - 2026-06-14: 経歴書のデータモデルを`resumes.content`（JSONB集約）から正規化テーブル（`resumes`=基本情報+集約、`resume_qualifications`=資格情報、`resume_projects`=案件経歴）に変更し、`resume_formats`テーブルを廃止。`resume_projects.languages_tools`等は`text[]` + GINインデックスで「案件名×言語」検索に対応する（[data-models.md 4章](data-models.md#4-経歴書コンテキスト)）。これに伴い、7章の「フォーマットのバージョニング要件」をキャリアシートのみに適用する記述に修正し、経歴書のフォーマット変更はカラム追加マイグレーションで対応する方針とした。
+- 2026-06-15: マスク済み経歴書（UC-R2）のマスク対象を`resumes.nearest_station`（最寄り駅）・`resumes.final_education`（最終学歴）の2列に確定し、`visibility_rules.target_category = resume_personal_info`として管理する方針とした。年齢・自己PR・資格情報・案件経歴は本人以外にも公開する。マスク解除の条件は、閲覧者が本人、または`resume_personal_info`を`can_view: true`とするロール（管理者等）を持つ場合とする（[data-models.md 4章](data-models.md#4-経歴書コンテキスト) / [ui-flows.md 4章](ui-flows.md#4-経歴書コンテキスト)）。
+- 2026-06-15: UC-M1（エンジニアへのコンタクト）は、Step1ではエンジニア間の直接コンタクト（Googleメッセージ起点、永続化なし）のみとし、営業担当を介する運用・`contacts`テーブルは対象外とする。営業経由ルーティングの検討はStep2（AIレコメンド検討時）にまとめて行う（[ui-flows.md 2章](ui-flows.md#2-メッセージコンテキスト) / [data-models.md 2章](data-models.md#2-メッセージコンテキスト)）。
+- 2026-06-15: `data-models.md`のテーブル設計方針（0章）を以下の通り更新。
+  - 全テーブルに監査カラム`created_at` / `updated_at` / `created_by` / `updated_by`（後2者はtext型、`accounts.account_id`またはバッチのリクエストID）を付与する。
+  - PKカラム名を`id`から`<エンティティ名（単数形）>_id`（例: `account_id`, `role_id`, `skill_category_id`）に統一する。
+  - `accounts.account_id`は`AZ0000`形式（仮フォーマット）のtext型とし、社員コード相当の識別子としてアプリ側で採番する。他テーブルのPKはUUID（v7想定）でアプリ側採番とする（DDDの集約ルートIDをドメイン層で確定させる方針と整合）。
+  - `display_order`は疎な整数（10/100刻み）ではなく1始まりの連番とする（暗黙的な意味を持たせないため）。
