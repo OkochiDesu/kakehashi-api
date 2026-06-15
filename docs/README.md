@@ -56,3 +56,10 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [exec-plans運用ルール](exec-plans/README.md) - 実行計画（進行中/完了/技術的負債）
 - [design-docs/index.md](design-docs/index.md) - design-docs索引
 - [design-docs/core-beliefs.md](design-docs/core-beliefs.md) - 運用原則・思想
+
+## Requirements（要件定義）
+
+- [requirements/README.md](requirements/README.md) - プロジェクトコンテキスト・アーキテクチャ方針
+- [requirements/ui-flows.md](requirements/ui-flows.md) - ユースケース・画面遷移（作成中）
+- [requirements/data-models.md](requirements/data-models.md) - データモデル設計（作成中）
+- [requirements/quality-standards.md](requirements/quality-standards.md) - 非機能要件・品質目標（作成中）
