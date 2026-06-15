@@ -21,6 +21,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 
 | ディレクトリ | 内容 |
 |------|------|
+| `docs/architecture/` | モジュール構成・パッケージ設計・サブプロジェクト構成（実装フェーズで具体化予定） |
 | `docs/adr/` | アーキテクチャ決定record (ADR)。命名・運用ルールは [docs/adr/README.md](docs/adr/README.md) |
 | `docs/conventions/` | コーディング規約・運用ルール |
 | `docs/troubleshooting/` | 既知の問題と対処方法 |

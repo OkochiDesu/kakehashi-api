@@ -13,6 +13,10 @@
 - [ADR-0002: CIトリガー分離とWorkflow検証運用方針](adr/ADR-0002-CIトリガー分離とWorkflow検証運用方針.md)
 - [ADR-0003: 複雑度しきい値によるCIフェイル条件導入](adr/ADR-0003-複雑度しきい値によるCIフェイル条件導入.md)
 - [ADR-0004: コミットメッセージベースのPRサマリー自動コメント導入](adr/ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md)
+- [ADR-0005: PR本文への変更内容自動反映方式への変更](adr/ADR-0005-PR本文への変更内容自動反映方式への変更.md)
+- [ADR-0006: テーブル設計共通方針](adr/ADR-0006-テーブル設計共通方針.md)
+- [ADR-0007: 星取表マスタと経歴書のデータ連携方針](adr/ADR-0007-星取表マスタと経歴書のデータ連携方針.md)
+- [ADR-0008: 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断](adr/ADR-0008-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md)
 
 ## Conventions
 
@@ -28,7 +32,7 @@ ClaudeCodeでは `/adr-governance` スキル（または `adr-governance` サブ
 Copilotでは `@ADR Governance` を呼び出してください。
 
 - テンプレートと命名規則: [docs/adr/README.md](adr/README.md)
-- 次の ADR 番号: **0006**
+- 次の ADR 番号: **0009**
 
 ---
 
@@ -60,6 +64,10 @@ Copilotでは `@ADR Governance` を呼び出してください。
 ## Requirements（要件定義）
 
 - [requirements/README.md](requirements/README.md) - プロジェクトコンテキスト・アーキテクチャ方針
-- [requirements/ui-flows.md](requirements/ui-flows.md) - ユースケース・画面遷移（作成中）
-- [requirements/data-models.md](requirements/data-models.md) - データモデル設計（作成中）
-- [requirements/quality-standards.md](requirements/quality-standards.md) - 非機能要件・品質目標（作成中）
+- [requirements/ui-flows.md](requirements/ui-flows.md) - ユースケース・画面遷移（レビュー完了・要件定義確定）
+- [requirements/data-models.md](requirements/data-models.md) - データモデル設計（レビュー完了・要件定義確定）
+- [requirements/quality-standards.md](requirements/quality-standards.md) - 非機能要件・品質目標（レビュー完了・要件定義確定）
+
+## Architecture（モジュール構成・パッケージ設計）
+
+- [architecture/README.md](architecture/README.md) - モジュール構成・パッケージ設計・サブプロジェクト構成（実装フェーズで具体化予定）
