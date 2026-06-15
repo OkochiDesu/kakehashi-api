@@ -173,6 +173,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 - 一括登録系（星取表マスタ一括登録、星取表一括登録（星取表CSV））は[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)の方針通りAPI化せず、上記テーブルへのSQL直接投入で対応する。
 - マスタのアーカイブ／アーカイブ解除は`skill_master_items.status` / `level_master_items.status`の状態遷移で表現する。
 - `user_skills`への`version`の付与は、[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)で確定した「編集系テーブルの楽観ロック」方針（0章）に基づく。`created_by` / `updated_by`等の監査カラムは0章の方針により全テーブル共通で付与する。
+- `skill_categories` / `skill_master_items` / `level_categories` / `level_master_items`は星取表専用ではなく、経歴書（4章）の`resume_project_skills`からも参照される共通マスタである。テーブル名・配置章は変更せず、本章を「スキル・レベルマスタの定義元」として扱う（4章側で参照関係を補足する）。
 
 ## 4. 経歴書コンテキスト
 
@@ -218,7 +219,6 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | project_name | text | 案件名 |
 | description | text | 業務内容 |
 | os_db | text[] | OS／DB（複数指定可） |
-| languages_tools | text[] | 言語・ツール・FW（複数指定可。GINインデックスを付与し検索に使用） |
 | position | text | ポジション |
 | team_size | integer | 人数 |
 | process_phases | text[] | 工程（要件定義／設計／実装／テスト等、複数指定可） |
@@ -226,17 +226,32 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | created_by / updated_by | text | 登録者・最終更新者 |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
+### resume_project_skills（経歴書／案件経歴×使用スキル、RDB厳密カラム）
+
+| カラム | 型 | 説明 |
+|---|---|---|
+| resume_project_skill_id | uuid | PK（アプリ側で採番） |
+| resume_project_id | uuid (FK → resume_projects.resume_project_id) | 所属する案件経歴 |
+| skill_master_item_id | uuid (FK → skill_master_items.skill_master_item_id) | 使用した言語・ツール・FW（3章のスキルマスタを参照） |
+| created_by / updated_by | text | 登録者・最終更新者 |
+| created_at / updated_at | timestamp | 作成・更新日時 |
+
+`(resume_project_id, skill_master_item_id)`の組で一意。
+
 ### 補足
 
 - `resumes`を基本情報（旧テーブルA）と集約（旧テーブルD）を統合したテーブル、`resume_qualifications`を資格情報（旧テーブルB）、`resume_projects`を案件経歴（旧テーブルC）として正規化する。`resume_qualifications` / `resume_projects`は`resumes`の子テーブルであり、経歴書全体の編集（UC-R1）はトランザクション内で`resumes.version`を用いて楽観ロックする想定（子テーブル自体には`version`を持たせない。`created_by` / `updated_by`等の監査カラムは0章の方針により全テーブル共通で付与する）。
-- 経歴書検索（「案件名×言語」、単体検索可）は`resumes`と`resume_projects`をJOINし、`resume_projects.project_name`（LIKE等）と`resume_projects.languages_tools`（`text[]`への`&&`/`@>`演算子）を条件に検索する。`languages_tools`にはGINインデックスを付与する。
+- 経歴書検索（「案件名×言語」、単体検索可）は`resumes` / `resume_projects` / `resume_project_skills` / `skill_master_items`をJOINし、`resume_projects.project_name`（LIKE等）と`resume_project_skills.skill_master_item_id`（`skill_master_items`経由でのスキル指定）を条件に検索する。
 - 経歴書のアーカイブ／アーカイブ解除（UC-R3）は`resumes.status`の状態遷移で表現する。
 - 一括登録（経歴書CSV）は[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)の方針通りSQL直接投入で対応する。
 - **フォーマット変更への対応**: キャリアシートと異なり、経歴書のフォーマット変更（項目の追加等）はJSONBスキーマ管理ではなく、テーブルへのカラム追加マイグレーションで対応する（[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)で経歴書とキャリアシートのバージョニング要件を分離）。
 - **マスク済み経歴書（UC-R2）**: マスク対象は`resumes.nearest_station`（最寄り駅）と`resumes.final_education`（最終学歴）の2列とし、`visibility_rules`の`target_category = resume_personal_info`として管理する。`age`（年齢）・`self_pr`・`resume_qualifications`・`resume_projects`はマスク対象外で本人以外にも公開する。マスクの適用・解除は以下の通り判定する。
   - 閲覧者が経歴書の所有者本人（`resumes.account_id` = 閲覧者の`account_id`）の場合: マスクしない（UC-R1のマイページ表示）。
   - 閲覧者が本人以外の場合: `account_roles`経由で閲覧者が持つロールのいずれかが、`visibility_rules`で`target_category = resume_personal_info`に対し`can_view: true`（例: 管理者ロール）であればマスクしない。該当ロールがなければ`nearest_station` / `final_education`をNULL化（または非選択）して返す。
-- **未確定事項**: 「経歴書を更新するタイミングで星取表にスキルを反映できないか？」は、`resume_projects.languages_tools`と`user_skills`（3章）の連携方針が未確定のため、Step1での対応範囲は今後判断する。3章の`user_skills`統合（`level_master_item_id`をnullable化）により、連携時は「`user_skills`にレベル未設定（NULL）の行を追加」という単純な形で表現できる見込み。
+- **経歴書更新→星取表反映（UC-R1→星取表連携）**: 経歴書の言語・ツール入力（`resume_project_skills`）は自由入力ではなく3章の`skill_master_items`からの選択とするため、経歴書保存時に`resume_project_skills`へ登録された各`skill_master_item_id`について、保存者本人の`user_skills`（3章）に未登録であれば`level_master_item_id = NULL`の行をUPSERTする。既存の`user_skills`行（レベル設定済み含む）はそのまま保持し、上書きしない。
+  - 経歴書保存（UC-R1）自体は新規スキル検出有無に関わらず即時完了させる（保存処理をブロックしない）。
+  - 保存後、新規追加された`user_skills`行（`level_master_item_id = NULL`）がある場合は、レベル入力を促す確認ダイアログを表示する（スキップ可）。入力された場合はその場で`level_master_item_id`を更新し、スキップした場合はNULLのまま残す。
+  - `level_master_item_id = NULL`の行は「レベル未設定」として星取表の陳腐化防止のため、マイページ等で件数バッジ等のリマインダー表示を行う（[ui-flows.md 0章](ui-flows.md#0-全体画面構成)）。レベルの設定・変更は星取表編集（UC-S3）で行う。
 - 経歴書項目検索・一覧（UC-R4、管理者画面）はQuery側で`resumes` / `resume_projects`をJOINしてMyBatisで直接マッピングして返す想定。
 
 ## 5. ファイルコンテキスト
