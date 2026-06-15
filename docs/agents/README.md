@@ -13,7 +13,6 @@
 | [`docs/exec-plans/`](../exec-plans/README.md) | 実行計画（進行中/完了/技術的負債）の運用ルールと実体 | 人間（あなた）・Claude |
 | [`docs/design-docs/core-beliefs.md`](../design-docs/core-beliefs.md) | このリポジトリの運用原則・思想 | 人間（あなた）・Claude |
 | [`openAI_harness_enjineerring.md`](openAI_harness_enjineerring.md) | 参考にした元記事の転記 | 人間（あなた）・Claude |
-| [`.claude/hooks/session-start-compact.sh`](../../.claude/hooks/session-start-compact.sh) | コンテキスト圧縮後にCLAUDE.md/AGENTS.mdを再注入するhookスクリプト | ClaudeCode（圧縮後に自動実行） |
 
 ---
 
@@ -69,17 +68,13 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 ログを見て「最近探索コストが高いセッションが多いな」と感じたら、
 `doc-maintainerサブエージェントでナビゲーション指標をチェックして`と依頼すると整理案が出る。
 
-### 6. 会話圧縮後のルール再注入
+### 6. 会話圧縮後もAGENTS.mdの内容を保持
 
-長いセッションでコンテキストが圧縮（要約）されると、`CLAUDE.md`/`AGENTS.md`の内容を読んだ記憶が
-要約で薄れ、初期に注意していたルールが徐々に考慮されなくなる懸念がある。
+長いセッションでコンテキストが圧縮（要約）されても、`CLAUDE.md`の内容（CLAUDE.mdは予約ファイルとして
+常時自動読込される）と、そこから`@AGENTS.md`構文でimportされている`AGENTS.md`の全文は、
+圧縮後も引き続きコンテキストに残ることを確認済み。
 
-これに対応するため、`.claude/settings.json`の`hooks.SessionStart`（`matcher: "compact"`）に
-[`session-start-compact.sh`](../../.claude/hooks/session-start-compact.sh)を登録した。
-圧縮（自動/手動問わず）が発生すると、このフックが`CLAUDE.md`と`AGENTS.md`の全文を
-`additionalContext`としてClaudeのコンテキストに再注入する。
-
-→ **使い方**: 特別な操作は不要。圧縮が起きると自動的に発火する。
+→ **使い方**: 特別な操作は不要。`CLAUDE.md`冒頭の`@AGENTS.md`が常時importを担う。
 
 ## 今後の流れ（Phase 2）
 

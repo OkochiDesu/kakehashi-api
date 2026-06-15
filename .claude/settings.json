@@ -22,19 +22,5 @@
       "Bash(wget *)",
       "Bash(fetch *http*)"
     ]
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start-compact.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
   }
 }
