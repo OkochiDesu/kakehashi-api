@@ -3,8 +3,6 @@
 このファイルはAIエージェント向けの「目次（マップ）」です。
 詳細なルールや知識は各リンク先のドキュメントに記載されています。すべてをここに書き込まないでください。
 
-参考: [Harness Engineering（出典記事）](docs/agents/openAI_harness_enjineerring.md)
-
 ## このリポジトリについて
 
 kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現在は初期セットアップ・要件定義フェーズ。
