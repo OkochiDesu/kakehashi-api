@@ -112,3 +112,4 @@ Miroのイベントストーミング結果（[docs/requirements/inputs/miro/](i
   - PKカラム名を`id`から`<エンティティ名（単数形）>_id`（例: `account_id`, `role_id`, `skill_category_id`）に統一する。
   - `accounts.account_id`は`AZ0000`形式（仮フォーマット）のtext型とし、社員コード相当の識別子としてアプリ側で採番する。他テーブルのPKはUUID（v7想定）でアプリ側採番とする（DDDの集約ルートIDをドメイン層で確定させる方針と整合）。
   - `display_order`は疎な整数（10/100刻み）ではなく1始まりの連番とする（暗黙的な意味を持たせないため）。
+- 2026-06-15: `user_skills`と`user_skill_levels`を1テーブル（`user_skills`）に統合。1ユーザー・1スキル項目に対しレベルは最大1つ（1:1）であるため、`user_skills.level_master_item_id`をnullable列とし、「スキルのみ登録（レベル未設定）」をNULL行で表現する。これに伴いUC-S3（星取表スキル編集）とUC-S4（星取表レベル編集）を統合し、UC-S3「星取表（スキル・レベル）編集」とする（[data-models.md 3章](data-models.md#3-星取表コンテキスト) / [ui-flows.md 3章](ui-flows.md#3-星取表コンテキスト)）。

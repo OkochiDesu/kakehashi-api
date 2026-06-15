@@ -23,7 +23,7 @@ ui-flows.md / data-models.mdで定義した機能要件を正しく満たすこ�
 
 上記のうち、以下はデータモデルの追加検討が必要だった項目であり、すべてdata-models.mdへ反映済み。
 
-- **楽観ロック用カラム**: 編集対象テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `user_skill_levels` / `resumes`）に`version`を追加済み（[data-models.md 0章](data-models.md#0-設計方針)）
+- **楽観ロック用カラム**: 編集対象テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `resumes`）に`version`を追加済み（[data-models.md 0章](data-models.md#0-設計方針)）
 - **長期停止の判定**: `accounts.suspended_at`を追加済み。バッチ更新／動的判定のどちらにするかは実装フェーズで決定（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）
 - **マスク対象範囲の拡張**: `visibility_rules.target_category`は経歴書・星取表の両方を対象とする想定として整理済み（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）
 - **検索条件への対応**: 経歴書は`resumes` / `resume_projects`の正規化テーブル化、星取表は`skill_categories` / `level_categories`によるスキル×レベルの構造化により対応済み（[data-models.md 3章・4章](data-models.md#3-星取表コンテキスト)）

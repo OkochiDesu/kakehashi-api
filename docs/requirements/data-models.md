@@ -16,7 +16,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
   - Command側: 集約はドメインモデルを経由し、正規化テーブル（必要に応じてJSONB）に永続化する。
   - Query側: ドメイン層をバイパスし、MyBatisでJOIN結果・JSONBを直接DTOにマッピングして画面へ返す。
 - **監査カラム（全テーブル共通）**: 全テーブルに`created_at` / `updated_at`（timestamp）、`created_by` / `updated_by`（text）を付与する。`created_by` / `updated_by`には、ユーザー操作の場合は`accounts.account_id`（後述の文字列形式ID）、バッチ処理（SQL直接投入等）の場合は処理を識別するリクエストIDなどの文字列を格納する。値の種類が混在するためFK制約は持たせない。
-- **編集系テーブルの楽観ロック**: ユーザーが編集する主要テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `user_skill_levels` / `resumes`）には、楽観ロック用の`version`（integer、更新ごとにインクリメント）を付与する（[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)）。
+- **編集系テーブルの楽観ロック**: ユーザーが編集する主要テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `resumes`）には、楽観ロック用の`version`（integer、更新ごとにインクリメント）を付与する（[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)）。
 - **編集履歴ログ**: 上記テーブルの変更履歴は、汎用の`entity_change_logs`（id, entity_type, entity_id, created_by, action, changed_at, before, after）で記録する想定。対象テーブル・粒度の詳細は実装フェーズで確定する。
 - **命名規則**: テーブル名・カラム名ともsnake_case。各テーブルのPKカラム名は`<エンティティ名（単数形）>_id`とする（例: `account_id`, `role_id`, `skill_category_id`）。`id`という単独カラム名は使わない。
 - **PKの型・採番方式**:
@@ -150,38 +150,29 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | created_by / updated_by | text | 登録者・最終更新者（管理者） |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
-### user_skills（星取表／スキル、RDB厳密カラム）
+### user_skills（星取表／スキル・レベル、RDB厳密カラム）
 
 | カラム | 型 | 説明 |
 |---|---|---|
 | user_skill_id | uuid | PK（アプリ側で採番） |
 | account_id | text (FK → accounts.account_id) | 所有者 |
 | skill_master_item_id | uuid (FK → skill_master_items.skill_master_item_id) | 登録したスキル項目 |
+| level_master_item_id | uuid (FK → level_master_items.level_master_item_id, nullable) | 設定したレベル項目。スキル登録時点ではレベル未設定（NULL）も許容する |
 | version | integer | 楽観ロック用バージョン |
 | created_by / updated_by | text | 登録者・最終更新者（本人） |
 | created_at / updated_at | timestamp | 登録・更新日時 |
 
-### user_skill_levels（星取表／レベル、RDB厳密カラム）
-
-| カラム | 型 | 説明 |
-|---|---|---|
-| user_skill_level_id | uuid | PK（アプリ側で採番） |
-| account_id | text (FK → accounts.account_id) | 所有者 |
-| skill_master_item_id | uuid (FK → skill_master_items.skill_master_item_id) | 対象スキル項目 |
-| level_master_item_id | uuid (FK → level_master_items.level_master_item_id) | 設定したレベル項目 |
-| version | integer | 楽観ロック用バージョン |
-| created_by / updated_by | text | 登録者・最終更新者（本人） |
-| created_at / updated_at | timestamp | 登録・更新日時 |
+`(account_id, skill_master_item_id)`の組で一意（ユーザーごとに同一スキル項目は1行）。
 
 ### 補足
 
 - 「区分」は`skill_categories` / `level_categories`という専用マスタテーブルとして切り出し、`skill_master_items` / `level_master_items`から`skill_category_id` / `level_category_id`で参照する（[ui-flows.md 3章の補足](ui-flows.md#補足-2)で確認した方針）。区分自体の並び替えは各categoriesテーブルの`display_order`、区分内の項目の並び替えは各master_itemsテーブルの`display_order`で行い、いずれも1始まりの連番で運用する（0章）。検索ページの「星取表（スキル×レベル）」条件や、エンジニアページ・マイページでのグルーピング表示・レイアウト切替（[ui-flows.md 3章の補足](ui-flows.md#補足-2)のUC-S5）に使用する想定。
 - `level_categories`（インフラ／アプリケーション等）により、レベル定義が領域ごとに異なる場合に対応する。
 - スキルコード／レベルコードは `skill_XX` / `level_xx` のように接頭辞でカテゴリを一意に管理する（CSVメモ「VOでスキルコード・レベルコードをチェックする」方針）。一意性のルール自体はDB制約では強制せず、コード発行・検証はアプリケーション側（値オブジェクト）で行う。
-- `user_skills`（スキルの保有登録）と`user_skill_levels`（スキルへのレベル設定）は、イベントストーミング上の登録・更新・削除イベントの粒度に合わせて別テーブルとした。**未確定事項**: 実装時に1テーブルへ統合するか（`user_skills`に`level_master_item_id`をnullable列として持たせるか）は、ドメインモデル設計（集約境界）と合わせて再検討する。
+- イベントストーミングでは「スキルの保有登録」と「スキルへのレベル設定」を別イベントとして識別していたが、1ユーザー・1スキル項目に対してレベルは最大1つ（1:1）であるため、`user_skills`に`level_master_item_id`（nullable）を持たせて1テーブルに統合する。「スキルだけ登録（レベル未設定）」は`level_master_item_id = NULL`の行、「レベル設定・変更」は同じ行の`level_master_item_id`の更新として表現する。
 - 一括登録系（星取表マスタ一括登録、星取表一括登録（星取表CSV））は[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)の方針通りAPI化せず、上記テーブルへのSQL直接投入で対応する。
 - マスタのアーカイブ／アーカイブ解除は`skill_master_items.status` / `level_master_items.status`の状態遷移で表現する。
-- `user_skills` / `user_skill_levels`への`version`の付与は、[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)で確定した「編集系テーブルの楽観ロック」方針（0章）に基づく。`created_by` / `updated_by`等の監査カラムは0章の方針により全テーブル共通で付与する。
+- `user_skills`への`version`の付与は、[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)で確定した「編集系テーブルの楽観ロック」方針（0章）に基づく。`created_by` / `updated_by`等の監査カラムは0章の方針により全テーブル共通で付与する。
 
 ## 4. 経歴書コンテキスト
 
@@ -245,7 +236,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 - **マスク済み経歴書（UC-R2）**: マスク対象は`resumes.nearest_station`（最寄り駅）と`resumes.final_education`（最終学歴）の2列とし、`visibility_rules`の`target_category = resume_personal_info`として管理する。`age`（年齢）・`self_pr`・`resume_qualifications`・`resume_projects`はマスク対象外で本人以外にも公開する。マスクの適用・解除は以下の通り判定する。
   - 閲覧者が経歴書の所有者本人（`resumes.account_id` = 閲覧者の`account_id`）の場合: マスクしない（UC-R1のマイページ表示）。
   - 閲覧者が本人以外の場合: `account_roles`経由で閲覧者が持つロールのいずれかが、`visibility_rules`で`target_category = resume_personal_info`に対し`can_view: true`（例: 管理者ロール）であればマスクしない。該当ロールがなければ`nearest_station` / `final_education`をNULL化（または非選択）して返す。
-- **未確定事項**: 「経歴書を更新するタイミングで星取表にスキルを反映できないか？」は、`resume_projects.languages_tools`と`user_skills`（3章）の連携方針が未確定のため、Step1での対応範囲は今後判断する。
+- **未確定事項**: 「経歴書を更新するタイミングで星取表にスキルを反映できないか？」は、`resume_projects.languages_tools`と`user_skills`（3章）の連携方針が未確定のため、Step1での対応範囲は今後判断する。3章の`user_skills`統合（`level_master_item_id`をnullable化）により、連携時は「`user_skills`にレベル未設定（NULL）の行を追加」という単純な形で表現できる見込み。
 - 経歴書項目検索・一覧（UC-R4、管理者画面）はQuery側で`resumes` / `resume_projects`をJOINしてMyBatisで直接マッピングして返す想定。
 
 ## 5. ファイルコンテキスト
