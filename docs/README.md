@@ -24,6 +24,7 @@
 - [Pre-push Test Check](conventions/pre-push-test-check.md)
 - [Pre-commit Secret Check](conventions/pre-commit-secret-check.md)
 - [PR Summary 自動生成](conventions/pr-summary-automation.md)
+- [Markdown見出しアンカーへのリンク規約](conventions/markdown-anchor-links.md)
 
 ## ADR 作成方法
 
@@ -50,7 +51,6 @@ Copilotでは `@ADR Governance` を呼び出してください。
 
 - [Agents概要・使い方（人間向け）](agents/README.md)
 - [マルチエージェント構成 実行計画（exec-plan 0001）](exec-plans/active/0001-requirements-definition-multiagent.md)
-- [参考: Harness Engineering（OpenAI記事）](agents/openAI_harness_enjineerring.md)
 - [旧マルチエージェント構成セットアップガイド（移行済み・リダイレクト）](agents/multi-agent-setup-guide.md)
 
 全体マップ（AIエージェント向け索引）は [AGENTS.md](../AGENTS.md) を参照。

@@ -78,7 +78,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 
 ### 補足
 
-- 「仮登録」「本登録（自動処理）」は`accounts.status`の状態遷移として表現する（[ui-flows.md 1章の補足](ui-flows.md#補足)で説明した内部処理・自動処理を含む）。
+- 「仮登録」「本登録（自動処理）」は`accounts.status`の状態遷移として表現する（[ui-flows.md 1章](ui-flows.md#1-認証アカウントコンテキスト)の補足で説明した内部処理・自動処理を含む）。
 - 「停止／停止解除」（UC-A7）は`accounts.status`の状態遷移として表現し、停止時に`suspended_at`を設定、解除時に`suspended_at`をNULLに戻す。
 - 「権限変更」（UC-A6）は、`accounts.role`という単一カラムではなく、`account_roles`（アカウント×ロールの多対多）の行の追加・削除として表現する。1アカウントが複数ロールを持つことを許容する。
 - **長期停止アカウントのマスク化**: `suspended_at`から1年以上経過したアカウントは、エンジニアページ等での表示がマスク対象となる（[quality-standards.md 1章](quality-standards.md#1-機能適合性functional-suitability)）。バッチでステータスを更新するか、参照時に`suspended_at`から動的判定するかは実装フェーズで決定する。
@@ -93,7 +93,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 ### 補足
 
 - UC-M1（エンジニアへのコンタクト）は、Googleメッセージ（外部サービス）を起点とするコンタクトであり、現時点では本リポジトリ側で永続化するデータモデルは想定しない。
-- Step1では営業担当を介する運用は対象外（[ui-flows.md 2章の補足](ui-flows.md#補足-1)）のため、`contacts`テーブル等の追加は不要。営業経由ルーティングをStep2で導入する場合は、コンタクト履歴・コンタクト先（営業担当）の紐付けを管理するテーブルを別途検討する。
+- Step1では営業担当を介する運用は対象外（[ui-flows.md 2章](ui-flows.md#2-メッセージコンテキスト)の補足）のため、`contacts`テーブル等の追加は不要。営業経由ルーティングをStep2で導入する場合は、コンタクト履歴・コンタクト先（営業担当）の紐付けを管理するテーブルを別途検討する。
 
 ## 3. 星取表コンテキスト
 
@@ -166,7 +166,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 
 ### 補足
 
-- 「区分」は`skill_categories` / `level_categories`という専用マスタテーブルとして切り出し、`skill_master_items` / `level_master_items`から`skill_category_id` / `level_category_id`で参照する（[ui-flows.md 3章の補足](ui-flows.md#補足-2)で確認した方針）。区分自体の並び替えは各categoriesテーブルの`display_order`、区分内の項目の並び替えは各master_itemsテーブルの`display_order`で行い、いずれも1始まりの連番で運用する（0章）。検索ページの「星取表（スキル×レベル）」条件や、エンジニアページ・マイページでのグルーピング表示・レイアウト切替（[ui-flows.md 3章の補足](ui-flows.md#補足-2)のUC-S5）に使用する想定。
+- 「区分」は`skill_categories` / `level_categories`という専用マスタテーブルとして切り出し、`skill_master_items` / `level_master_items`から`skill_category_id` / `level_category_id`で参照する（[ui-flows.md 3章](ui-flows.md#3-星取表コンテキスト)の補足で確認した方針）。区分自体の並び替えは各categoriesテーブルの`display_order`、区分内の項目の並び替えは各master_itemsテーブルの`display_order`で行い、いずれも1始まりの連番で運用する（0章）。検索ページの「星取表（スキル×レベル）」条件や、エンジニアページ・マイページでのグルーピング表示・レイアウト切替（[ui-flows.md 3章](ui-flows.md#3-星取表コンテキスト)の補足のUC-S5）に使用する想定。
 - `level_categories`（インフラ／アプリケーション等）により、レベル定義が領域ごとに異なる場合に対応する。
 - スキルコード／レベルコードは `skill_XX` / `level_xx` のように接頭辞でカテゴリを一意に管理する（CSVメモ「VOでスキルコード・レベルコードをチェックする」方針）。一意性のルール自体はDB制約では強制せず、コード発行・検証はアプリケーション側（値オブジェクト）で行う。
 - イベントストーミングでは「スキルの保有登録」と「スキルへのレベル設定」を別イベントとして識別していたが、1ユーザー・1スキル項目に対してレベルは最大1つ（1:1）であるため、`user_skills`に`level_master_item_id`（nullable）を持たせて1テーブルに統合する。「スキルだけ登録（レベル未設定）」は`level_master_item_id = NULL`の行、「レベル設定・変更」は同じ行の`level_master_item_id`の更新として表現する。
