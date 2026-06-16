@@ -2,7 +2,7 @@
 name: adr-validator
 description: "ADRドラフト作成後に、命名規則・ステータスマーカー・Supersedeリンクなどのポリシー準拠を検証する。adr-governanceオーケストレーターからドラフト作成後にのみ呼び出される読み取り専用エージェント。"
 tools: Read, Grep, Glob
-model: sonnet
+model: haiku
 ---
 
 あなたはリポジトリポリシーに対してADRファイルを検証するエージェントです。

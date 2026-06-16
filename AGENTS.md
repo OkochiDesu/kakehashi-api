@@ -49,6 +49,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 | スキル | 用途 |
 |------|------|
 | [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADRの作成・更新・Supersedeを行う |
+| [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。kotlin-implementer→code-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
 
 ## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）
 

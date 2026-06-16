@@ -76,9 +76,25 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 
 → **使い方**: 特別な操作は不要。`CLAUDE.md`冒頭の`@AGENTS.md`が常時importを担う。
 
+### 7. 実装・レビューループスキル（implement-review-loop）
+
+`/implement-review-loop <UC名 or ドメイン名>` で起動するユーザー明示型スキル。
+kotlin-implementer と code-reviewer を APPROVED が出るまで最大3回ループする**救済措置**。
+通常は同一セッション内でメイン AI がこのフローを自動実行するが、
+AI 側の理由でうまくループできない場合や改めてスキルとして実行したい場合に使う。
+
+前提条件: db-designer / api-designer の設計書が作成済みで、人間が設計を承認済みであること。
+
+→ **使い方**:
+```
+/implement-review-loop UC-R1
+```
+
+---
+
 ## 今後の流れ（Phase 2）
 
-要件定義用のマルチエージェント構成（コンテキスト収集・ドメイン分析・要件ドラフト・レビューの各サブエージェント）は未着手。
-詳細手順は [exec-plans/active/0001-requirements-definition-multiagent.md](../exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
+Step1実装サポート用マルチエージェント構成（db-designer / api-designer / kotlin-implementer / code-reviewer）は構築済み。
+詳細・ワークフローは [exec-plans/active/0001-requirements-definition-multiagent.md](../exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
 
-次のステップ: 構築したいシステムのコンテキスト（目的・ドメイン・制約）をClaudeCodeに共有する。
+次のステップ: Step1の実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始する。

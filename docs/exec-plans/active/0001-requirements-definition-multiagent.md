@@ -72,14 +72,14 @@
 | code-reviewer | ADR・セキュリティ・仕様適合レビュー | 実装コード | APPROVED/REQUIRES_CHANGES レポート | Read, Grep, Glob, Bash |
 | doc-maintainer | `docs/` の索引・整合性・鮮度チェック | 生成・更新ドキュメント | OK / 要対応リスト | Read, Grep, Glob |
 
-オーケストレーターのワークフロー:
-1. ユーザーからコンテキストを受け取る
-2. コンテキスト収集エージェント(A)を起動し、不足情報を洗い出す
-3. ドメイン分析エージェント(B)を起動し、業務ルール・制約を整理する
-4. 要件ドラフトエージェント(C)を起動し、機能要件・非機能要件を草案する
-5. レビューエージェント(D)を起動し、矛盾・抜け漏れを検証する
-6. doc-maintainer(E)を起動し、生成したドキュメントの索引・リンク整合をチェックする
-7. 統合して最終成果物を出力する
+実装サポートワークフロー:
+1. db-designer を起動し、Flyway マイグレーション SQL を設計・生成する
+2. api-designer を起動し、対象 UC の REST API 設計書（`docs/design/api/*.md`）を生成する
+3. 人間が設計書を確認し、承認する
+4. kotlin-implementer を起動し、Entity/Repository/Service/Controller + テストを実装する
+5. code-reviewer を起動し、実装コードをレビューする（ADR・OWASP Top 10・仕様適合）
+6. REQUIRES_CHANGES の場合は手順4に戻り、最大3回ループする（救済措置: `/implement-review-loop` スキル）
+7. code-reviewer が APPROVED を出したら、人間に最終確認・commit を求める
 
 ## 意思決定ログ
 
@@ -99,5 +99,5 @@
 
 ## 残課題・引き継ぎ事項
 
-- システムコンテキスト（目的・ドメイン・制約）の共有は、本exec-planの整備が完了してから行う。
-- Phase 2のサブエージェントA〜Dは、システムコンテキスト受領後に定義する。
+- Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始する。
+- 要件定義用エージェント（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）は、Step2開始時または手戻り発生時に定義する。
