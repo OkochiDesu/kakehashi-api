@@ -36,6 +36,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [Dev Container SSH Agent Forwarding](troubleshooting/devcontainer-ssh-agent-forwarding.md)
 - [Gradle Java Home Invalid Folder](troubleshooting/gradle-javahome-invalid-folder.md)
 - [Gradle Wrapper Lock Contention](troubleshooting/gradle-wrapper-lock-contention.md)
+- [GitHub PR マージ状態 UNKNOWN](troubleshooting/github-merge-status-unknown.md)
 
 ---
 
