@@ -50,7 +50,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | カラム | 型 | 説明 |
 |---|---|---|
 | role_id | uuid | PK（アプリ側で採番） |
-| code | text (unique) | ロールコード（例: `general`, `admin`） |
+| code | text (unique) | ロールコード（例: `general`, `sales`, `admin`） |
 | name | text | ロール名 |
 | created_by / updated_by | text | 登録者・最終更新者 |
 | created_at / updated_at | timestamp | 作成・更新日時 |
