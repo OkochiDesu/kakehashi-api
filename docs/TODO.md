@@ -173,19 +173,12 @@
 
 ## Backend
 
-### データベース・マイグレーション基盤の導入
+### ~~データベース・マイグレーション基盤の導入~~ ✅ 完了（[ADR-0009](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)）
 
-- SQLベースのマイグレーションツールとして Flyway Community Edition を導入し、DBスキーマをGit管理する
-- ローカルでは Spring Boot 起動時に未適用のマイグレーションを自動実行する（`spring.flyway.enabled=true`）
-- CI（GitHub Actions）ではテスト実行前にマイグレーションを適用し、最新スキーマで検証する
-- マイグレーションファイルは `src/main/resources/db/migration/` 配下に `V[バージョン]__[概要].sql` 形式で配置する
-- 既に適用済みのSQLは書き換えず、変更が必要な場合は新しいバージョン番号で追加する
-- 初期マスタデータは Flyway で投入し、開発環境の立ち上げを速くする
-  - エンジニアのテストアカウント
-  - キャリアシートの初期フォーマット定義（JSONB形式）
-  - 各種区分値マスタ
-- キャリアシートの JSONB 構造に大きな変更がある場合も、マイグレーションファイルを履歴として残す
-- 選定理由や Undo なし運用の方針は ADR に切り出して記録する
+- `build.gradle.kts` への Flyway / PostgreSQL / MyBatis 依存追加済み
+- `application.properties` の datasource / `spring.flyway.enabled=true` / mapper 設定済み
+- マイグレーションファイル配置先: `src/main/resources/db/migration/V*.sql`
+- 残タスク: CI（GitHub Actions）でのマイグレーション実行（統合テスト環境整備時に対応）
 
 ### 認証・セキュリティ
 

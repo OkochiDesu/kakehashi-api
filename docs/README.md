@@ -5,7 +5,7 @@
 ## まず見る
 
 - [TODO](TODO.md)
-- [ADR一覧](adr/ADR-0001-CI品質ゲートとDependabot運用方針.md)
+- [ADR一覧（カテゴリ別索引）](adr/README.md)
 
 ## ADR
 
@@ -17,6 +17,7 @@
 - [ADR-0006: テーブル設計共通方針](adr/ADR-0006-テーブル設計共通方針.md)
 - [ADR-0007: 星取表マスタと経歴書のデータ連携方針](adr/ADR-0007-星取表マスタと経歴書のデータ連携方針.md)
 - [ADR-0008: 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断](adr/ADR-0008-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md)
+- [ADR-0009: 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL）](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)
 
 ## Conventions
 
@@ -33,7 +34,7 @@ ClaudeCodeでは `/adr-governance` スキル（または `adr-governance` サブ
 Copilotでは `@ADR Governance` を呼び出してください。
 
 - テンプレートと命名規則: [docs/adr/README.md](adr/README.md)
-- 次の ADR 番号: **0009**
+- 次の ADR 番号: **0010**
 
 ---
 

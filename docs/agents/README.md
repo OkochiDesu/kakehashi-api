@@ -10,6 +10,15 @@
 | [`CLAUDE.md`](../../CLAUDE.md) | ClaudeCodeの行動指針（禁止事項・推奨事項） | ClaudeCode（自動で読み込まれる） |
 | [`AGENTS.md`](../../AGENTS.md) | リポジトリ全体の「目次」。docsの構成・サブエージェント一覧へのリンク集 | AIエージェント全般（自動で読み込まれる） |
 | [`.claude/agents/doc-maintainer.md`](../../.claude/agents/doc-maintainer.md) | ドキュメント整備サブエージェント定義 | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/adr-governance.md`](../../.claude/agents/adr-governance.md) | ADR作成・更新・Supersedeのオーケストレーター（model: opus） | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/adr-search.md`](../../.claude/agents/adr-search.md) | ADR候補の検索（adr-governanceから呼び出し、model: haiku） | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/adr-validator.md`](../../.claude/agents/adr-validator.md) | ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し、model: haiku） | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/db-designer.md`](../../.claude/agents/db-designer.md) | Flywayマイグレーション設計・作成エージェント | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/api-designer.md`](../../.claude/agents/api-designer.md) | REST API設計書生成エージェント | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/kotlin-implementer.md`](../../.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装エージェント | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/code-reviewer.md`](../../.claude/agents/code-reviewer.md) | 実装コードレビューエージェント | ClaudeCode（呼び出すと動く） |
+| [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。kotlin-implementer→code-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
+| [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時に navigation-metrics.md の閾値チェックを行い、超過時に警告をコンテキストへ注入 | ClaudeCode（自動実行） |
 | [`docs/exec-plans/`](../exec-plans/README.md) | 実行計画（進行中/完了/技術的負債）の運用ルールと実体 | 人間（あなた）・Claude |
 | [`docs/design-docs/core-beliefs.md`](../design-docs/core-beliefs.md) | このリポジトリの運用原則・思想 | 人間（あなた）・Claude |
 | [`openAI_harness_enjineerring.md`](openAI_harness_enjineerring.md) | 参考にした元記事の転記 | 人間（あなた）・Claude |
@@ -60,13 +69,19 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 ### 5. ナビゲーション指標ログ（navigation-metrics.md）
 
 [`navigation-metrics.md`](navigation-metrics.md) は、「AGENTS.mdを目次として使う」方針が
-実際に機能しているかを、ClaudeCodeがセッション終了時に自己評価して記録するログ。
-難易度・探索コストの2軸を1行追記する簡易フォーマットで、探索コストが続けて高い場合は
-`doc-maintainer`が目次構成の見直し案を提示する仕組みになっている。
+実際に機能しているかを、ClaudeCodeがPR作成後や作業区切りに自己評価して記録するログ。
+難易度・探索コストの2軸を1行追記する簡易フォーマット。
 
-→ **使い方**: 特別な操作は不要。区切りの良いタイミングでClaudeCodeが自動的に追記する。
-ログを見て「最近探索コストが高いセッションが多いな」と感じたら、
-`doc-maintainerサブエージェントでナビゲーション指標をチェックして`と依頼すると整理案が出る。
+実行タイミングは3種類ある:
+
+| タイミング | 実行者 | 内容 |
+|---|---|---|
+| **セッション開始時（自動）** | SessionStart hook | 閾値超過を検知したら警告をコンテキストへ注入 |
+| **手動分析** | doc-maintainer | 目次構成の具体的な見直し案を提示 |
+| **記録** | ClaudeCode | PR作成後や作業区切りに難易度・探索コストを追記 |
+
+→ **使い方**: 閾値超過の警告はセッション開始時に自動で通知される。詳しい分析が必要なら
+`doc-maintainerサブエージェントでナビゲーション指標をチェックして`と依頼する。
 
 ### 6. 会話圧縮後もAGENTS.mdの内容を保持
 
