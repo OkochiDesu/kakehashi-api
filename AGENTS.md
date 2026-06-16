@@ -2,8 +2,7 @@
 
 このファイルはAIエージェント向けの「目次（マップ）」です。
 詳細なルールや知識は各リンク先のドキュメントに記載されています。すべてをここに書き込まないでください。
-
-参考: [Harness Engineering（出典記事）](docs/agents/openAI_harness_enjineerring.md)
+目安として100行を超えそうになったら、内容を `docs/` 配下に移し、リンクに置き換えることを検討する。
 
 ## このリポジトリについて
 
@@ -21,12 +20,14 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 
 | ディレクトリ | 内容 |
 |------|------|
+| `docs/architecture/` | モジュール構成・パッケージ設計・サブプロジェクト構成（実装フェーズで具体化予定） |
 | `docs/adr/` | アーキテクチャ決定record (ADR)。命名・運用ルールは [docs/adr/README.md](docs/adr/README.md) |
 | `docs/conventions/` | コーディング規約・運用ルール |
 | `docs/troubleshooting/` | 既知の問題と対処方法 |
 | `docs/agents/` | マルチエージェント構成・エージェント関連の設計資料 |
 | `docs/exec-plans/` | 実行計画（進行中/完了/技術的負債）。運用ルールは [docs/exec-plans/README.md](docs/exec-plans/README.md) |
 | `docs/design-docs/` | 運用原則・思想（[core-beliefs.md](docs/design-docs/core-beliefs.md)） |
+| `docs/requirements/` | 要件定義ドキュメント（UI・データモデル・品質目標）。索引は [docs/requirements/README.md](docs/requirements/README.md) |
 
 新しいドキュメントを追加する場合は、適切なディレクトリに配置し、必ず [docs/README.md](docs/README.md) からリンクすること。
 
@@ -38,12 +39,17 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 | [adr-governance](.claude/agents/adr-governance.md) | ADRの作成・更新・Supersedeのオーケストレーター |
 | [adr-search](.claude/agents/adr-search.md) | 変更に関連するADR候補の検索（adr-governanceから呼び出し） |
 | [adr-validator](.claude/agents/adr-validator.md) | ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
+| [db-designer](.claude/agents/db-designer.md) | Flywayマイグレーションスクリプトの設計・作成 |
+| [api-designer](.claude/agents/api-designer.md) | REST APIエンドポイントの設計（kotlin-implementerへの入力） |
+| [kotlin-implementer](.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装（Entity/Repository/Service/Controller） |
+| [code-reviewer](.claude/agents/code-reviewer.md) | 実装コードのレビュー。APPROVED/REQUIRES_CHANGESを明示し人間の最終確認を支援 |
 
 ## 利用可能なスキル（.claude/skills/）
 
 | スキル | 用途 |
 |------|------|
 | [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADRの作成・更新・Supersedeを行う |
+| [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。kotlin-implementer→code-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
 
 ## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）
 
@@ -63,6 +69,10 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ### 要件定義（準備中）
 マルチエージェント構成の詳細は [docs/exec-plans/active/0001-requirements-definition-multiagent.md](docs/exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
+
+### セッション終了時（ナビゲーション指標記録）
+ユーザーから明確な区切りがあったら、[docs/agents/navigation-metrics.md](docs/agents/navigation-metrics.md) に
+そのセッションの難易度・探索コストを1行追記する。閾値を超えた場合は同ファイルのルールに従い対応を提案する。
 
 ## 禁止事項・安全設定
 

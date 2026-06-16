@@ -17,12 +17,14 @@ model: sonnet
 
 ## チェック項目
 1. **索引の網羅性**: `docs/README.md` および [AGENTS.md](../../AGENTS.md) に記載されたディレクトリ・ファイルが実在するか。実在するドキュメントで索引に載っていないものがないか。
-2. **リンク整合性**: Markdown内の相対リンクが実在するパスを指しているか（リンク切れ検出）。
+2. **リンク整合性**: Markdown内の相対リンクが実在するパスを指しているか（リンク切れ検出）。また、他ファイルの`#見出し`や`#見出し-1`のような連番付きアンカーへのリンクがある場合、リンク先ファイル内に同名の見出しが複数存在し、意図した章とズレていないかを確認する（[markdown-anchor-links.md](../../docs/conventions/markdown-anchor-links.md)）。
 3. **ADR整合性**: `docs/adr/` 配下のファイルが [docs/adr/README.md](../../docs/adr/README.md) の命名規則・ステータス運用ルールに従っているか。また、すべてのADRが「ADR一覧（カテゴリ別索引）」に記載され、ステータス列が各ADR本文のステータスと一致しているか。
 4. **鮮度**: 内容が明らかにコードや設定と矛盾しているドキュメントがないか（例: 存在しないファイルパスへの言及、削除済み設定への参照）。
 5. **exec-plans整合性**: [docs/exec-plans/active/](../../docs/exec-plans/README.md) の各計画が、命名規則（4桁連番）に従っているか。「進捗状況」のチェック状態が、リポジトリの実際の状態（関連ファイルの有無など）と矛盾していないか。完了済みなのに `active/` に残っている計画がないか。
 6. **design-docs整合性**: [docs/design-docs/core-beliefs.md](../../docs/design-docs/core-beliefs.md) に記載された原則が、[CLAUDE.md](../../CLAUDE.md) / [AGENTS.md](../../AGENTS.md) など他のドキュメントと矛盾していないか。
 7. **TODO実行可能性**: [docs/TODO.md](../../docs/TODO.md) の各項目に「〇〇が固まってから」「〇〇導入後に」のような前提条件が書かれている場合、その前提条件がリポジトリの現状（ファイル構成・設定・依存関係など）と照らして既に満たされていないかを確認する。満たされていそうな項目があれば、「exec-planとして着手を検討できる」候補として報告する。
+8. **ナビゲーション指標の閾値チェック**: [docs/agents/navigation-metrics.md](../../docs/agents/navigation-metrics.md) のログ末尾5件のうち3件以上で探索コストが3以上の場合、`AGENTS.md` / `docs/README.md` の目次構成（リンクの追加・分割・並び替え）について具体的な見直し案を提示する。
+9. **.claude/構成との整合性**: [docs/agents/README.md](../../docs/agents/README.md) の「追加したファイルと役割」表およびhook/サブエージェントの説明が、`.claude/settings.json`・`.claude/hooks/`・`.claude/agents/`・`.claude/skills/`の実際の構成（ファイルの有無、hooks登録内容）と一致しているか。削除済みファイルへの言及が残っていないか。
 
 ## 出力フォーマット
 - **OK**: 問題なし

@@ -34,43 +34,52 @@
 - [x] `doc-maintainer` のチェック項目に exec-plans / design-docs を追加
 - [x] `AGENTS.md` / `CLAUDE.md` / `docs/README.md` 等の参照更新
 
-### Phase 2: 要件定義用マルチエージェント構成（未着手）
-- [ ] システムコンテキストの共有（目的・ドメイン・制約をユーザーから受領）
-- [ ] サブエージェントA〜Dの定義・作成
-- [ ] オーケストレーター用ワークフロー定義
+### Phase 2: Step1実装サポート用マルチエージェント構成
+- [x] システムコンテキストの共有（目的・ドメイン・制約をユーザーから受領）
+- [x] 実装サポート用サブエージェントの定義・作成（db-designer / api-designer / kotlin-implementer / code-reviewer）
 - [ ] 動作確認（小さなタスクで試運転）
 
-## 構成概要（Phase 2）
+> **方針変更（2026-06-16）**: Step1要件定義が概ね完了しているため、Phase 2のサブエージェントを「要件定義用」から「Step1実装サポート用」に刷新した。
+> 要件定義用エージェント（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）はStep2開始時または手戻り発生時に別途作成する。
+> ワークフロー: `db-designer` → `api-designer` → `kotlin-implementer` → `code-reviewer` → 人間確認 → commit
+
+## 構成概要（Phase 2: Step1実装サポート）
 
 ```
 ユーザー
+  │（機能単位で指示）
+  ▼
+[db-designer]        DB スキーマ設計・Flyway SQL 生成
   │
   ▼
-[オーケストレーターエージェント]  ← メインエージェント
+[api-designer]       REST API エンドポイント設計書生成
   │
-  ├──▶ [コンテキスト収集エージェント]   サブエージェント A
-  ├──▶ [ドメイン分析エージェント]       サブエージェント B
-  ├──▶ [要件ドラフトエージェント]       サブエージェント C
-  ├──▶ [レビュー・検証エージェント]     サブエージェント D
-  └──▶ [doc-maintainer]                サブエージェント E（実装済み）
+  ▼
+[kotlin-implementer] Spring Boot 実装（Entity/Repository/Service/Controller + テスト）
+  │
+  ▼
+[code-reviewer]      ADR・セキュリティ・仕様適合レビュー → APPROVED/REQUIRES_CHANGES
+  │
+  ▼
+人間確認 → commit
 ```
 
 | サブエージェント | 役割 | 入力 | 出力 | ツール |
 |---|---|---|---|---|
-| A: コンテキスト収集 | 要件定義に必要な情報の特定・不足情報の質問リスト生成 | ユーザーの初期説明 | 確認事項リスト・収集済み情報のサマリ | Read |
-| B: ドメイン分析 | 業務ドメインの分析・用語定義・ビジネスルールの抽出 | 収集済みコンテキスト | ドメインモデル草案・用語集・ビジネスルール一覧 | Read, WebSearch |
-| C: 要件ドラフト | 機能要件・非機能要件・制約条件の文書化 | ドメイン分析結果 | 要件定義書ドラフト | Read, Write |
-| D: レビュー・検証 | 要件の矛盾検出・抜け漏れ確認・品質チェック | 要件定義書ドラフト | レビューコメント・修正提案 | Read |
-| E: doc-maintainer | `docs/` の索引・整合性・鮮度チェック | 生成・更新されたドキュメント | OK / 要対応リスト | Read, Grep, Glob |
+| db-designer | Flyway マイグレーション SQL 設計・作成 | data-models.md / ADR | `V*.sql` | Read, Grep, Glob, Write |
+| api-designer | REST API エンドポイント設計書生成 | ui-flows.md / data-models.md | `docs/design/api/*.md` | Read, Grep, Glob, Write |
+| kotlin-implementer | Spring Boot (Kotlin) 実装 | API 設計書 / data-models.md | Kotlin コード + テスト | Read, Write, Edit, Bash |
+| code-reviewer | ADR・セキュリティ・仕様適合レビュー | 実装コード | APPROVED/REQUIRES_CHANGES レポート | Read, Grep, Glob, Bash |
+| doc-maintainer | `docs/` の索引・整合性・鮮度チェック | 生成・更新ドキュメント | OK / 要対応リスト | Read, Grep, Glob |
 
-オーケストレーターのワークフロー:
-1. ユーザーからコンテキストを受け取る
-2. コンテキスト収集エージェント(A)を起動し、不足情報を洗い出す
-3. ドメイン分析エージェント(B)を起動し、業務ルール・制約を整理する
-4. 要件ドラフトエージェント(C)を起動し、機能要件・非機能要件を草案する
-5. レビューエージェント(D)を起動し、矛盾・抜け漏れを検証する
-6. doc-maintainer(E)を起動し、生成したドキュメントの索引・リンク整合をチェックする
-7. 統合して最終成果物を出力する
+実装サポートワークフロー:
+1. db-designer を起動し、Flyway マイグレーション SQL を設計・生成する
+2. api-designer を起動し、対象 UC の REST API 設計書（`docs/design/api/*.md`）を生成する
+3. 人間が設計書を確認し、承認する
+4. kotlin-implementer を起動し、Entity/Repository/Service/Controller + テストを実装する
+5. code-reviewer を起動し、実装コードをレビューする（ADR・OWASP Top 10・仕様適合）
+6. REQUIRES_CHANGES の場合は手順4に戻り、最大3回ループする（救済措置: `/implement-review-loop` スキル）
+7. code-reviewer が APPROVED を出したら、人間に最終確認・commit を求める
 
 ## 意思決定ログ
 
@@ -84,8 +93,11 @@
 - 2026-06-13: `.claude/settings.json` の deny リストから `Bash(git commit*)` を削除。CLAUDE.mdに「commit運用」セクションを新設し、コミットメッセージと `git diff --cached` をユーザーに提示して確認を得た場合のみAIが `git commit` を実行できる運用に変更（`git push` は引き続きdeny・人間のみ）。追加防御として `.githooks/pre-commit` によるシークレット簡易チェックを導入（[docs/conventions/pre-commit-secret-check.md](../../conventions/pre-commit-secret-check.md)）。ADR governanceエージェント/スキルは従来通りステージングまでとし、commitの判断は呼び出し元に委ねる方針に統一。
 - 2026-06-13: commit運用に「ブランチ自動切り替え」を追加。commit前に現在ブランチのPR状態を `gh pr view --json state,number` で確認し、マージ済みの場合はユーザーに新ブランチの意図を確認した上で `feature/<内容>` ブランチを作成・切り替えてからcommitする。理由: 本リポジトリはPRをsquash-mergeしているため、git上の祖先関係チェックでは「mainにマージ済みか」を正しく判定できず、マージ済みブランチでの作業継続を防ぐ必要がある。`feature/` をブランチ名プレフィックスの正式ルールとして [Git Prefixes](../../conventions/git-prefixes.md) に追記。`gh pr view` を使うため、devcontainerに `ghcr.io/devcontainers/features/github-cli:1` を追加（コンテナのリビルドが必要）。
 - 2026-06-13: 上記のPRマージ済みチェックを `.githooks/pre-commit` にも組み込み、AIが確認を怠った場合でも自動でブロックされるようにした。現在のブランチに対応するPRが `MERGED` の場合、commitをブロックし新ブランチ作成手順を表示する。さらに `gh` が未インストール・未認証でこのチェック自体が実行できない場合も、commitをブロックするfail-closed方式とした。理由: 「チェック不能な状態を安全側として通過させる」と、マージ済みブランチへの誤commitを見逃すリスクがあるため。ブランチの作成・切り替え自体はフックでは行わず、引き続きAI/人間が`origin/main`から作成する（[docs/conventions/pre-commit-secret-check.md](../../conventions/pre-commit-secret-check.md)）。
+- 2026-06-15: `CLAUDE.md` 冒頭に `@AGENTS.md` のimportを追加し、新セッション開始時・`/compact`実行後の両方でAGENTS.md全文がコンテキストに保持されることを確認した。これにより、同内容を再注入していた`session-start-compact.sh`（SessionStart, matcher: compact）フックと`.claude/settings.json`への登録は冗長となったため削除し、CLAUDE.mdの「セッション開始時にAGENTS.mdを読む」という手動指示も不要として削除した。理由: importとhook再注入はコンテキストサイズの面で同等のコストだが、importは常時・自動で機能し、フックのメンテナンス（CLAUDE.md/AGENTS.md変更への追従）が不要になるため。
+- 2026-06-15: hookによる「ドキュメント陳腐化チェックの自動化」「hook改善点チェックの自動化」のための新規サブエージェント作成は見送り、既存の`doc-maintainer`のチェック項目を拡張する方針とした（チェック項目9: `docs/agents/README.md`の記述が`.claude/`の実際の構成と一致しているか）。理由: エージェント数を増やさず「docs/全体の整合性チェック」という役割に一貫させるため（Phase 1.7と同方針）。
+- 2026-06-16: Phase 2サブエージェントをStep1実装サポート用に刷新（db-designer / api-designer / kotlin-implementer / code-reviewer）。当初計画の要件定義用エージェント（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）はStep2開始時または手戻り発生時に作成する方針とした。理由: Step1要件定義は概ね完了しており、実装サポートの優先度が高いため。ワークフローはkotlin-implementer → code-reviewer → 人間確認 → commitとし、AIレビューでAPPROVEDになった実装のみ人間に上げるヒューマンインザループを維持する。
 
 ## 残課題・引き継ぎ事項
 
-- システムコンテキスト（目的・ドメイン・制約）の共有は、本exec-planの整備が完了してから行う。
-- Phase 2のサブエージェントA〜Dは、システムコンテキスト受領後に定義する。
+- Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始する。
+- 要件定義用エージェント（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）は、Step2開始時または手戻り発生時に定義する。

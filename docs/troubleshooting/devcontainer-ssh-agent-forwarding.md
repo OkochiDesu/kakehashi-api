@@ -90,6 +90,8 @@ ssh -T git@github.com
 
 ホストで登録した鍵のフィンガープリントが表示され、`Hi <username>! You've successfully authenticated...`と出れば成功。
 
+ここで成功していても、リモートURLがHTTPSのままだと`git push`時にSSHの認証が使われない。次の手順7を忘れずに実施すること。
+
 ### 7. リモートURLをSSHに戻す
 
 HTTPSに切り替えていた場合は、SSHに戻す。

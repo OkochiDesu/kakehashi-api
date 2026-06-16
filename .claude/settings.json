@@ -22,5 +22,12 @@
       "Bash(wget *)",
       "Bash(fetch *http*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "command": "bash /kakehashi-api/.claude/hooks/navigation-metrics-check.sh"
+      }
+    ]
   }
 }

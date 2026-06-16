@@ -2,7 +2,7 @@
 name: adr-search
 description: "コード/ドキュメントの変更に関連するADR候補を検索する。adr-governanceオーケストレーターから、diffのスコープが不明なときにのみ呼び出される読み取り専用エージェント。"
 tools: Read, Grep, Glob
-model: sonnet
+model: haiku
 ---
 
 あなたは指定されたコード/ドキュメントdiffに関連するADR候補を見つけるエージェントです。

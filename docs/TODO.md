@@ -173,19 +173,12 @@
 
 ## Backend
 
-### データベース・マイグレーション基盤の導入
+### ~~データベース・マイグレーション基盤の導入~~ ✅ 完了（[ADR-0009](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)）
 
-- SQLベースのマイグレーションツールとして Flyway Community Edition を導入し、DBスキーマをGit管理する
-- ローカルでは Spring Boot 起動時に未適用のマイグレーションを自動実行する（`spring.flyway.enabled=true`）
-- CI（GitHub Actions）ではテスト実行前にマイグレーションを適用し、最新スキーマで検証する
-- マイグレーションファイルは `src/main/resources/db/migration/` 配下に `V[バージョン]__[概要].sql` 形式で配置する
-- 既に適用済みのSQLは書き換えず、変更が必要な場合は新しいバージョン番号で追加する
-- 初期マスタデータは Flyway で投入し、開発環境の立ち上げを速くする
-  - エンジニアのテストアカウント
-  - キャリアシートの初期フォーマット定義（JSONB形式）
-  - 各種区分値マスタ
-- キャリアシートの JSONB 構造に大きな変更がある場合も、マイグレーションファイルを履歴として残す
-- 選定理由や Undo なし運用の方針は ADR に切り出して記録する
+- `build.gradle.kts` への Flyway / PostgreSQL / MyBatis 依存追加済み
+- `application.properties` の datasource / `spring.flyway.enabled=true` / mapper 設定済み
+- マイグレーションファイル配置先: `src/main/resources/db/migration/V*.sql`
+- 残タスク: CI（GitHub Actions）でのマイグレーション実行（統合テスト環境整備時に対応）
 
 ### 認証・セキュリティ
 
@@ -256,6 +249,29 @@
 #### バージョン移行ポリシーの策定
 
 - フォーマット更新時、過去のシートをどのタイミングで新バージョンへ移行させるか（自動移行、手動更新、閲覧のみなど）のドメインロジックを実装する。
+
+### 利用状況分析（Step2 AIレコメンド連携）
+
+> 関連: [docs/requirements/README.md](requirements/README.md)（Step2: AIレコメンド）
+
+- ユーザーがどの機能（経歴書編集／星取表編集／検索／コンタクト等）をどの程度利用しているかを取得する仕組みを導入する
+- 横断的な設計（アクセスログ/イベントログの収集方式、保存先、粒度）が必要なため、Step1のdata-models.mdでは詳細設計を行わず、Step2のAIレコメンド設計時にまとめて検討する
+- 検討観点: ログ粒度（画面単位／API単位／イベント単位）、保存先（RDB別テーブル／外部分析基盤）、個人情報・プライバシー上の取り扱い
+- 改善サイクル向けの分析観点案: 検索条件（言語・スキル等）の傾向、検索対象の年齢層、スキル感（星取表のスキル×レベルとの関連付け基準は別途定義）をログ化し、マスタ整備や機能改善の判断材料とする
+
+### コンタクト経路の見直し（Step2）
+
+> 関連: [docs/requirements/ui-flows.md](requirements/ui-flows.md)（2. メッセージコンテキスト）
+
+- UC-M1（エンジニアへのコンタクト）について、エンジニア間の直接コンタクトに加え、営業担当を介する運用が必要か検討する
+- 営業経由の場合、コンタクト先選択ステップの追加・コンタクト履行の紐付け管理（`contacts`テーブル等）が必要になる可能性がある
+
+### クラウド事業者・ホスティング選定
+
+> 関連: [docs/requirements/quality-standards.md 8章](requirements/quality-standards.md#8-移植性portability)
+
+- クラウド事業者・コンテナ実行環境・マネージドPostgreSQL等のホスティングサービスは未確定
+- デプロイ先・構成が決まった段階でADRに記録する
 
 ## Cross-cutting
 
