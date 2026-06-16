@@ -39,6 +39,10 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 | [adr-governance](.claude/agents/adr-governance.md) | ADRの作成・更新・Supersedeのオーケストレーター |
 | [adr-search](.claude/agents/adr-search.md) | 変更に関連するADR候補の検索（adr-governanceから呼び出し） |
 | [adr-validator](.claude/agents/adr-validator.md) | ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
+| [db-designer](.claude/agents/db-designer.md) | Flywayマイグレーションスクリプトの設計・作成 |
+| [api-designer](.claude/agents/api-designer.md) | REST APIエンドポイントの設計（kotlin-implementerへの入力） |
+| [kotlin-implementer](.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装（Entity/Repository/Service/Controller） |
+| [code-reviewer](.claude/agents/code-reviewer.md) | 実装コードのレビュー。APPROVED/REQUIRES_CHANGESを明示し人間の最終確認を支援 |
 
 ## 利用可能なスキル（.claude/skills/）
 
