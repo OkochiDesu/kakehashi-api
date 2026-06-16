@@ -24,8 +24,17 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("tools.jackson.module:jackson-module-kotlin")
+    // JDBC / Flyway / PostgreSQL
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
+    // MyBatis
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4")
+    // Test
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    // CI環境でのDB統合テストが必要になった時点でTestcontainersを追加予定
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -44,7 +53,7 @@ spotless {
         ktlint("1.5.0")
         target("*.gradle.kts")
     }
-    // MyBatis導入時にXML/SQL/JSONのフォーマット設定を追加予定
+    // MyBatis mapper XML のフォーマットは最初のマッパー作成時に追加予定
 }
 
 tasks.withType<Test> {
