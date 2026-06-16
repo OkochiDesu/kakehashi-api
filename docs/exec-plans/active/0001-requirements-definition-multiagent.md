@@ -2,6 +2,19 @@
 
 > 旧 `docs/agents/multi-agent-setup-guide.md` を本exec-planに移行したもの。
 
+## 目次
+
+- [目的・スコープ](#目的スコープ)
+- [進捗状況](#進捗状況)
+  - [Phase 1: ClaudeCode 安全設定](#phase-1-claudecode-安全設定破壊的操作の制限)
+  - [Phase 1.5: ドキュメントマップ & ドキュメント整備エージェント](#phase-15-ドキュメントマップ--ドキュメント整備エージェント)
+  - [Phase 1.6: ADR Governanceエージェントの ClaudeCode 化](#phase-16-adr-governanceエージェントの-claudecode-化)
+  - [Phase 1.7: exec-plans / design-docs の整備](#phase-17-exec-plans--design-docs-の整備本exec-plan自身を含む)
+  - [Phase 2: Step1実装サポート用マルチエージェント構成](#phase-2-step1実装サポート用マルチエージェント構成)
+- [構成概要（Phase 2: Step1実装サポート）](#構成概要phase-2-step1実装サポート)
+- [意思決定ログ](#意思決定ログ)
+- [残課題・引き継ぎ事項](#残課題引き継ぎ事項)
+
 ## 目的・スコープ
 
 要件定義フェーズに入る前に、ClaudeCodeの安全設定・ドキュメントマップ・ドキュメント整備エージェントを整備し、
