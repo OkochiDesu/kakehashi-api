@@ -30,6 +30,19 @@ CREATE TABLE accounts (
     CONSTRAINT uq_accounts_google_sub_hash UNIQUE (google_sub_hash)
 );
 
+COMMENT ON TABLE  accounts                        IS 'アカウント';
+COMMENT ON COLUMN accounts.account_id             IS 'アカウントID（社員コード相当、AZ0000形式）';
+COMMENT ON COLUMN accounts.google_sub_hash        IS 'Google OAuth subクレームのハッシュ値';
+COMMENT ON COLUMN accounts.email                  IS 'メールアドレス';
+COMMENT ON COLUMN accounts.name                   IS '氏名';
+COMMENT ON COLUMN accounts.status                 IS 'ステータス（provisional: 仮登録 / active: 本登録 / suspended: 停止）';
+COMMENT ON COLUMN accounts.suspended_at           IS '停止日時';
+COMMENT ON COLUMN accounts.version                IS '楽観ロック用バージョン番号';
+COMMENT ON COLUMN accounts.created_by             IS '作成者（アカウントIDまたはバッチのリクエストID）';
+COMMENT ON COLUMN accounts.updated_by             IS '更新者（アカウントIDまたはバッチのリクエストID）';
+COMMENT ON COLUMN accounts.created_at             IS '作成日時';
+COMMENT ON COLUMN accounts.updated_at             IS '更新日時';
+
 -- google_sub_hash はログイン時の照合で使用（data-models.md 1章）
 CREATE INDEX idx_accounts_status ON accounts (status);
 
@@ -52,6 +65,15 @@ CREATE TABLE roles (
     CONSTRAINT uq_roles_code UNIQUE (code)
 );
 
+COMMENT ON TABLE  roles            IS 'ロール（区分）マスタ';
+COMMENT ON COLUMN roles.role_id    IS 'ロールID（UUID v7、アプリ側採番）';
+COMMENT ON COLUMN roles.code       IS 'ロールコード（例: general / sales / admin）';
+COMMENT ON COLUMN roles.name       IS 'ロール名称（例: 一般（エンジニア）/ 営業 / 管理者）';
+COMMENT ON COLUMN roles.created_by IS '作成者';
+COMMENT ON COLUMN roles.updated_by IS '更新者';
+COMMENT ON COLUMN roles.created_at IS '作成日時';
+COMMENT ON COLUMN roles.updated_at IS '更新日時';
+
 -- =============================================================
 -- account_roles
 -- =============================================================
@@ -73,6 +95,15 @@ CREATE TABLE account_roles (
 
 CREATE INDEX idx_account_roles_account_id ON account_roles (account_id);
 CREATE INDEX idx_account_roles_role_id    ON account_roles (role_id);
+
+COMMENT ON TABLE  account_roles                    IS 'アカウント・ロール紐付け（多対多）';
+COMMENT ON COLUMN account_roles.account_role_id    IS 'アカウントロールID（UUID v7、アプリ側採番）';
+COMMENT ON COLUMN account_roles.account_id         IS 'アカウントID';
+COMMENT ON COLUMN account_roles.role_id            IS 'ロールID';
+COMMENT ON COLUMN account_roles.created_by         IS '作成者';
+COMMENT ON COLUMN account_roles.updated_by         IS '更新者';
+COMMENT ON COLUMN account_roles.created_at         IS '作成日時';
+COMMENT ON COLUMN account_roles.updated_at         IS '更新日時';
 
 -- =============================================================
 -- visibility_rules
@@ -97,6 +128,16 @@ CREATE TABLE visibility_rules (
 );
 
 CREATE INDEX idx_visibility_rules_role_id ON visibility_rules (role_id);
+
+COMMENT ON TABLE  visibility_rules                          IS '可視性ルール（ロール別閲覧可否）';
+COMMENT ON COLUMN visibility_rules.visibility_rule_id      IS '可視性ルールID（UUID v7、アプリ側採番）';
+COMMENT ON COLUMN visibility_rules.role_id                 IS 'ロールID';
+COMMENT ON COLUMN visibility_rules.target_category         IS '対象カテゴリ（例: resume_personal_info）';
+COMMENT ON COLUMN visibility_rules.can_view                IS '閲覧可否（true: 閲覧可 / false: マスク）';
+COMMENT ON COLUMN visibility_rules.created_by              IS '作成者';
+COMMENT ON COLUMN visibility_rules.updated_by              IS '更新者';
+COMMENT ON COLUMN visibility_rules.created_at              IS '作成日時';
+COMMENT ON COLUMN visibility_rules.updated_at              IS '更新日時';
 
 -- =============================================================
 -- 初期データ: roles
