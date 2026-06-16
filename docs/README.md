@@ -9,15 +9,7 @@
 
 ## ADR
 
-- [ADR-0001: CI品質ゲートとDependabot運用方針](adr/ADR-0001-CI品質ゲートとDependabot運用方針.md)
-- [ADR-0002: CIトリガー分離とWorkflow検証運用方針](adr/ADR-0002-CIトリガー分離とWorkflow検証運用方針.md)
-- [ADR-0003: 複雑度しきい値によるCIフェイル条件導入](adr/ADR-0003-複雑度しきい値によるCIフェイル条件導入.md)
-- [ADR-0004: コミットメッセージベースのPRサマリー自動コメント導入](adr/ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md)
-- [ADR-0005: PR本文への変更内容自動反映方式への変更](adr/ADR-0005-PR本文への変更内容自動反映方式への変更.md)
-- [ADR-0006: テーブル設計共通方針](adr/ADR-0006-テーブル設計共通方針.md)
-- [ADR-0007: 星取表マスタと経歴書のデータ連携方針](adr/ADR-0007-星取表マスタと経歴書のデータ連携方針.md)
-- [ADR-0008: 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断](adr/ADR-0008-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md)
-- [ADR-0009: 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL）](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)
+カテゴリ別索引・ステータス・次の番号は [adr/README.md](adr/README.md) を参照（正とする）。
 
 ## Conventions
 
@@ -33,8 +25,7 @@ ADR の作成・更新・Supersede は **ADR Governance エージェント** が
 ClaudeCodeでは `/adr-governance` スキル（または `adr-governance` サブエージェント）、
 Copilotでは `@ADR Governance` を呼び出してください。
 
-- テンプレートと命名規則: [docs/adr/README.md](adr/README.md)
-- 次の ADR 番号: **0010**
+- テンプレートと命名規則・次の番号: [docs/adr/README.md](adr/README.md)
 
 ---
 
@@ -72,4 +63,4 @@ Copilotでは `@ADR Governance` を呼び出してください。
 
 ## Architecture（モジュール構成・パッケージ設計）
 
-- [architecture/README.md](architecture/README.md) - モジュール構成・パッケージ設計・サブプロジェクト構成（実装フェーズで具体化予定）
+- [architecture/README.md](architecture/README.md) - モジュール構成・パッケージ設計・サブプロジェクト構成（Step1実装フェーズで随時更新）
