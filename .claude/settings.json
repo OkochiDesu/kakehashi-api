@@ -26,7 +26,12 @@
   "hooks": {
     "SessionStart": [
       {
-        "command": "bash /kakehashi-api/.claude/hooks/navigation-metrics-check.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/navigation-metrics-check.sh"
+          }
+        ]
       }
     ]
   }

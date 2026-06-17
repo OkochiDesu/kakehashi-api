@@ -9,6 +9,7 @@
 - [Backend](#backend)
   - [認証・セキュリティ](#認証セキュリティ) / [認証・認可](#認証認可) / [帳票出力](#経歴書の帳票出力excelpdf) / [キャリアシート基盤](#キャリアシートダイナミックフォーム基盤) / [利用状況分析](#利用状況分析step2-aiレコメンド連携) / [コンタクト経路](#コンタクト経路の見直しstep2) / [クラウド選定](#クラウド事業者ホスティング選定)
 - [Cross-cutting](#cross-cutting)
+  - [クリーンアーキテクチャの依存方向維持](#クリーンアーキテクチャの依存方向維持) / [冪等性キーチェック基盤](#冪等性キーチェック基盤)
 - [Done（履歴）](#done履歴)
 
 ## Platform / DevEx
@@ -184,12 +185,10 @@
 
 ## Backend
 
-### ~~データベース・マイグレーション基盤の導入~~ ✅ 完了（[ADR-0009](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)）
+### CI統合テスト環境（マイグレーション実行）
 
-- `build.gradle.kts` への Flyway / PostgreSQL / MyBatis 依存追加済み
-- `application.properties` の datasource / `spring.flyway.enabled=true` / mapper 設定済み
-- マイグレーションファイル配置先: `src/main/resources/db/migration/V*.sql`
-- 残タスク: CI（GitHub Actions）でのマイグレーション実行（統合テスト環境整備時に対応）
+- GitHub Actions で PostgreSQL サービスコンテナを起動し、`V*.sql` の Flyway マイグレーションを統合テストとして実行する環境を整備する
+- 現在の `ci.yml` は単体テスト（JUnit）のみで、DBマイグレーションの自動検証は未対応
 
 ### 認証・セキュリティ
 
@@ -299,7 +298,33 @@
 - ユースケース層は `SkillSheetExporter` インターフェースのみに依存させる。
 - Excel操作や外部コマンド発行（LibreOffice）の具体的知識はすべてインフラ層に閉じ込め、将来的なライブラリ変更に備える。
 
+### 冪等性キーチェック基盤
+
+#### Spring Interceptor + AOP + Redis による冪等性キーチェック
+
+POST など副作用を持つエンドポイントで、クライアントが `Idempotency-Key` ヘッダーを付与した場合に同一リクエストの二重実行を防ぐ仕組みを用意する。
+
+**採用方針（検討結果）**
+
+- `@Idempotent` カスタムアノテーションで対象エンドポイントを宣言的にマーキング（AOP）
+- `HandlerInterceptor.preHandle` でRedisをチェックし、キー済みなら Controller に到達させずキャッシュ済みレスポンスを返す
+- `SET NX` + TTL（24h 目安）で in-flight の二重実行も防止
+- エラーレスポンス（4xx系）はキャッシュしない方針
+
+**UseCase層でチェックする案との比較・却下理由**
+
+UseCase層でのチェックも検討したが、以下の理由で Interceptor 方式を有力案とした：
+
+- 冪等性キーは「HTTPプロトコルレベルの関心事」（Stripe API等のREST慣例に由来）であり、Interceptorに置く方が自然
+- UseCase層に持ち込むと Redis依存をポートインターフェースで抽象化する必要があり、複雑度が上がる
+- クリーンアーキテクチャの依存方向（UseCase層をインフラ非依存に保つ）と相性が悪い
+
+なお「業務的な二重実行防止」（例：同じ申請を2回送らない）はDB制約（PostgreSQL ユニーク制約）で保証する方が堅牢であり、責務として分離する。
+
+**実装タイミングでADR化すること。**
+
 ## Done（履歴）
 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - push時のGitHub Actionsで複雑度レポートを作成: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
+- データベース・マイグレーション基盤の導入（Flyway / MyBatis / PostgreSQL）: [ADR-0009](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)
