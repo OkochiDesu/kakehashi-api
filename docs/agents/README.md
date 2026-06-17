@@ -31,7 +31,9 @@
 | [`.claude/agents/kotlin-implementer.md`](../../.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装エージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/code-reviewer.md`](../../.claude/agents/code-reviewer.md) | 実装コードレビューエージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。kotlin-implementer→code-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
-| [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時に navigation-metrics.md の閾値チェックを行い、超過時に警告をコンテキストへ注入 | ClaudeCode（自動実行） |
+| [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時にセッション計測を開始し、前回サマリー注入・閾値チェック・鮮度チェックを実行 | ClaudeCode（自動実行） |
+| [`.claude/hooks/tool-counter.sh`](../../.claude/hooks/tool-counter.sh) | PostToolUse時にツール呼び出し回数をカウント（`/tmp/claude_kakehashi_tool_count` に記録） | ClaudeCode（自動実行） |
+| [`.claude/hooks/session-end.sh`](../../.claude/hooks/session-end.sh) | Stop時にツール数・所要時間を集計し次回SessionStartへ引き継ぐ（`/tmp/claude_kakehashi_last_session.json` に保存） | ClaudeCode（自動実行） |
 | [`docs/exec-plans/`](../exec-plans/README.md) | 実行計画（進行中/完了/技術的負債）の運用ルールと実体 | 人間（あなた）・Claude |
 | [`docs/design-docs/core-beliefs.md`](../design-docs/core-beliefs.md) | このリポジトリの運用原則・思想 | 人間（あなた）・Claude |
 | [`openAI_harness_enjineerring.md`](openAI_harness_enjineerring.md) | 参考にした元記事の転記 | 人間（あなた）・Claude |
@@ -89,7 +91,9 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 
 | タイミング | 実行者 | 内容 |
 |---|---|---|
-| **セッション開始時（自動）** | SessionStart hook | 閾値超過を検知したら警告をコンテキストへ注入 |
+| **セッション開始時（自動）** | SessionStart hook (`navigation-metrics-check.sh`) | 前回セッションサマリーをコンテキスト注入 + 閾値超過時に警告注入 |
+| **ツール呼び出し毎（自動）** | PostToolUse hook (`tool-counter.sh`) | ツール呼び出し回数をカウント |
+| **セッション終了時（自動）** | Stop hook (`session-end.sh`) | ツール数・所要時間を集計・保存し次回SessionStartへ引き継ぐ |
 | **手動分析** | doc-maintainer | 目次構成の具体的な見直し案を提示 |
 | **記録** | ClaudeCode | PR作成後や作業区切りに難易度・探索コストを追記 |
 

@@ -8,9 +8,17 @@
 
 ## チェック・記録タイミング（実行バリエーション）
 
-### 自動チェック（SessionStart hook）
-毎セッション開始時に [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) が自動実行される。
-直近5件のうち3件以上で探索コストが3以上の場合、警告メッセージがClaudeのコンテキストへ自動注入される。
+### 自動計測・チェック（SessionStart / PostToolUse / Stop hook）
+
+セッション計測は以下の3つのhookが連携して動作する。
+
+| hookイベント | スクリプト | 役割 |
+|---|---|---|
+| SessionStart | [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | セッション開始時刻・ツールカウンタを初期化。前回セッションサマリーをコンテキストへ注入。閾値チェック・鮮度チェックを実行し、超過時に警告を注入 |
+| PostToolUse | [`.claude/hooks/tool-counter.sh`](../../.claude/hooks/tool-counter.sh) | ツール呼び出し回数を `/tmp/claude_kakehashi_tool_count` にインクリメント |
+| Stop | [`.claude/hooks/session-end.sh`](../../.claude/hooks/session-end.sh) | セッション終了時にツール数・所要時間を `/tmp/claude_kakehashi_last_session.json` に保存。次回SessionStart時に読み込まれ、navigation-metrics.md への記録を促す |
+
+直近5件のうち3件以上で探索コストが3以上の場合、SessionStart時に警告メッセージがClaudeのコンテキストへ自動注入される。
 
 ### 詳細分析（手動: doc-maintainer）
 `doc-maintainerサブエージェントでdocs/の整合性をチェックして` と依頼すると、

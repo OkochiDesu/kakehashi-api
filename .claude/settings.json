@@ -33,6 +33,26 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/tool-counter.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/session-end.sh"
+          }
+        ]
+      }
     ]
   }
 }
