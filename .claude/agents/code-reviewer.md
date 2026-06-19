@@ -27,9 +27,9 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 ## レビュー観点
 
 ### 1. ADR 準拠
-- **ADR-0006**: 監査カラム（`created_by` / `updated_by` / `created_at` / `updated_at`）が全テーブルに付与されているか。楽観ロック（`version`）が対象テーブルに実装されているか
-- **ADR-0008**: マスク制御（`resume_personal_info` の `nearest_station` / `final_education`）が Service 層で正しく実装されているか。ロール（general / sales / admin）による閲覧権限が正しく適用されているか
-- **ADR-0007**: 経歴書 → 星取表の連携（スキル未登録時の `user_skills` 自動追加）が仕様通りか
+- **APP-ADR-0001**: 監査カラム（`created_by` / `updated_by` / `created_at` / `updated_at`）が全テーブルに付与されているか。楽観ロック（`version`）が対象テーブルに実装されているか
+- **APP-ADR-0003**: マスク制御（`resume_personal_info` の `nearest_station` / `final_education`）が Service 層で正しく実装されているか。ロール（general / sales / admin）による閲覧権限が正しく適用されているか
+- **APP-ADR-0002**: 経歴書 → 星取表の連携（スキル未登録時の `user_skills` 自動追加）が仕様通りか
 
 ### 2. セキュリティ（OWASP Top 10）
 - **SQL インジェクション**: MyBatis の `${}` は使用せず `#{}` のみか。動的クエリの組み立てに未サニタイズの入力が混入していないか
@@ -55,12 +55,12 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 ### 指摘事項（REQUIRES_CHANGES の場合）
 1. [重要度: 高/中/低] ファイルパス:行番号
    - 問題: ...
-   - 根拠: ADR-0008 決定4 / OWASP A01 等
+   - 根拠: APP-ADR-0003 決定4 / OWASP A01 等
    - 修正案: ...
 
 ### 確認済み項目（問題なし）
-- ADR-0006 監査カラム: OK
-- ADR-0008 マスク制御: OK
+- APP-ADR-0001 監査カラム: OK
+- APP-ADR-0003 マスク制御: OK
 - SQL インジェクション: OK
 ...
 
@@ -71,7 +71,7 @@ commit 可能な状態です。以下の点を確認してからコミットし�
 
 ## 参照ドキュメント
 
-- [docs/adr/](../../docs/adr/)（特に ADR-0006・0007・0008）
+- [docs/adr/](../../docs/adr/)（特に APP-ADR-0001・0007・0008）
 - [docs/requirements/data-models.md](../../docs/requirements/data-models.md)
 - `docs/design/api/`（API 設計書）
 - `src/`（レビュー対象コード）

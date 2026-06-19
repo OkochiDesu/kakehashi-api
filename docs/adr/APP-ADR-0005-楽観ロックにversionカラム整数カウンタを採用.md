@@ -1,4 +1,4 @@
-# ADR-0010: 楽観ロックにversionカラム（整数カウンタ）を採用
+# APP-ADR-0005: 楽観ロックにversionカラム（整数カウンタ）を採用
 
 ## ステータス
 
@@ -15,7 +15,7 @@
 
 - Supersedes: なし
 - Superseded by: なし
-- 関連ADR: [ADR-0006](ADR-0006-テーブル設計共通方針.md)（テーブル設計共通方針。楽観ロックは同ADRの対象外とされ、本ADRで補完する）
+- 関連ADR: [APP-ADR-0001](APP-ADR-0001-テーブル設計共通方針.md)（テーブル設計共通方針。楽観ロックは同ADRの対象外とされ、本ADRで補完する）
 
 ## 背景
 
@@ -23,7 +23,7 @@
 
 [data-models.md 0章](../requirements/data-models.md#0-設計方針)では「楽観ロック用の`version`（integer、更新ごとにインクリメント）を付与する」と記述されているが、**なぜ**その方式を選んだかの記録がなかった。
 
-[ADR-0006](ADR-0006-テーブル設計共通方針.md)は「編集系テーブルの楽観ロック（`version`）・編集履歴ログ（`entity_change_logs`）は本ADRの対象外」と明示しており、本ADRはその空白を補完する位置づけである。
+[APP-ADR-0001](APP-ADR-0001-テーブル設計共通方針.md)は「編集系テーブルの楽観ロック（`version`）・編集履歴ログ（`entity_change_logs`）は本ADRの対象外」と明示しており、本ADRはその空白を補完する位置づけである。
 
 ## 決定
 
@@ -34,7 +34,7 @@
 採用理由:
 
 - タイムスタンプ精度に依存しない。monotonically increasing な整数のため競合検出が確実である。
-- MyBatis の UPDATE 文の WHERE 句に `version = #{version}` を加えることで実装でき、更新件数が 0 の場合に `409 Conflict` を返すアプリ側ハンドリングと組み合わせられる（ADR-0009: MyBatis + JDBC スタック）。
+- MyBatis の UPDATE 文の WHERE 句に `version = #{version}` を加えることで実装でき、更新件数が 0 の場合に `409 Conflict` を返すアプリ側ハンドリングと組み合わせられる（APP-ADR-0004: MyBatis + JDBC スタック）。
 - 409 レスポンスでクライアントに競合を明示でき、「再取得して再試行」フローを組みやすい。
 
 ## 代替案

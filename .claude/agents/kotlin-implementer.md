@@ -25,8 +25,8 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - Controller: リクエスト受付・バリデーション・レスポンス変換のみ。ビジネスロジックを持たない
   - Service: ビジネスロジック・トランザクション管理
   - Repository: DB アクセスのみ（MyBatis または Spring Data JPA）
-- **ADR-0008 の認可チェック**: マスク制御が必要なエンドポイントは Service 層で `visibility_rules` を参照し、ロールに応じてマスクを適用する
-- **ADR-0006 の楽観ロック**: `resumes` / `accounts` / `skill_master_items` / `level_master_items` / `user_skills` には `version` チェックを実装する
+- **APP-ADR-0003 の認可チェック**: マスク制御が必要なエンドポイントは Service 層で `visibility_rules` を参照し、ロールに応じてマスクを適用する
+- **APP-ADR-0001 の楽観ロック**: `resumes` / `accounts` / `skill_master_items` / `level_master_items` / `user_skills` には `version` チェックを実装する
 - セキュリティ: SQL インジェクション・XSS・認可バイパスが発生しないコードを書く。ユーザー入力は API バウンダリでのみバリデートし、内部では信頼する
 - `git push` / `rm` 等の禁止操作は実行しない
 - テストコードも合わせて作成する（単体テスト: Service 層、結合テスト: Controller 層）
@@ -43,7 +43,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 
 1. `docs/design/api/<ドメイン名>.md` で実装対象のエンドポイントを確認する
 2. `docs/requirements/data-models.md` で関連テーブル・カラムを確認する
-3. 関連 ADR を確認する（特に ADR-0006・0008）
+3. 関連 ADR を確認する（特に APP-ADR-0001・0008）
 4. 既存の実装ファイルを `src/` 配下で確認し、命名規則・パッケージ構成を踏襲する
 5. Entity → Repository → Service → Controller の順で実装する
 6. テストコードを作成する
@@ -59,5 +59,5 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 
 - `docs/design/api/`（API 設計書、api-designer の出力）
 - [docs/requirements/data-models.md](../../docs/requirements/data-models.md)
-- [docs/adr/](../../docs/adr/)（特に ADR-0006・0008）
+- [docs/adr/](../../docs/adr/)（特に APP-ADR-0001・0008）
 - `src/`（既存実装の命名規則・パッケージ構成の参考）

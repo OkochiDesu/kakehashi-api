@@ -36,4 +36,4 @@ AIモデル（Copilot premium request・LLM API）を使わず、コミットメ
 - ワークフロー: [.github/workflows/pr-summary.yml](../../.github/workflows/pr-summary.yml)
 - コミットメッセージ規約: [Git Prefixes](git-prefixes.md)
 - PRテンプレート: [.github/pull_request_template.md](../../.github/pull_request_template.md)
-- 意思決定の背景: [ADR-0004: コミットメッセージベースのPRサマリー自動コメント導入](../adr/ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md)
+- 意思決定の背景: [CICD-ADR-0004: コミットメッセージベースのPRサマリー自動コメント導入](../adr/CICD-ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md)

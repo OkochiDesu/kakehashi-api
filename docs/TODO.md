@@ -45,7 +45,7 @@
 
 #### 複雑度しきい値の定義（fail条件導入済み・仮値）
 
-> 関連: [ADR-0001 今後の見直しポイント](adr/ADR-0001-CI品質ゲートとDependabot運用方針.md#今後の見直しポイント)
+> 関連: [CICD-ADR-0001 今後の見直しポイント](adr/CICD-ADR-0001-CI品質ゲートとDependabot運用方針.md#今後の見直しポイント)
 
 - CCN上限を仮値10として `reports` ジョブのfail条件に導入済み（`.github/workflows/ci.yml`）
 - 運用しながら閾値が適切か見直し、必要なら調整する
@@ -327,4 +327,4 @@ UseCase層でのチェックも検討したが、以下の理由で Interceptor 
 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - push時のGitHub Actionsで複雑度レポートを作成: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
-- データベース・マイグレーション基盤の導入（Flyway / MyBatis / PostgreSQL）: [ADR-0009](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)
+- データベース・マイグレーション基盤の導入（Flyway / MyBatis / PostgreSQL）: [APP-ADR-0004](adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)

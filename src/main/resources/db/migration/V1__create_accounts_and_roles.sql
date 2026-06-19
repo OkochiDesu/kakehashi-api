@@ -1,18 +1,18 @@
 -- V1__create_accounts_and_roles.sql
 -- ドメイン1: アカウント・ロール
 -- 根拠: docs/requirements/data-models.md 1章
---       docs/adr/ADR-0006（テーブル設計共通方針）
---       docs/adr/ADR-0008（ロール別可視範囲・visibility_rules初期データ）
---       docs/adr/ADR-0009（Flyway運用方針）
+--       docs/adr/APP-ADR-0001（テーブル設計共通方針）
+--       docs/adr/APP-ADR-0003（ロール別可視範囲・visibility_rules初期データ）
+--       docs/adr/APP-ADR-0004（Flyway運用方針）
 
 -- =============================================================
 -- accounts
 -- =============================================================
 -- account_id: AZ0000形式のtext型（社員コード相当、アプリ側採番）
--- ADR-0006: PKカラム名は<エンティティ名>_id に統一
--- ADR-0006: 監査カラム（created_by/updated_by/created_at/updated_at）は全テーブル共通
--- ADR-0006: 編集系テーブルには楽観ロック用 version を付与
--- created_by/updated_by にFKを持たせない理由: ユーザー操作とバッチ処理の識別子が混在するため（ADR-0006決定1）
+-- APP-ADR-0001: PKカラム名は<エンティティ名>_id に統一
+-- APP-ADR-0001: 監査カラム（created_by/updated_by/created_at/updated_at）は全テーブル共通
+-- APP-ADR-0001: 編集系テーブルには楽観ロック用 version を付与
+-- created_by/updated_by にFKを持たせない理由: ユーザー操作とバッチ処理の識別子が混在するため（APP-ADR-0001決定1）
 CREATE TABLE accounts (
     account_id    TEXT        NOT NULL,
     google_sub_hash TEXT      NOT NULL,
@@ -50,7 +50,7 @@ CREATE INDEX idx_accounts_status ON accounts (status);
 -- roles
 -- =============================================================
 -- role_id: UUID型（アプリ側でUUID v7を採番）
--- PostgreSQLのgen_random_uuid()はデフォルト値に使わない（ADR-0006決定3）
+-- PostgreSQLのgen_random_uuid()はデフォルト値に使わない（APP-ADR-0001決定3）
 -- display_order: roles自体は固定マスタのため定義しないが、
 --   data-models.mdにdisplay_orderの記載がないため付与しない（推測カラム禁止）
 CREATE TABLE roles (
@@ -77,7 +77,7 @@ COMMENT ON COLUMN roles.updated_at IS '更新日時';
 -- =============================================================
 -- account_roles
 -- =============================================================
--- アカウントと複数ロールの多対多（ADR-0006 / data-models.md 1章の補足）
+-- アカウントと複数ロールの多対多（APP-ADR-0001 / data-models.md 1章の補足）
 CREATE TABLE account_roles (
     account_role_id UUID        NOT NULL,
     account_id      TEXT        NOT NULL,
@@ -108,10 +108,10 @@ COMMENT ON COLUMN account_roles.updated_at         IS '更新日時';
 -- =============================================================
 -- visibility_rules
 -- =============================================================
--- ロール別に対象カテゴリの閲覧可否を制御するテーブル（ADR-0008決定1・4）
+-- ロール別に対象カテゴリの閲覧可否を制御するテーブル（APP-ADR-0003決定1・4）
 -- target_category: 可視性を制御する対象区分のコード文字列
 --   Step1では 'resume_personal_info'（最寄り駅・最終学歴）のみを想定
--- ADR-0008決定4: 将来target_categoryが増える場合はINSERTで対応し、テーブル構造変更は不要
+-- APP-ADR-0003決定4: 将来target_categoryが増える場合はINSERTで対応し、テーブル構造変更は不要
 CREATE TABLE visibility_rules (
     visibility_rule_id UUID        NOT NULL,
     role_id            UUID        NOT NULL,
@@ -142,9 +142,9 @@ COMMENT ON COLUMN visibility_rules.updated_at              IS '更新日時';
 -- =============================================================
 -- 初期データ: roles
 -- =============================================================
--- ADR-0008決定4: Step1で定義するロールは general / sales / admin の3種類
+-- APP-ADR-0003決定4: Step1で定義するロールは general / sales / admin の3種類
 -- code・name・display_orderは固定値として確定
--- created_by/updated_by: 初期投入バッチを識別するリクエストID相当の文字列（ADR-0006決定1）
+-- created_by/updated_by: 初期投入バッチを識別するリクエストID相当の文字列（APP-ADR-0001決定1）
 INSERT INTO roles (role_id, code, name, created_by, updated_by)
 VALUES
     ('01970000-0000-7000-8000-000000000001', 'general', '一般（エンジニア）', 'system:init', 'system:init'),
@@ -154,7 +154,7 @@ VALUES
 -- =============================================================
 -- 初期データ: visibility_rules
 -- =============================================================
--- ADR-0008決定4のロール別可視範囲に従う:
+-- APP-ADR-0003決定4のロール別可視範囲に従う:
 --   general: resume_personal_info → can_view = false（一般エンジニアはマスクして閲覧）
 --   sales:   resume_personal_info → can_view = true （営業は全項目閲覧可）
 --   admin:   resume_personal_info → can_view = true （管理者は全項目閲覧可）

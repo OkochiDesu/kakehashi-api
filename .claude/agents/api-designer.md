@@ -20,8 +20,8 @@ model: sonnet
 ## 厳守ルール
 
 - `docs/requirements/` と `docs/adr/` の内容のみを根拠にすること。仕様にないエンドポイントを追加しない
-- **ADR-0008**（ロール別可視範囲）を参照し、レスポンスのマスク制御が必要なエンドポイントを明記する
-- **ADR-0008 決定4**の閲覧権限（general / sales / admin）をエンドポイントごとのアクセス制御要件として記載する
+- **APP-ADR-0003**（ロール別可視範囲）を参照し、レスポンスのマスク制御が必要なエンドポイントを明記する
+- **APP-ADR-0003 決定4**の閲覧権限（general / sales / admin）をエンドポイントごとのアクセス制御要件として記載する
 - RESTful 設計原則に従う（リソース指向、適切な HTTP メソッド、ステータスコード）
 - 認証が必要なエンドポイントを明示する（Spring Security との連携前提）
 - ファイルの作成・編集は設計書（`docs/` 配下）のみ。Kotlin コードは生成しない
@@ -30,7 +30,7 @@ model: sonnet
 
 1. 対象 UC（例: UC-R1, UC-S3 等）を `docs/requirements/ui-flows.md` で確認する
 2. 関連テーブルを `docs/requirements/data-models.md` で確認する
-3. 関連 ADR（特に ADR-0008 の閲覧権限）を確認する
+3. 関連 ADR（特に APP-ADR-0003 の閲覧権限）を確認する
 4. エンドポイント定義を以下のフォーマットで設計書として出力する
 
 ## 出力フォーマット
@@ -53,4 +53,4 @@ model: sonnet
 - [docs/requirements/ui-flows.md](../../docs/requirements/ui-flows.md)
 - [docs/requirements/data-models.md](../../docs/requirements/data-models.md)
 - [docs/requirements/quality-standards.md](../../docs/requirements/quality-standards.md)
-- [docs/adr/](../../docs/adr/)（特に ADR-0008）
+- [docs/adr/](../../docs/adr/)（特に APP-ADR-0003）

@@ -43,7 +43,7 @@
 ## 影響
 
 - `docs/requirements/` / `docs/design/` 配下のドキュメントは changelog セクションを持たない方針とする。
-- ドキュメントの重要な記述には ADR へのリンクを添える（例: [data-models.md 0章](../requirements/data-models.md#0-設計方針)の楽観ロック記述 → [ADR-0010](ADR-0010-楽観ロックにversionカラム整数カウンタを採用.md)）。
+- ドキュメントの重要な記述には ADR へのリンクを添える（例: [data-models.md 0章](../requirements/data-models.md#0-設計方針)の楽観ロック記述 → [APP-ADR-0005](APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md)）。
 - doc-maintainer のチェック項目として changelog の有無チェックは追加しない（この方針に従い不要）。
 
 ## 今後の見直しポイント

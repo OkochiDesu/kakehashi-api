@@ -1,4 +1,4 @@
-# ADR-0009: 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL）
+# APP-ADR-0004: 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL）
 
 ## 目次
 
@@ -81,4 +81,4 @@ Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotli
 - O/Rマッパー（MyBatis）やマイグレーションツール（Flyway）を変更する場合は、新規ADRで本ADRをSupersedeする。
 - DB統合テスト（Testcontainers等）を導入した際は、依存・CI構成の変更を本ADRまたは実装関連の別ADRに記録する。
 - クラウド事業者・マネージドPostgreSQL等のホスティングが確定した際は、データソース設定の運用方針をADRに記録する。
-- MyBatisのマッパーXML / SQLに対するSpotlessフォーマット設定を追加した際は、CI品質ゲート関連の方針（ADR-0001〜0003系）との整合を確認する。
+- MyBatisのマッパーXML / SQLに対するSpotlessフォーマット設定を追加した際は、CI品質ゲート関連の方針（CICD-ADR-0001〜0003系）との整合を確認する。

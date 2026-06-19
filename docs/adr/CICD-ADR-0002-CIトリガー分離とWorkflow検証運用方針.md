@@ -1,4 +1,4 @@
-# ADR-0002: CIトリガー分離とWorkflow検証運用方針
+# CICD-ADR-0002: CIトリガー分離とWorkflow検証運用方針
 
 ## ステータス
 
@@ -13,12 +13,12 @@
 
 ## 関連
 
-- Supersedes: ADR-0001
+- Supersedes: CICD-ADR-0001
 - Superseded by: (none)
 
 ## 背景
 
-ADR-0001 では CI を verify/reports に責務分離したが、次の運用課題が残っていた。
+CICD-ADR-0001 では CI を verify/reports に責務分離したが、次の運用課題が残っていた。
 
 - Markdown 更新だけでも重い CI が起動し、実行コストが増える
 - Workflow 定義の更新時に、重い CI を止めると検証経路が弱くなる

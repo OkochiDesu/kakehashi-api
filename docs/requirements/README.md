@@ -40,9 +40,9 @@
 | 言語/ランタイム | Kotlin 2.2.21 (Java 21 toolchain) | 導入済み |
 | フレームワーク | Spring Boot 4.0.6 | 導入済み |
 | Lint/Format | ktlint 1.5.0 (Spotless) | 導入済み |
-| データベース | PostgreSQL 15 (JSONBを積極利用) | **導入済み**（[ADR-0009](../adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
-| マイグレーション | Flyway | **導入済み**（[ADR-0009](../adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
-| O/Rマッパー | MyBatis | **導入済み**（[ADR-0009](../adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
+| データベース | PostgreSQL 15 (JSONBを積極利用) | **導入済み**（[APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
+| マイグレーション | Flyway | **導入済み**（[APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
+| O/Rマッパー | MyBatis | **導入済み**（[APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
 | フロントエンド | Nuxt 3, TypeScript | 別リポジトリで管理予定（本リポジトリのスコープ外） |
 | インフラ/CI・CD | Dev Containers (VSCode), GitHub Actions | 導入済み |
 
@@ -127,4 +127,4 @@ Miroのイベントストーミング結果（[docs/requirements/inputs/miro/](i
 - 2026-06-15: `user_skills`と`user_skill_levels`を1テーブル（`user_skills`）に統合。1ユーザー・1スキル項目に対しレベルは最大1つ（1:1）であるため、`user_skills.level_master_item_id`をnullable列とし、「スキルのみ登録（レベル未設定）」をNULL行で表現する。これに伴いUC-S3（星取表スキル編集）とUC-S4（星取表レベル編集）を統合し、UC-S3「星取表（スキル・レベル）編集」とする（[data-models.md 3章](data-models.md#3-星取表コンテキスト) / [ui-flows.md 3章](ui-flows.md#3-星取表コンテキスト)）。
 - 2026-06-15: `skill_categories` / `skill_master_items` / `level_categories` / `level_master_items`（3章）を星取表専用ではなく経歴書（4章）からも参照される共通のスキル・レベルマスタとして位置づけた（テーブル名・配置章は変更なし）。これに伴い`resume_projects.languages_tools`（`text[]` + GINインデックス）を廃止し、案件経歴×使用スキルの中間テーブル`resume_project_skills`（`resume_project_id` × `skill_master_item_id`）を新設。経歴書検索（案件名×言語）は`resumes` / `resume_projects` / `resume_project_skills` / `skill_master_items`のJOINで行う。さらに、イベントストーミング上の論点「経歴書を更新するタイミングで星取表にスキルを反映できないか？」を解決: UC-R1（経歴書保存、保存処理自体はブロックしない）後、`resume_project_skills`に登録されたスキル項目のうち、保存者本人の`user_skills`に未登録のものがあれば`level_master_item_id = NULL`の行をUPSERTし、レベル入力の確認ダイアログを表示する（スキップ可）。スキップ等で残った「レベル未設定」行はマイページに件数バッジ等でリマインダー表示し、星取表の陳腐化を防ぐ（既存行は上書きしない。レベル設定はUC-S3で別途行う）（[data-models.md 3章・4章](data-models.md#3-星取表コンテキスト) / [ui-flows.md 0章・4章](ui-flows.md#0-全体画面構成)）。
 - 2026-06-15: UC-F1（経歴書ファイル出力）の出力対象は経歴書（`resumes` / `resume_qualifications` / `resume_projects`）のみとし、星取表（`user_skills`）は対象外とする。また出力履歴（`resume_export_logs`等）はStep1では設けない（[data-models.md 5章](data-models.md#5-ファイルコンテキスト) / [ui-flows.md 5章](ui-flows.md#5-ファイルコンテキスト)）。なお、検索条件・利用者属性・星取表のスキル傾向をログ化して改善サイクルに活用するアイデアは、[docs/TODO.md](../TODO.md)の「利用状況分析（Step2 AIレコメンド連携）」に検討観点として追記した。
-- 2026-06-16: PostgreSQL / Flyway / MyBatis を `build.gradle.kts` および `application.properties` へ導入。技術スタック表の状態を「導入済み」に更新。詳細は [ADR-0009](../adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) を参照。
+- 2026-06-16: PostgreSQL / Flyway / MyBatis を `build.gradle.kts` および `application.properties` へ導入。技術スタック表の状態を「導入済み」に更新。詳細は [APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) を参照。

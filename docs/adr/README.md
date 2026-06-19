@@ -40,25 +40,33 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 
 | ADR | タイトル | カテゴリ | ステータス |
 |---|---|---|---|
-| [ADR-0001](ADR-0001-CI品質ゲートとDependabot運用方針.md) | CI品質ゲートとDependabot運用方針 | CI/CD | Superseded → ADR-0002 |
-| [ADR-0002](ADR-0002-CIトリガー分離とWorkflow検証運用方針.md) | CIトリガー分離とWorkflow検証運用方針 | CI/CD | Accepted |
-| [ADR-0003](ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) | 複雑度しきい値によるCIフェイル条件導入 | CI/CD | Accepted |
-| [ADR-0004](ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md) | コミットメッセージベースのPRサマリー自動コメント導入 | CI/CD | Accepted（決定4のみADR-0005で置換） |
-| [ADR-0005](ADR-0005-PR本文への変更内容自動反映方式への変更.md) | PR本文への変更内容自動反映方式への変更 | CI/CD | Accepted |
-| [ADR-0006](ADR-0006-テーブル設計共通方針.md) | テーブル設計共通方針 | 業務仕様 | Accepted |
-| [ADR-0007](ADR-0007-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
-| [ADR-0008](ADR-0008-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted |
-| [ADR-0009](ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) | 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL） | コーディング | Accepted |
-| [ADR-0010](ADR-0010-楽観ロックにversionカラム整数カウンタを採用.md) | 楽観ロックにversionカラム（整数カウンタ）を採用 | 業務仕様 | Accepted |
+| [CICD-ADR-0001](CICD-ADR-0001-CI品質ゲートとDependabot運用方針.md) | CI品質ゲートとDependabot運用方針 | CI/CD | Superseded → CICD-ADR-0002 |
+| [CICD-ADR-0002](CICD-ADR-0002-CIトリガー分離とWorkflow検証運用方針.md) | CIトリガー分離とWorkflow検証運用方針 | CI/CD | Accepted |
+| [CICD-ADR-0003](CICD-ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) | 複雑度しきい値によるCIフェイル条件導入 | CI/CD | Accepted |
+| [CICD-ADR-0004](CICD-ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md) | コミットメッセージベースのPRサマリー自動コメント導入 | CI/CD | Accepted（決定4のみCICD-ADR-0005で置換） |
+| [CICD-ADR-0005](CICD-ADR-0005-PR本文への変更内容自動反映方式への変更.md) | PR本文への変更内容自動反映方式への変更 | CI/CD | Accepted |
+| [APP-ADR-0001](APP-ADR-0001-テーブル設計共通方針.md) | テーブル設計共通方針 | 業務仕様 | Accepted |
+| [APP-ADR-0002](APP-ADR-0002-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
+| [APP-ADR-0003](APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted |
+| [APP-ADR-0004](APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) | 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL） | コーディング | Accepted |
+| [APP-ADR-0005](APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md) | 楽観ロックにversionカラム（整数カウンタ）を採用 | 業務仕様 | Accepted |
 | [DOC-ADR-0001](DOC-ADR-0001-ドキュメントにchangelogセクションを持たない.md) | ドキュメントにchangelogセクションを持たない（git + ADRリンクで代替） | ドキュメント方針（DOC-ADR） | Accepted |
 
 ## ファイル命名規則
 
-通常ADR（製品・システムに関する決定）:
+CI/CD ADR（CICD-ADR）:
 
-- 形式: `ADR-連番4桁-日本語タイトル.md`
-- 例: `ADR-0002-CIトリガー分離とWorkflow検証運用方針.md`
-- 連番は ADR 通し番号。欠番を作らず最新番号の次を採番する
+- 形式: `CICD-ADR-連番4桁-日本語タイトル.md`
+- 例: `CICD-ADR-0002-CIトリガー分離とWorkflow検証運用方針.md`
+- 対象: CI/CDパイプライン・PR自動化・品質ゲートに関する決定
+- 連番は CICD-ADR 独自の通し番号（0001 から始まる）
+
+アプリケーションADR（APP-ADR）:
+
+- 形式: `APP-ADR-連番4桁-日本語タイトル.md`
+- 例: `APP-ADR-0001-テーブル設計共通方針.md`
+- 対象: バックエンド・フロントエンド・DB設計・業務仕様に関する決定（ドメイン横断の場合は影響セクションに明記）
+- 連番は APP-ADR 独自の通し番号（0001 から始まる）
 
 ドキュメント方針ADR（DOC-ADR）:
 
@@ -164,10 +172,10 @@ ADR/AI-ADR ではなく対応する exec-plan の意思決定ログに記録す�
 
 ## ADR テンプレート
 
-新しい ADR を追加する際は以下をコピーして `docs/adr/ADR-NNNN-<日本語タイトル>.md` として保存する。
+新しい ADR を追加する際は、プレフィックスを選択（`CICD-ADR-` / `APP-ADR-` / `DOC-ADR-` / `AI-ADR-`）してコピーする。
 
 ```markdown
-# ADR-NNNN: タイトル
+# <PREFIX>-NNNN: タイトル
 
 ## ステータス
 
