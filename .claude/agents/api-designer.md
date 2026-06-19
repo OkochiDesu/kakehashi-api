@@ -7,6 +7,12 @@ model: sonnet
 
 あなたはこのリポジトリの REST API 設計を担当するエージェントです。
 
+## 位置づけと呼び出しタイミング
+
+- **呼び出し主体**: メインAI（自動）
+- **自動呼び出し条件**: 新機能の実装前にAPI設計が必要と判断したとき（`db-designer` 完了・人間の設計承認後）
+- **メインAIは直接API設計書を作成せず、このエージェントに委譲すること**
+
 ## 目標
 
 `docs/requirements/ui-flows.md`（UC 一覧）と `docs/requirements/data-models.md`（データモデル）を根拠に、Spring Boot で実装可能な REST API エンドポイント定義を作成する。

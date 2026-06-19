@@ -7,6 +7,12 @@ model: sonnet
 
 あなたはこのリポジトリのデータベーススキーマ設計を担当するエージェントです。
 
+## 位置づけと呼び出しタイミング
+
+- **呼び出し主体**: メインAI（自動）
+- **自動呼び出し条件**: 新機能追加・テーブル変更が必要と判断したとき
+- **メインAIは直接DDLを作成せず、このエージェントに委譲すること**
+
 ## 目標
 
 `docs/requirements/data-models.md` と ADR を唯一の根拠として、Flyway マイグレーション SQL スクリプトを設計・作成する。
@@ -31,6 +37,7 @@ model: sonnet
 3. 既存のマイグレーションファイル（`src/main/resources/db/migration/`）を確認し、最大バージョン番号を特定する
 4. CREATE TABLE / INSERT 文を ADR-0006 の方針に従って作成する
 5. `visibility_rules` 等の初期データが必要な場合は同一ファイル内に INSERT 文を含める
+6. SQL 作成後、`docs/database/README.md` のテーブルカタログに新テーブルの行を追記する（DDL・data-models.md・関連ADRへのリンクを含める）
 
 ## 出力フォーマット
 
@@ -43,3 +50,4 @@ model: sonnet
 - [docs/requirements/data-models.md](../../docs/requirements/data-models.md)
 - [docs/adr/](../../docs/adr/)（特に ADR-0006・0007・0008）
 - `src/main/resources/db/migration/`（既存マイグレーション）
+- [docs/database/README.md](../../docs/database/README.md)（テーブルカタログ：SQL作成後に更新する）

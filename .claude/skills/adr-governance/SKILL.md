@@ -1,6 +1,6 @@
 ---
 name: adr-governance
-description: "ADR作成・更新・Supersede時に使用。git diff / ADR impact analysis / policy-compliant ADR drafting。Create or update ADRs from git diff with repository evidence only."
+description: "ADR・AI-ADR作成・更新・Supersede時の救済スキル。通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出すが、セッション切れ・コンテキスト喪失等でAIが迷子になった場合にユーザーが明示的に起動する。"
 argument-hint: "対象diffの範囲、意図、ドラフトのみか実際に適用するかを指定する"
 user-invocable: true
 ---
@@ -8,6 +8,15 @@ user-invocable: true
 # ADR Governance スキル
 
 `adr-governance` サブエージェント（[.claude/agents/adr-governance.md](../../agents/adr-governance.md)）を呼び出し、ADRの作成・更新・Supersedeを行う。
+
+## このスキルの位置づけ
+
+**通常は不要**。ADR・AI-ADRの作成・更新が必要な場面では、同一セッション内でメインAIが `adr-governance` サブエージェントを自動的に呼び出す。
+
+このスキルは以下の**救済措置**として使用する:
+- セッションが切れてコンテキストを失った場合
+- AIが次のステップを見失った場合
+- 明示的にADRガバナンスフローを起動し直したい場合
 
 ## 使い対象シーン
 - アーキテクチャ、CIポリシー、データモデル、セキュリティポリシー、チーム共有のエンジニアリングルールを変更したとき。

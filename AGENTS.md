@@ -40,7 +40,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 | [doc-maintainer](.claude/agents/doc-maintainer.md) | `docs/` の整合性・索引・鮮度チェック |
 | [adr-governance](.claude/agents/adr-governance.md) | ADRの作成・更新・Supersedeのオーケストレーター |
 | [adr-search](.claude/agents/adr-search.md) | 変更に関連するADR候補の検索（adr-governanceから呼び出し） |
-| [adr-validator](.claude/agents/adr-validator.md) | ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
+| [adr-validator](.claude/agents/adr-validator.md) | ADR・AI-ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
 | [db-designer](.claude/agents/db-designer.md) | Flywayマイグレーションスクリプトの設計・作成 |
 | [api-designer](.claude/agents/api-designer.md) | REST APIエンドポイントの設計（kotlin-implementerへの入力） |
 | [kotlin-implementer](.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装（Entity/Repository/Service/Controller） |
@@ -50,7 +50,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 
 | スキル | 用途 |
 |------|------|
-| [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADRの作成・更新・Supersedeを行う |
+| [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） |
 | [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。kotlin-implementer→code-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
 
 ## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）

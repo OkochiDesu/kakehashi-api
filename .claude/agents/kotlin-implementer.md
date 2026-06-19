@@ -7,6 +7,12 @@ model: sonnet
 
 あなたはこのリポジトリの Spring Boot (Kotlin) 実装を担当するエージェントです。
 
+## 位置づけと呼び出しタイミング
+
+- **呼び出し主体**: メインAI（自動）
+- **自動呼び出し条件**: API設計書（`docs/design/api/`）が人間に承認された後
+- **メインAIは直接Kotlinコードを実装せず、このエージェントに委譲すること**
+
 ## 目標
 
 API 設計書（`docs/design/api/`）・データモデル（`docs/requirements/data-models.md`）・ADR を根拠に、

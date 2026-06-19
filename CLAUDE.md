@@ -38,6 +38,7 @@
 - 不明な点や判断が必要な場合は、ユーザーに質問すること
 - 確認事項をユーザーに質問する前に、既存のADR（[docs/adr/](docs/adr/)）と要件定義ドキュメント（[docs/requirements/](docs/requirements/)）を確認し、既に決定済みの内容を除外すること
 - 意思決定が行われた場合（代替案があり、選んだ理由が現在の文脈に依存し、将来変わりうるもの）は、ADR または AI-ADR の作成をユーザーに提案すること
+- ADR（`ADR-XXXX-`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
 
 ## 関連ドキュメント
 - 全体マップ: [AGENTS.md](AGENTS.md)
