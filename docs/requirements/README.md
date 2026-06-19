@@ -71,6 +71,7 @@
 - [ui-flows.md](ui-flows.md): ユースケースと画面遷移（Mermaid）
 - [data-models.md](data-models.md): RDB厳密カラム / JSONB柔軟カラムの境界整理
 - [quality-standards.md](quality-standards.md): ISO/IEC 25010:2023に基づく品質目標
+- [inputs/miro/README.md](inputs/miro/README.md): イベントストーミング結果（Miroエクスポート・生データ）
 
 ## 6. フロントエンド関連ドキュメントの移行方針
 

@@ -46,6 +46,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [ナビゲーション指標ログ](agents/navigation-metrics.md) - 目次（AGENTS.md/docs/README.md）の機能度を振り返るログ
 - [マルチエージェント構成 実行計画（exec-plan 0001）](exec-plans/active/0001-requirements-definition-multiagent.md)
 - [旧マルチエージェント構成セットアップガイド（移行済み・リダイレクト）](agents/multi-agent-setup-guide.md)
+- [Harness Engineering（参考記事転記）](agents/openAI_harness_enjineerring.md)
 
 全体マップ（AIエージェント向け索引）は [AGENTS.md](../AGENTS.md) を参照。
 
