@@ -140,6 +140,9 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0004](../adr/AI-ADR-0004-implement-review-loopスキルの救済措置としての位置づけ.md) | implement-review-loopスキルの救済措置としての位置づけ | Accepted |
 | [AI-ADR-0005](../adr/AI-ADR-0005-スキルの救済措置パターンと設計原則.md) | `.claude/skills/` の救済措置パターン（全スキル共通設計原則） | Accepted |
 | [AI-ADR-0006](../adr/AI-ADR-0006-doc-maintainerチェックのCLAUDE.md明示方式採用.md) | doc-maintainer陳腐化チェックのCLAUDE.md明示方式採用 | Accepted |
+| [AI-ADR-0007](../adr/AI-ADR-0007-AGENTS.mdを目次型マップとして採用.md) | AGENTS.mdを目次型（マップ）として採用 | Accepted |
+| [AI-ADR-0008](../adr/AI-ADR-0008-AIのcommit権限をCLAUDE.md確認制御とpre-commit-fail-closedで管理.md) | AIのcommit権限をCLAUDE.md確認制御+pre-commit fail-closedで管理 | Accepted |
+| [AI-ADR-0009](../adr/AI-ADR-0009-CLAUDE.md-importによるコンテキスト常時注入.md) | CLAUDE.md @importによるコンテキスト常時注入（hook廃止） | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 
