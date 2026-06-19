@@ -20,7 +20,7 @@
 要件定義フェーズに入る前に、ClaudeCodeの安全設定・ドキュメントマップ・ドキュメント整備エージェントを整備し、
 その上で要件定義（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）を行うマルチエージェント構成を構築する。
 
-参考: [Harness Engineering（OpenAI記事）](../../agents/openAI_harness_enjineerring.md)
+参考: [Harness Engineering（OpenAI記事）](../../references/harness-engineering/openai-harness-engineering.md)
 
 ## 進捗状況
 

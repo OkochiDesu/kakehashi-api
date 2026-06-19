@@ -3,7 +3,7 @@
 このリポジトリでAIエージェントと協働する際に大事にしている原則をまとめる。
 「なぜこの構成にしたか」の判断基準として使う。新しいルールを追加する際は、まず既存の原則と矛盾しないか確認すること。
 
-参考: [Harness Engineering（OpenAI記事）](../agents/openAI_harness_enjineerring.md)
+参考: [Harness Engineering（OpenAI記事）](../references/harness-engineering/openai-harness-engineering.md)
 
 ## 1. AGENTS.mdは目次（マップ）であり、百科事典ではない
 

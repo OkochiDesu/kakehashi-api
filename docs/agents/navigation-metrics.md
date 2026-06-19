@@ -2,7 +2,7 @@
 
 このファイルは、AIエージェント（主にClaudeCode）が `AGENTS.md` / `docs/README.md` を「目次」として
 実際にどの程度効率よく使えているかを記録するログです。
-[openAI_harness_enjineerring.md](openAI_harness_enjineerring.md) で紹介されている
+[Harness Engineering（OpenAI記事）](../references/harness-engineering/openai-harness-engineering.md) で紹介されている
 「AGENTS.mdを百科事典ではなく目次として扱う」という方針が、このリポジトリで機能しているかを
 セッションを跨いで定量的に振り返るために使います。
 

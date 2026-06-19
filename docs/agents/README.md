@@ -36,7 +36,7 @@
 | [`.claude/hooks/session-end.sh`](../../.claude/hooks/session-end.sh) | Stop時にツール数・所要時間を集計し次回SessionStartへ引き継ぐ（`/tmp/claude_kakehashi_last_session.json` に保存） | ClaudeCode（自動実行） |
 | [`docs/exec-plans/`](../exec-plans/README.md) | 実行計画（進行中/完了/技術的負債）の運用ルールと実体 | 人間（あなた）・Claude |
 | [`docs/design-docs/core-beliefs.md`](../design-docs/core-beliefs.md) | このリポジトリの運用原則・思想 | 人間（あなた）・Claude |
-| [`openAI_harness_enjineerring.md`](openAI_harness_enjineerring.md) | 参考にした元記事の転記 | 人間（あなた）・Claude |
+| [`references/harness-engineering/`](../references/harness-engineering/openai-harness-engineering.md) | 参考にした元記事の転記（Harness Engineering） | 人間（あなた）・Claude |
 
 ---
 

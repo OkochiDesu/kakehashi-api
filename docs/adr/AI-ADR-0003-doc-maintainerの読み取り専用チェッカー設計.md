@@ -22,7 +22,7 @@
 これらを継続的にチェックするエージェントが必要になった。
 
 設計上の選択肢として、エージェントに自動修正（Write/Edit）権限を与えるかどうかが論点になった。
-[Harness Engineering](../agents/openAI_harness_enjineerring.md) の「ドキュメント整備エージェント」の考え方を、安全な形で導入する必要があった。
+[Harness Engineering](../references/harness-engineering/openai-harness-engineering.md) の「ドキュメント整備エージェント」の考え方を、安全な形で導入する必要があった。
 
 ## 決定
 

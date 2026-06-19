@@ -46,7 +46,6 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [ナビゲーション指標ログ](agents/navigation-metrics.md) - 目次（AGENTS.md/docs/README.md）の機能度を振り返るログ
 - [マルチエージェント構成 実行計画（exec-plan 0001）](exec-plans/active/0001-requirements-definition-multiagent.md)
 - [旧マルチエージェント構成セットアップガイド（移行済み・リダイレクト）](agents/multi-agent-setup-guide.md)
-- [Harness Engineering（参考記事転記）](agents/openAI_harness_enjineerring.md)
 
 全体マップ（AIエージェント向け索引）は [AGENTS.md](../AGENTS.md) を参照。
 
@@ -63,6 +62,18 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [requirements/data-models.md](requirements/data-models.md) - データモデル設計（レビュー完了・要件定義確定）
 - [requirements/quality-standards.md](requirements/quality-standards.md) - 非機能要件・品質目標（レビュー完了・要件定義確定）
 
+## Database（テーブルカタログ）
+
+- [database/README.md](database/README.md) - 実装済みテーブル一覧・DDL/データモデル/ADRへのリンク集
+
+## Design（API・詳細設計）
+
+- [design/api/account-role.md](design/api/account-role.md) - REST API設計書: アカウント・ロールドメイン（UC-A1〜A7）
+
 ## Architecture（モジュール構成・パッケージ設計）
 
 - [architecture/README.md](architecture/README.md) - モジュール構成・パッケージ設計・サブプロジェクト構成（Step1実装フェーズで随時更新）
+
+## References（外部参考資料）
+
+- [Harness Engineering（OpenAI記事転記）](references/harness-engineering/openai-harness-engineering.md) - エージェント設計の参考記事

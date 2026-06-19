@@ -24,7 +24,7 @@
 - 探索・検証も含めてすべて高性能モデルで処理するとコストが高い。
 - 逆に全処理を軽量モデルに任せると、影響分析やSupersede判断の品質が落ちる。
 
-[Harness Engineering](../agents/openAI_harness_enjineerring.md) の「コンテキストは希少資源」という教訓に基づき、役割ごとに責務とモデルを分離する必要があった。
+[Harness Engineering](../references/harness-engineering/openai-harness-engineering.md) の「コンテキストは希少資源」という教訓に基づき、役割ごとに責務とモデルを分離する必要があった。
 
 ## 決定
 

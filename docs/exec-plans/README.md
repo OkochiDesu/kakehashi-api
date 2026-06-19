@@ -1,6 +1,6 @@
 # exec-plans 運用ルール
 
-> 出典: [Harness Engineering（OpenAI記事）](../agents/openAI_harness_enjineerring.md) の「計画は第一級の成果物として扱う」という考え方を採用する。
+> 出典: [Harness Engineering（OpenAI記事）](../references/harness-engineering/openai-harness-engineering.md) の「計画は第一級の成果物として扱う」という考え方を採用する。
 
 ## ディレクトリ構成
 
