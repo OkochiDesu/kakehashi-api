@@ -38,6 +38,11 @@
 - 不明な点や判断が必要な場合は、ユーザーに質問すること
 - 確認事項をユーザーに質問する前に、既存のADR（[docs/adr/](docs/adr/)）と要件定義ドキュメント（[docs/requirements/](docs/requirements/)）を確認し、既に決定済みの内容を除外すること
 - 意思決定が行われた場合（代替案があり、選んだ理由が現在の文脈に依存し、将来変わりうるもの）は、ADR または AI-ADR の作成をユーザーに提案すること
+- ユーザーから指摘・訂正を受けた場合は、以下の分類で仕組み化を提案すること（[core-beliefs.md 原則8](docs/design-docs/core-beliefs.md) 参照）:
+  - 一時的な文脈ミス → `memory/` に保存
+  - プロジェクト固有の行動ルール違反 → `CLAUDE.md` にルール追記
+  - 特定エージェントの設計ミス → `.claude/agents/` を更新
+  - 設計判断レベルの問題 → AI-ADR として記録
 - ADR（`ADR-XXXX-`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
 
 ## 関連ドキュメント
