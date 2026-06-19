@@ -133,7 +133,11 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 
 | AI-ADR | タイトル | ステータス |
 |---|---|---|
-| （未作成） | — | — |
+| [AI-ADR-0001](../adr/AI-ADR-0001-Step1実装サポート用マルチエージェントパイプライン構成の採用.md) | Step1実装サポート用マルチエージェントパイプライン構成の採用 | Accepted |
+| [AI-ADR-0002](../adr/AI-ADR-0002-ADR-Governanceエージェントの3層構造採用.md) | ADR Governanceエージェントの3層構造採用（オーケストレーター＋検索＋検証） | Accepted |
+| [AI-ADR-0003](../adr/AI-ADR-0003-doc-maintainerの読み取り専用チェッカー設計.md) | doc-maintainerの読み取り専用チェッカー設計 | Accepted |
+| [AI-ADR-0004](../adr/AI-ADR-0004-implement-review-loopスキルの救済措置としての位置づけ.md) | implement-review-loopスキルの救済措置としての位置づけ | Accepted |
+| [AI-ADR-0005](../adr/AI-ADR-0005-スキルの救済措置パターンと設計原則.md) | `.claude/skills/` の救済措置パターン（全スキル共通設計原則） | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 
