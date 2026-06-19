@@ -67,3 +67,4 @@
 | 日付 | セッション概要 | 難易度 | 探索コスト | 備考 |
 |------|------|------|------|------|
 | 2026-06-15 | 要件定義の進行確認＋本ナビゲーション指標ログの設計・新設 | 3 | 0 | `memory`の要約から会話を継続でき、本タスクもAGENTS.md/docs/READMEのリンクから直接doc-maintainer定義等に到達できた |
+| 2026-06-19 | AI-ADR-0006作成・CLAUDE.mdにdoc-maintainer必須ルール＋ADR自動提案ルール追加・docs/references/整理 | 4 | 1 | AGENTS.md/docs/READMEから必要なファイルにほぼ直接到達できた。doc-maintainerチェックをコミット後に実行するミスを2回。feedbackメモリに記録済み |
