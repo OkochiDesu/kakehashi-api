@@ -25,7 +25,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
   - Command側: 集約はドメインモデルを経由し、正規化テーブル（必要に応じてJSONB）に永続化する。
   - Query側: ドメイン層をバイパスし、MyBatisでJOIN結果・JSONBを直接DTOにマッピングして画面へ返す。
 - **監査カラム（全テーブル共通）**: 全テーブルに`created_at` / `updated_at`（timestamp）、`created_by` / `updated_by`（text）を付与する。`created_by` / `updated_by`には、ユーザー操作の場合は`accounts.account_id`（後述の文字列形式ID）、バッチ処理（SQL直接投入等）の場合は処理を識別するリクエストIDなどの文字列を格納する。値の種類が混在するためFK制約は持たせない。
-- **編集系テーブルの楽観ロック**: ユーザーが編集する主要テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `resumes`）には、楽観ロック用の`version`（integer、更新ごとにインクリメント）を付与する（[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)）。
+- **編集系テーブルの楽観ロック**: ユーザーが編集する主要テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `resumes`）には、楽観ロック用の`version`（integer、更新ごとにインクリメント）を付与する（[quality-standards.md 1章・6章](quality-standards.md#1-機能適合性functional-suitability)）。version方式を採用した理由は [ADR-0010](../adr/ADR-0010-楽観ロックにversionカラム整数カウンタを採用.md) を参照。
 - **編集履歴ログ**: 上記テーブルの変更履歴は、汎用の`entity_change_logs`（id, entity_type, entity_id, created_by, action, changed_at, before, after）で記録する想定。対象テーブル・粒度の詳細は実装フェーズで確定する。
 - **命名規則**: テーブル名・カラム名ともsnake_case。各テーブルのPKカラム名は`<エンティティ名（単数形）>_id`とする（例: `account_id`, `role_id`, `skill_category_id`）。`id`という単独カラム名は使わない。
 - **PKの型・採番方式**:
