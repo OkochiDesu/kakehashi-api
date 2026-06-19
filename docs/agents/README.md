@@ -138,6 +138,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0003](../adr/AI-ADR-0003-doc-maintainerの読み取り専用チェッカー設計.md) | doc-maintainerの読み取り専用チェッカー設計 | Accepted |
 | [AI-ADR-0004](../adr/AI-ADR-0004-implement-review-loopスキルの救済措置としての位置づけ.md) | implement-review-loopスキルの救済措置としての位置づけ | Accepted |
 | [AI-ADR-0005](../adr/AI-ADR-0005-スキルの救済措置パターンと設計原則.md) | `.claude/skills/` の救済措置パターン（全スキル共通設計原則） | Accepted |
+| [AI-ADR-0006](../adr/AI-ADR-0006-doc-maintainerチェックのCLAUDE.md明示方式採用.md) | doc-maintainer陳腐化チェックのCLAUDE.md明示方式採用 | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 
