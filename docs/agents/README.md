@@ -124,6 +124,21 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 
 ---
 
+---
+
+## エージェント設計ADR（AI-ADR）索引
+
+エージェント構成のアーキテクチャ決定は `docs/adr/` に `AI-ADR-XXXX-` プレフィックスで記録する。
+「なぜこの構成を選んだか」を後から辿れるよう、ここに索引を置く。
+
+| AI-ADR | タイトル | ステータス |
+|---|---|---|
+| （未作成） | — | — |
+
+> AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
+
+---
+
 ## 今後の流れ（Phase 2）
 
 Step1実装サポート用マルチエージェント構成（db-designer / api-designer / kotlin-implementer / code-reviewer）は構築済み。

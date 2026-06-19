@@ -97,9 +97,10 @@ jobs:
             base_name="$(basename "$file")"
 
             # 形式: ADR-連番4桁-日本語タイトル.md（スペース禁止）
-            if [[ ! "$base_name" =~ ^ADR-[0-9]{4}-[^[:space:]]+\.md$ ]]; then
+            # AI-ADR-XXXX- はエージェント設計ADR（AI Architecture Decision Record）
+            if [[ ! "$base_name" =~ ^(ADR|AI-ADR)-[0-9]{4}-[^[:space:]]+\.md$ ]]; then
               echo "Invalid ADR filename: $file"
-              echo "Expected format: ADR-0001-タイトル.md (no spaces)"
+              echo "Expected format: ADR-0001-タイトル.md or AI-ADR-0001-タイトル.md (no spaces)"
               INVALID=1
             fi
           done
