@@ -18,7 +18,7 @@ CREATE TABLE accounts (
     google_sub_hash TEXT      NOT NULL,
     email         TEXT        NOT NULL,
     name          TEXT        NOT NULL,
-    -- 'provisional'（仮登録）/ 'active'（本登録）/ 'suspended'（停止）
+    -- 'provisional'（仮登録）/ 'active'（本登録）/ 'suspended'（停止）/ 'deactivated'（廃止・1年停止で自動遷移）
     status        TEXT        NOT NULL,
     suspended_at  TIMESTAMPTZ,
     version       INTEGER     NOT NULL DEFAULT 0,
@@ -27,7 +27,9 @@ CREATE TABLE accounts (
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT pk_accounts PRIMARY KEY (account_id),
-    CONSTRAINT uq_accounts_google_sub_hash UNIQUE (google_sub_hash)
+    CONSTRAINT uq_accounts_google_sub_hash UNIQUE (google_sub_hash),
+    -- APP-ADR-0006: status の有効値を制約（deactivated は suspended から1年経過後に @Scheduled で自動遷移）
+    CONSTRAINT ck_accounts_status CHECK (status IN ('provisional', 'active', 'suspended', 'deactivated'))
 );
 
 COMMENT ON TABLE  accounts                        IS 'アカウント';
@@ -35,8 +37,8 @@ COMMENT ON COLUMN accounts.account_id             IS 'アカウントID（社員
 COMMENT ON COLUMN accounts.google_sub_hash        IS 'Google OAuth subクレームのハッシュ値';
 COMMENT ON COLUMN accounts.email                  IS 'メールアドレス';
 COMMENT ON COLUMN accounts.name                   IS '氏名';
-COMMENT ON COLUMN accounts.status                 IS 'ステータス（provisional: 仮登録 / active: 本登録 / suspended: 停止）';
-COMMENT ON COLUMN accounts.suspended_at           IS '停止日時';
+COMMENT ON COLUMN accounts.status                 IS 'ステータス（provisional: 仮登録 / active: 本登録 / suspended: 停止 / deactivated: 廃止）（APP-ADR-0006）';
+COMMENT ON COLUMN accounts.suspended_at           IS '停止日時。suspended_atから1年経過でdeactivatedへ自動遷移（@Scheduled日次）（APP-ADR-0006）';
 COMMENT ON COLUMN accounts.version                IS '楽観ロック用バージョン番号';
 COMMENT ON COLUMN accounts.created_by             IS '作成者（アカウントIDまたはバッチのリクエストID）';
 COMMENT ON COLUMN accounts.updated_by             IS '更新者（アカウントIDまたはバッチのリクエストID）';

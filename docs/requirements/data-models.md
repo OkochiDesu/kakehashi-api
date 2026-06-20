@@ -46,8 +46,8 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | google_sub_hash | text (unique) | Google SSOの`sub`クレームの決定的ハッシュ（SHA-256等）。ログイン時はハッシュ化して比較し、平文の`sub`は保持しない |
 | email | text | Googleアカウントのメールアドレス |
 | name | text | 表示名（Googleプロフィールの`name`をそのまま保持） |
-| status | text/enum | アカウント状態（仮登録／本登録／停止） |
-| suspended_at | timestamp (nullable) | 停止開始日時。「停止から1年経過」の判定に使用（[quality-standards.md 1章](quality-standards.md#1-機能適合性functional-suitability)） |
+| status | text/enum | アカウント状態。`provisional`（仮登録）/ `active`（本登録済み）/ `suspended`（停止中）/ `deactivated`（廃止）の4値。退職と一時停止は区別しない（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)） |
+| suspended_at | timestamp (nullable) | 停止開始日時。停止解除時にNULLに戻す。`suspended_at`から1年経過後に`@Scheduled`日次タスクで`deactivated`へ自動遷移（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)） |
 | version | integer | 楽観ロック用バージョン |
 | created_by | text | 登録者（`accounts.account_id`またはバッチのリクエストID） |
 | updated_by | text | 最終更新者（権限変更・停止操作を行った管理者の`accounts.account_id`等） |
@@ -90,7 +90,8 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 - 「仮登録」「本登録（自動処理）」は`accounts.status`の状態遷移として表現する（[ui-flows.md 1章](ui-flows.md#1-認証アカウントコンテキスト)の補足で説明した内部処理・自動処理を含む）。
 - 「停止／停止解除」（UC-A7）は`accounts.status`の状態遷移として表現し、停止時に`suspended_at`を設定、解除時に`suspended_at`をNULLに戻す。
 - 「権限変更」（UC-A6）は、`accounts.role`という単一カラムではなく、`account_roles`（アカウント×ロールの多対多）の行の追加・削除として表現する。1アカウントが複数ロールを持つことを許容する。
-- **長期停止アカウントのマスク化**: `suspended_at`から1年以上経過したアカウントは、エンジニアページ等での表示がマスク対象となる（[quality-standards.md 1章](quality-standards.md#1-機能適合性functional-suitability)）。バッチでステータスを更新するか、参照時に`suspended_at`から動的判定するかは実装フェーズで決定する。
+- **deactivatedへの自動遷移とマスク化**: `suspended_at`から1年経過したアカウントはSpring `@Scheduled`日次タスクで`status = 'deactivated'`に更新する。`deactivated`アカウントはAPIレスポンス時に`name`/`email`を常にマスク（`"***"`等）して返す（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)）。
+- **ステータスごとの検索可視性**: 非admin（`general`/`sales`）は`active`のみ参照可。adminのデフォルト検索は`active`+`suspended`のみ。`deactivated`はadminが`status=deactivated`を明示した場合のみ参照可。
 - `roles` / `visibility_rules`は、4章「経歴書コンテキスト」のマスク済み経歴書・星取表閲覧（UC-R2/UC-S5）の可視性制御と直結する。「どの区分の項目を、どのロールに見せるか」を`visibility_rules`で表現する。`target_category`は経歴書（`resumes`/`resume_projects`の列単位）・星取表（`skill_categories`/`level_categories`単位）の両方を対象とする想定。
 - 会社ドメインチェック（CSVメモ「会社のドメイン（環境変数）をチェックしたい」）はアプリケーション設定（環境変数）で行うため、テーブル設計には影響しない。
 - 経歴書・星取表など他コンテキストのテーブルは`accounts.account_id`を外部キーとして参照する。
