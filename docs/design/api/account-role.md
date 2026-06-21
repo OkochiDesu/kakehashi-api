@@ -4,7 +4,7 @@
 
 対象ユースケース: UC-A1〜A7（[ui-flows.md 1章](../../requirements/ui-flows.md#1-認証アカウントコンテキスト)）
 根拠テーブル: `accounts` / `roles` / `account_roles`（[data-models.md 1章](../../requirements/data-models.md#1-認証アカウントコンテキスト)）
-参照ADR: [APP-ADR-0001](../../adr/APP-ADR-0001-テーブル設計共通方針.md) / [APP-ADR-0003](../../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) / [APP-ADR-0007](../../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)
+参照ADR: [APP-ADR-0001](../../adr/APP-ADR-0001-テーブル設計共通方針.md) / [APP-ADR-0003](../../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) / [APP-ADR-0007](../../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) / [APP-ADR-0008](../../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) / [APP-ADR-0009](../../adr/APP-ADR-0009-APIパスにバージョンプレフィックスを含めない.md)
 
 ---
 
@@ -34,7 +34,7 @@
 
 ### CQRSの適用
 
-[docs/requirements/README.md 4章](../../requirements/README.md#4-アーキテクチャ原則adr化予定の方針)の方針に従い、Command と Query を明確に分離する。
+[APP-ADR-0008](../../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) に従い、Command と Query を明確に分離する（[要件定義 4章](../../requirements/README.md#4-アーキテクチャ原則) 参照）。
 
 | 分類 | 処理の流れ | 主な用途 |
 |---|---|---|
@@ -100,7 +100,7 @@
 
 ### UC-A1: Google SSOログイン（仮登録・自動プロビジョニング）
 
-- **メソッド・パス**: `POST /api/v1/auth/google/callback`
+- **メソッド・パス**: `POST /api/auth/google/callback`
 - **認証**: 不要（Google OAuthコールバック受信）
 - **アクセス制御**: 全ロール（未登録含む）
 - **処理概要（JITプロビジョニング）**:
@@ -140,7 +140,7 @@
 
 ### UC-A3: 本登録申込み
 
-- **メソッド・パス**: `POST /api/v1/accounts/me/registration`
+- **メソッド・パス**: `POST /api/accounts/me/registration`
 - **認証**: 必要（`status = 'provisional'` のアカウントのみ）
 - **アクセス制御**: 全ロール（ただし仮登録状態のアカウントのみ実行可能）
 - **処理概要**: 本登録申込みを受けてシステムが自動的に `accounts.status` を `provisional` から `active` へ遷移させる（UC-A4 相当の自動処理、管理者承認なし）。デフォルト権限の付与はなし（権限は管理者が UC-A6 で明示的に付与する）。
@@ -165,7 +165,7 @@
 
 ### UC-A4: アカウント情報編集（本人）
 
-- **メソッド・パス**: `PATCH /api/v1/accounts/me`
+- **メソッド・パス**: `PATCH /api/accounts/me`
 - **認証**: 必要（全ユーザー、本人のみ）
 - **アクセス制御**: 認証済みアカウント（権限不問）
 - **処理概要**: 本人が自分のアカウント表示名を編集する。`accounts.name` を更新する。`version` による楽観ロックを適用する。
@@ -200,7 +200,7 @@
 
 ### UC-A6: 権限付与・変更（管理者）
 
-- **メソッド・パス**: `PUT /api/v1/accounts/{accountId}/roles`
+- **メソッド・パス**: `PUT /api/accounts/{accountId}/roles`
 - **認証**: 必要（`admin` 権限のみ）
 - **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: 対象アカウントの `account_roles` を全置換する。リクエストで `true` を指定した権限を `account_roles` に挿入し、`false` を指定した権限の行を削除する。`accounts.version` による楽観ロックを適用する。
@@ -248,7 +248,7 @@
 
 #### アカウント停止
 
-- **メソッド・パス**: `POST /api/v1/accounts/{accountId}/suspend`
+- **メソッド・パス**: `POST /api/accounts/{accountId}/suspend`
 - **認証**: 必要（`admin` 権限のみ）
 - **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: `accounts.status` を `suspended`、`accounts.suspended_at` に現在日時を設定する。`accounts.version` による楽観ロックを適用する。
@@ -283,7 +283,7 @@
 
 #### アカウント停止解除
 
-- **メソッド・パス**: `POST /api/v1/accounts/{accountId}/unsuspend`
+- **メソッド・パス**: `POST /api/accounts/{accountId}/unsuspend`
 - **認証**: 必要（`admin` 権限のみ）
 - **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: `accounts.status` を `active`、`accounts.suspended_at` を NULL に設定する。`accounts.version` による楽観ロックを適用する。
@@ -320,13 +320,13 @@
 
 ## Query（参照系）エンドポイント
 
-Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果を直接 DTO にマッピングして返す（[docs/requirements/README.md 4章 CQRS](../../requirements/README.md#4-アーキテクチャ原則adr化予定の方針)）。
+Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果を直接 DTO にマッピングして返す（[APP-ADR-0008](../../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md)）。
 
 ---
 
 ### UC-A5: アカウント一覧・検索（管理者）
 
-- **メソッド・パス**: `GET /api/v1/accounts`
+- **メソッド・パス**: `GET /api/accounts`
 - **認証**: 必要（`admin` 権限のみ）
 - **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: `accounts` テーブルを検索条件でフィルタし、アカウント一覧を返す（軽量）。MyBatis でドメイン層をバイパスして直接 DTO にマッピングする（Query 側）。`roleCode` 指定時のみ `account_roles` / `roles` を JOIN する（MyBatis `<if>` で動的に追加）。
@@ -358,7 +358,7 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
   }
   ```
 
-  > 詳細情報（email / roles / suspendedAt / version 等）は `GET /api/v1/accounts/{accountId}` で取得する。
+  > 詳細情報（email / roles / suspendedAt / version 等）は `GET /api/accounts/{accountId}` で取得する。
   > `deactivated` アカウントの `name` は `"***"` でマスクして返す。
 
 - **レスポンス 4xx**:
@@ -373,7 +373,7 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
 
 UC-A5 の詳細画面、マイページ表示、UC-A6・UC-A7 の操作前 `version` 取得を兼ねる単一エンドポイント。
 
-- **メソッド・パス**: `GET /api/v1/accounts/{accountId}`
+- **メソッド・パス**: `GET /api/accounts/{accountId}`
 - **認証**: 必要（認証済みアカウント）
 - **アクセス制御**:
   - `admin` 権限あり: 任意の `accountId` にアクセス可
@@ -420,11 +420,11 @@ UC-A5 の詳細画面、マイページ表示、UC-A6・UC-A7 の操作前 `vers
 
 | 分類 | メソッド | パス | 認証 | アクセス制御 | 根拠 UC |
 |---|---|---|---|---|---|
-| Command | POST | `/api/v1/auth/google/callback` | 不要 | — | UC-A1, UC-A2 |
-| Command | POST | `/api/v1/accounts/me/registration` | 必要 | 仮登録状態の全ユーザー | UC-A3, UC-A4 |
-| Command | PATCH | `/api/v1/accounts/me` | 必要 | 認証済み（権限不問） | UC-A4 |
-| Command | PUT | `/api/v1/accounts/{accountId}/roles` | 必要 | admin 権限 | UC-A6 |
-| Command | POST | `/api/v1/accounts/{accountId}/suspend` | 必要 | admin 権限 | UC-A7 |
-| Command | POST | `/api/v1/accounts/{accountId}/unsuspend` | 必要 | admin 権限 | UC-A7 |
-| Query | GET | `/api/v1/accounts` | 必要 | admin 権限 | UC-A5 |
-| Query | GET | `/api/v1/accounts/{accountId}` | 必要 | 本人 or admin 権限 | UC-A3, UC-A4, UC-A5, UC-A6, UC-A7 |
+| Command | POST | `/api/auth/google/callback` | 不要 | — | UC-A1, UC-A2 |
+| Command | POST | `/api/accounts/me/registration` | 必要 | 仮登録状態の全ユーザー | UC-A3, UC-A4 |
+| Command | PATCH | `/api/accounts/me` | 必要 | 認証済み（権限不問） | UC-A4 |
+| Command | PUT | `/api/accounts/{accountId}/roles` | 必要 | admin 権限 | UC-A6 |
+| Command | POST | `/api/accounts/{accountId}/suspend` | 必要 | admin 権限 | UC-A7 |
+| Command | POST | `/api/accounts/{accountId}/unsuspend` | 必要 | admin 権限 | UC-A7 |
+| Query | GET | `/api/accounts` | 必要 | admin 権限 | UC-A5 |
+| Query | GET | `/api/accounts/{accountId}` | 必要 | 本人 or admin 権限 | UC-A3, UC-A4, UC-A5, UC-A6, UC-A7 |
