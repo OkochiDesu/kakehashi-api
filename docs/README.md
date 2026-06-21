@@ -18,6 +18,7 @@
 - [Pre-commit Secret Check](conventions/pre-commit-secret-check.md)
 - [PR Summary 自動生成](conventions/pr-summary-automation.md)
 - [Markdown見出しアンカーへのリンク規約](conventions/markdown-anchor-links.md)
+- [KDoc・テスト方針](conventions/kdoc-and-test-policy.md)
 
 ## ADR 作成方法
 

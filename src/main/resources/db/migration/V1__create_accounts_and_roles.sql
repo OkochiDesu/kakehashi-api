@@ -69,7 +69,7 @@ CREATE TABLE roles (
 
 COMMENT ON TABLE  roles            IS 'ロール（区分）マスタ';
 COMMENT ON COLUMN roles.role_id    IS 'ロールID（UUID v7、アプリ側採番）';
-COMMENT ON COLUMN roles.code       IS 'ロールコード（例: general / sales / admin）';
+COMMENT ON COLUMN roles.code       IS 'ロールコード（例: admin, view_personal_info）（APP-ADR-0007）';
 COMMENT ON COLUMN roles.name       IS 'ロール名称（例: 一般（エンジニア）/ 営業 / 管理者）';
 COMMENT ON COLUMN roles.created_by IS '作成者';
 COMMENT ON COLUMN roles.updated_by IS '更新者';

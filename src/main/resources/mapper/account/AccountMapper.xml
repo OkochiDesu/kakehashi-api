@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  AccountMapper.xml
+  根拠: docs/design/api/account-role.md（Query 系エンドポイント）
+  APP-ADR-0008: Query 側は MyBatis で JOIN 結果を直接 DTO にマッピング
+-->
+<mapper namespace="com.kakehashi.infrastructure.account.AccountMapper">
+
+    <!-- ==================== ResultMap ==================== -->
+
+    <resultMap id="accountSummaryMap" type="com.kakehashi.infrastructure.account.AccountSummaryRow">
+        <result property="accountId" column="account_id"/>
+        <result property="name"      column="name"/>
+        <result property="status"    column="status"/>
+    </resultMap>
+
+    <resultMap id="accountDetailMap" type="com.kakehashi.infrastructure.account.AccountDetailRow">
+        <result property="accountId"  column="account_id"/>
+        <result property="name"       column="name"/>
+        <result property="email"      column="email"/>
+        <result property="status"     column="status"/>
+        <result property="suspendedAt" column="suspended_at"/>
+        <result property="version"    column="version"/>
+        <result property="createdAt"  column="created_at"/>
+        <result property="updatedAt"  column="updated_at"/>
+        <result property="updatedBy"  column="updated_by"/>
+        <collection property="roles" ofType="com.kakehashi.infrastructure.account.RoleRow">
+            <result property="roleId" column="role_id"/>
+            <result property="code"   column="role_code"/>
+            <result property="name"   column="role_name"/>
+        </collection>
+    </resultMap>
+
+    <!-- ==================== searchAccounts（UC-A5） ==================== -->
+    <!--
+      動的条件:
+      - name: 部分一致（ILIKE）。未指定時は条件なし
+      - statuses: IN 句。常に1件以上（呼び出し元で active を保証）
+      - roleCode: account_roles / roles を JOIN して絞り込み。未指定時は JOIN なし
+    -->
+    <select id="searchAccounts" resultMap="accountSummaryMap">
+        SELECT a.account_id,
+               a.name,
+               a.status
+        FROM accounts a
+        <if test="roleCode != null">
+            INNER JOIN account_roles ar ON ar.account_id = a.account_id
+            INNER JOIN roles r          ON r.role_id     = ar.role_id
+                                       AND r.code        = #{roleCode}
+        </if>
+        <where>
+            <if test="name != null and name != ''">
+                AND a.name ILIKE '%' || #{name} || '%'
+            </if>
+            AND a.status IN
+            <foreach item="s" collection="statuses" open="(" separator="," close=")">
+                #{s}
+            </foreach>
+        </where>
+        ORDER BY a.account_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ==================== countAccounts（UC-A5 総件数） ==================== -->
+    <select id="countAccounts" resultType="long">
+        SELECT COUNT(DISTINCT a.account_id)
+        FROM accounts a
+        <if test="roleCode != null">
+            INNER JOIN account_roles ar ON ar.account_id = a.account_id
+            INNER JOIN roles r          ON r.role_id     = ar.role_id
+                                       AND r.code        = #{roleCode}
+        </if>
+        <where>
+            <if test="name != null and name != ''">
+                AND a.name ILIKE '%' || #{name} || '%'
+            </if>
+            AND a.status IN
+            <foreach item="s" collection="statuses" open="(" separator="," close=")">
+                #{s}
+            </foreach>
+        </where>
+    </select>
+
+    <!-- ==================== findAccountDetailById（アカウント詳細） ==================== -->
+    <!--
+      LEFT JOIN account_roles / roles でロール情報を取得する
+      ロールなしのアカウントでも1行返す（roles コレクションは空リスト）
+      suspended_at / created_at / updated_at は ISO 8601 文字列として返す
+    -->
+    <select id="findAccountDetailById" resultMap="accountDetailMap">
+        SELECT a.account_id,
+               a.name,
+               a.email,
+               a.status,
+               TO_CHAR(a.suspended_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS suspended_at,
+               a.version,
+               TO_CHAR(a.created_at  AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS created_at,
+               TO_CHAR(a.updated_at  AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS updated_at,
+               a.updated_by,
+               r.role_id,
+               r.code  AS role_code,
+               r.name  AS role_name
+        FROM accounts a
+        LEFT JOIN account_roles ar ON ar.account_id = a.account_id
+        LEFT JOIN roles r          ON r.role_id     = ar.role_id
+        WHERE a.account_id = #{accountId}
+        ORDER BY r.role_id NULLS LAST
+    </select>
+
+</mapper>

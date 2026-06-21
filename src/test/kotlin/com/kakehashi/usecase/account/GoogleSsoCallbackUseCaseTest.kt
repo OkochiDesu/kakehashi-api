@@ -1,0 +1,97 @@
+package com.kakehashi.usecase.account
+
+import com.kakehashi.domain.account.AccountRepository
+import com.kakehashi.domain.account.AccountStatus
+import com.kakehashi.usecase.account.AccountTestFixtures.buildAccount
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+
+/**
+ * GoogleSsoCallbackUseCase 単体テスト
+ *
+ * 設計書No：UC-A1
+ * ADRNo：APP-ADR-0008
+ */
+class GoogleSsoCallbackUseCaseTest {
+    private val accountRepository = mockk<AccountRepository>()
+    private val useCase = GoogleSsoCallbackUseCase(accountRepository)
+
+    private val input =
+        GoogleSsoCallbackUseCase.Input(
+            googleSubHash = "new_hash",
+            email = "new@example.com",
+            name = "新規ユーザー",
+        )
+
+    @Nested
+    inner class JitProvisioning {
+        @Test
+        fun `正常系： 未登録アカウントは JIT プロビジョニングで PROVISIONAL 作成される`() {
+            every { accountRepository.findByGoogleSubHash(any()) } returns null
+            every { accountRepository.nextAccountIdSequence() } returns 1L
+            every { accountRepository.save(any()) } returns Unit
+
+            val output = useCase.execute(input)
+
+            assertEquals("AZ0001", output.accountId)
+            assertEquals(AccountStatus.PROVISIONAL, output.status)
+            assertEquals("/registration", output.redirectTo)
+            verify(exactly = 1) { accountRepository.save(any()) }
+        }
+    }
+
+    @Nested
+    inner class ExistingAccount {
+        @Test
+        fun `正常系： 既存 ACTIVE アカウントはそのまま返す`() {
+            val existing = buildAccount(accountId = "AZ0002", status = AccountStatus.ACTIVE)
+            every { accountRepository.findByGoogleSubHash(any()) } returns existing
+
+            val output = useCase.execute(input)
+
+            assertEquals("AZ0002", output.accountId)
+            assertEquals(AccountStatus.ACTIVE, output.status)
+            assertEquals("/mypage", output.redirectTo)
+            verify(exactly = 0) { accountRepository.save(any()) }
+        }
+
+        @Test
+        fun `正常系： 既存 SUSPENDED アカウントは SUSPENDED ステータスを返す（コールバックでは弾かない）`() {
+            val existing = buildAccount(accountId = "AZ0003", status = AccountStatus.SUSPENDED)
+            every { accountRepository.findByGoogleSubHash(any()) } returns existing
+
+            // コールバック UseCase 自体はアカウントを返す（Controller 層で 403 に変換）
+            val output = useCase.execute(input)
+
+            assertEquals("AZ0003", output.accountId)
+            assertEquals(AccountStatus.SUSPENDED, output.status)
+            assertEquals("/error/suspended", output.redirectTo)
+        }
+
+        @Test
+        fun `正常系： 既存 PROVISIONAL アカウントは PROVISIONAL ステータスを返す`() {
+            val existing = buildAccount(accountId = "AZ0004", status = AccountStatus.PROVISIONAL)
+            every { accountRepository.findByGoogleSubHash(any()) } returns existing
+
+            val output = useCase.execute(input)
+
+            assertEquals(AccountStatus.PROVISIONAL, output.status)
+            assertEquals("/registration", output.redirectTo)
+        }
+    }
+
+    @Test
+    fun `正常系： 新規アカウントの accountId はシーケンス値から生成される`() {
+        every { accountRepository.findByGoogleSubHash(any()) } returns null
+        every { accountRepository.nextAccountIdSequence() } returns 99L
+        every { accountRepository.save(any()) } returns Unit
+
+        val output = useCase.execute(input)
+
+        assertEquals("AZ0099", output.accountId)
+    }
+}

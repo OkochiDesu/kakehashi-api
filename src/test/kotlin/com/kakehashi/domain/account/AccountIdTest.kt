@@ -1,0 +1,66 @@
+package com.kakehashi.domain.account
+
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+
+/**
+ * AccountId 値オブジェクトの単体テスト
+ *
+ * 設計書No：-
+ * ADRNo：APP-ADR-0001
+ */
+class AccountIdTest {
+    @Test
+    fun `正常系： AZ0001 形式は有効`() {
+        val id = AccountId("AZ0001")
+        assertEquals("AZ0001", id.value)
+    }
+
+    @Test
+    fun `正常系： AZ9999 形式は有効`() {
+        val id = AccountId("AZ9999")
+        assertEquals("AZ9999", id.value)
+    }
+
+    @Test
+    fun `正常系： fromSequence でゼロ埋め4桁の AccountId が生成される`() {
+        val id = AccountId.fromSequence(42L)
+        assertEquals("AZ0042", id.value)
+    }
+
+    @Test
+    fun `異常系： プレフィックスなし（数字のみ）は不正フォーマット`() {
+        assertThrows<IllegalArgumentException> {
+            AccountId("0001")
+        }
+    }
+
+    @Test
+    fun `異常系： 数字が5桁は不正フォーマット`() {
+        assertThrows<IllegalArgumentException> {
+            AccountId("AZ00001")
+        }
+    }
+
+    @Test
+    fun `異常系： 数字が3桁は不正フォーマット`() {
+        assertThrows<IllegalArgumentException> {
+            AccountId("AZ001")
+        }
+    }
+
+    @Test
+    fun `異常系： プレフィックスが小文字は不正フォーマット`() {
+        assertThrows<IllegalArgumentException> {
+            AccountId("az0001")
+        }
+    }
+
+    @Test
+    fun `異常系： 空文字は不正フォーマット`() {
+        assertThrows<IllegalArgumentException> {
+            AccountId("")
+        }
+    }
+}
