@@ -7,6 +7,7 @@ import com.kakehashi.usecase.account.exception.AccountNotFoundException
 import com.kakehashi.usecase.account.exception.ForbiddenOperationException
 import com.kakehashi.usecase.account.exception.InvalidStatusTransitionException
 import com.kakehashi.usecase.account.exception.OptimisticLockException
+import java.time.OffsetDateTime
 
 /**
  * UC-A7: アカウント停止解除（管理者）UseCase
@@ -30,7 +31,7 @@ class UnsuspendAccountUseCase(
     data class Output(
         val accountId: String,
         val status: AccountStatus,
-        val suspendedAt: Nothing?,
+        val suspendedAt: OffsetDateTime?,
         val version: Int,
     )
 
@@ -72,7 +73,8 @@ class UnsuspendAccountUseCase(
         val unsuspended = account.unsuspend(updatedBy = input.operatorAccountId)
         val rows = accountRepository.update(unsuspended)
         if (rows == 0) {
-            throw OptimisticLockException(input.targetAccountId.value, input.version, account.version)
+            val currentVersion = accountRepository.findById(input.targetAccountId)?.version ?: -1
+            throw OptimisticLockException(input.targetAccountId.value, input.version, currentVersion)
         }
 
         return Output(

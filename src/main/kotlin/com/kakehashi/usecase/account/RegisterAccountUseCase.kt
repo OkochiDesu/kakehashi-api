@@ -52,7 +52,8 @@ class RegisterAccountUseCase(
         val registered = account.register(updatedBy = accountId.value)
         val updated = accountRepository.update(registered)
         if (updated == 0) {
-            throw OptimisticLockException(accountId.value, registered.version - 1, registered.version - 1)
+            val currentVersion = accountRepository.findById(accountId)?.version ?: -1
+            throw OptimisticLockException(accountId.value, account.version, currentVersion)
         }
 
         return Output(

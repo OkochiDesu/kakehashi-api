@@ -15,8 +15,12 @@ SKIP_PATTERNS=(
     "*Config.kt"
     "*Exceptions.kt"
     "GlobalExceptionHandler.kt"
-    "src/main/kotlin/*/infrastructure/*"
 )
+
+# infrastructure 層は Testcontainers ブランチで別途対応（パス部分一致で除外）
+is_infrastructure() {
+    [[ "$1" == */infrastructure/* ]]
+}
 
 should_skip() {
     local file="$1"
@@ -46,6 +50,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
 
     while IFS= read -r file; do
         should_skip "$file" && continue
+        is_infrastructure "$file" && continue
 
         base_name=$(basename "$file" .kt)
         dir_path=$(dirname "$file" | sed 's|^src/main/kotlin/||')

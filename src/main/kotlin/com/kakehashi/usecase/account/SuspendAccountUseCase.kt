@@ -73,7 +73,8 @@ class SuspendAccountUseCase(
         val suspended = account.suspend(updatedBy = input.operatorAccountId)
         val rows = accountRepository.update(suspended)
         if (rows == 0) {
-            throw OptimisticLockException(input.targetAccountId.value, input.version, account.version)
+            val currentVersion = accountRepository.findById(input.targetAccountId)?.version ?: -1
+            throw OptimisticLockException(input.targetAccountId.value, input.version, currentVersion)
         }
 
         return Output(

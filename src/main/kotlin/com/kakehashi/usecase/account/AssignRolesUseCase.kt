@@ -102,7 +102,8 @@ class AssignRolesUseCase(
                 operatorId = input.operatorAccountId,
             )
         if (rows == 0) {
-            throw OptimisticLockException(input.targetAccountId.value, input.version, account.version)
+            val currentVersion = accountRepository.findById(input.targetAccountId)?.version ?: -1
+            throw OptimisticLockException(input.targetAccountId.value, input.version, currentVersion)
         }
 
         // レスポンス用 roles リストを組み立て

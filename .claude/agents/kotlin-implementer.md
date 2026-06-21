@@ -25,8 +25,8 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - Controller: リクエスト受付・バリデーション・レスポンス変換のみ。ビジネスロジックを持たない
   - Service: ビジネスロジック・トランザクション管理
   - Repository: DB アクセスのみ（MyBatis または Spring Data JPA）
-- **APP-ADR-0003 の認可チェック**: マスク制御が必要なエンドポイントは Service 層で `visibility_rules` を参照し、ロールに応じてマスクを適用する
-- **APP-ADR-0001 の楽観ロック**: `resumes` / `accounts` / `skill_master_items` / `level_master_items` / `user_skills` には `version` チェックを実装する
+- **APP-ADR-0007 の認可チェック**: アクセス制御は `account_roles` の permission（`admin` / `view_personal_info`）に基づく。`visibility_rules` は廃止済みのため参照しない
+- **APP-ADR-0005 の楽観ロック**: `accounts` 等の対象テーブルには `version` チェックを実装する。楽観ロック競合（UPDATE 0件）は `OptimisticLockException` をスローし、再取得した currentVersion を渡す
 - セキュリティ: SQL インジェクション・XSS・認可バイパスが発生しないコードを書く。ユーザー入力は API バウンダリでのみバリデートし、内部では信頼する
 - `git push` / `rm` 等の禁止操作は実行しない
 - テストコードも合わせて作成する（単体テスト: Service 層、結合テスト: Controller 層）

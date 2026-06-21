@@ -60,10 +60,8 @@ class ListAccountsQuery(
                 listOf(AccountStatus.ACTIVE.toDbValue())
             }
 
-        val roleCode =
-            input.roleCode?.let {
-                runCatching { RoleCode.fromCode(it) }.getOrNull()?.code
-            }
+        // 不正な roleCode は fromCode が IllegalArgumentException をスロー → GlobalExceptionHandler で 400 変換
+        val roleCode = input.roleCode?.let { RoleCode.fromCode(it).code }
 
         val offset = input.page * input.size
         val rows =

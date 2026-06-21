@@ -53,7 +53,8 @@ class EditAccountUseCase(
         val updated = account.editName(name = input.name, updatedBy = input.accountId.value)
         val rows = accountRepository.update(updated)
         if (rows == 0) {
-            throw OptimisticLockException(input.accountId.value, input.version, account.version)
+            val currentVersion = accountRepository.findById(input.accountId)?.version ?: -1
+            throw OptimisticLockException(input.accountId.value, input.version, currentVersion)
         }
 
         return Output(

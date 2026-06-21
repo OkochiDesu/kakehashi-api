@@ -9,12 +9,14 @@ name: Workflow Lint
     paths:
       - "**/*.md"
       - ".github/workflows/**"
+      - ".githooks/**"
   pull_request:
     branches:
       - main
     paths:
       - "**/*.md"
       - ".github/workflows/**"
+      - ".githooks/**"
 
 permissions:
   # コード内容の参照のみ行う
@@ -62,7 +64,7 @@ jobs:
             [[ -z "$file" ]] && continue
 
             # docs(workflow含む)以外が1つでも含まれていれば軽量ジョブはスキップする
-            if [[ "$file" =~ ^\.github/workflows/ ]] || [[ "$file" =~ \.md$ ]]; then
+            if [[ "$file" =~ ^\.github/workflows/ ]] || [[ "$file" =~ \.md$ ]] || [[ "$file" =~ ^\.githooks/ ]]; then
               continue
             fi
 
@@ -96,11 +98,12 @@ jobs:
           for file in "${adr_files[@]}"; do
             base_name="$(basename "$file")"
 
-            # 形式: ADR-連番4桁-日本語タイトル.md（スペース禁止）
-            # AI-ADR-XXXX- はエージェント設計ADR（AI Architecture Decision Record）
-            if [[ ! "$base_name" =~ ^(ADR|AI-ADR)-[0-9]{4}-[^[:space:]]+\.md$ ]]; then
+            # 形式: {PREFIX}-ADR-連番4桁-日本語タイトル.md（スペース禁止）
+            # PREFIX: APP / CICD / DOC / AI（AI-ADR のみ二重ハイフン）
+            if [[ ! "$base_name" =~ ^(APP|CICD|DOC)-ADR-[0-9]{4}-[^[:space:]]+\.md$ ]] && \
+               [[ ! "$base_name" =~ ^AI-ADR-[0-9]{4}-[^[:space:]]+\.md$ ]]; then
               echo "Invalid ADR filename: $file"
-              echo "Expected format: ADR-0001-タイトル.md or AI-ADR-0001-タイトル.md (no spaces)"
+              echo "Expected format: APP-ADR-0001-タイトル.md / CICD-ADR-0001-タイトル.md / DOC-ADR-0001-タイトル.md / AI-ADR-0001-タイトル.md (no spaces)"
               INVALID=1
             fi
           done
@@ -111,6 +114,17 @@ jobs:
           fi
 
           echo "ADR filename convention check passed."
+
+      - name: Shellcheck for git hooks
+        # git フックのシェルスクリプト構文エラー・unsafe パターンを検出する
+        shell: bash
+        run: |
+          if command -v shellcheck &>/dev/null; then
+            shellcheck .githooks/pre-push .githooks/pre-commit || exit 1
+          else
+            sudo apt-get install -y shellcheck -q
+            shellcheck .githooks/pre-push .githooks/pre-commit || exit 1
+          fi
 
       - name: Skip lightweight workflow lint when source code changed
         # ソースコード変更が混在する場合は重いCIに任せ、ここは意図的にスキップする
