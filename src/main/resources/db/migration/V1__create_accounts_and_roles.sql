@@ -108,66 +108,12 @@ COMMENT ON COLUMN account_roles.created_at         IS '作成日時';
 COMMENT ON COLUMN account_roles.updated_at         IS '更新日時';
 
 -- =============================================================
--- visibility_rules
--- =============================================================
--- ロール別に対象カテゴリの閲覧可否を制御するテーブル（APP-ADR-0003決定1・4）
--- target_category: 可視性を制御する対象区分のコード文字列
---   Step1では 'resume_personal_info'（最寄り駅・最終学歴）のみを想定
--- APP-ADR-0003決定4: 将来target_categoryが増える場合はINSERTで対応し、テーブル構造変更は不要
-CREATE TABLE visibility_rules (
-    visibility_rule_id UUID        NOT NULL,
-    role_id            UUID        NOT NULL,
-    target_category    TEXT        NOT NULL,
-    can_view           BOOLEAN     NOT NULL,
-    created_by         TEXT        NOT NULL,
-    updated_by         TEXT        NOT NULL,
-    created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT pk_visibility_rules PRIMARY KEY (visibility_rule_id),
-    CONSTRAINT fk_visibility_rules_role FOREIGN KEY (role_id) REFERENCES roles (role_id),
-    -- ロールとカテゴリの組み合わせは一意
-    CONSTRAINT uq_visibility_rules_role_category UNIQUE (role_id, target_category)
-);
-
-CREATE INDEX idx_visibility_rules_role_id ON visibility_rules (role_id);
-
-COMMENT ON TABLE  visibility_rules                          IS '可視性ルール（ロール別閲覧可否）';
-COMMENT ON COLUMN visibility_rules.visibility_rule_id      IS '可視性ルールID（UUID v7、アプリ側採番）';
-COMMENT ON COLUMN visibility_rules.role_id                 IS 'ロールID';
-COMMENT ON COLUMN visibility_rules.target_category         IS '対象カテゴリ（例: resume_personal_info）';
-COMMENT ON COLUMN visibility_rules.can_view                IS '閲覧可否（true: 閲覧可 / false: マスク）';
-COMMENT ON COLUMN visibility_rules.created_by              IS '作成者';
-COMMENT ON COLUMN visibility_rules.updated_by              IS '更新者';
-COMMENT ON COLUMN visibility_rules.created_at              IS '作成日時';
-COMMENT ON COLUMN visibility_rules.updated_at              IS '更新日時';
-
--- =============================================================
 -- 初期データ: roles
 -- =============================================================
--- APP-ADR-0003決定4: Step1で定義するロールは general / sales / admin の3種類
--- code・name・display_orderは固定値として確定
+-- APP-ADR-0007: rolesは権限（Permission）マスタ。職種ベースではなく「できること」を表す
+-- Step1で定義する権限は admin / view_personal_info の2種類
 -- created_by/updated_by: 初期投入バッチを識別するリクエストID相当の文字列（APP-ADR-0001決定1）
 INSERT INTO roles (role_id, code, name, created_by, updated_by)
 VALUES
-    ('01970000-0000-7000-8000-000000000001', 'general', '一般（エンジニア）', 'system:init', 'system:init'),
-    ('01970000-0000-7000-8000-000000000002', 'sales',   '営業',             'system:init', 'system:init'),
-    ('01970000-0000-7000-8000-000000000003', 'admin',   '管理者',           'system:init', 'system:init');
-
--- =============================================================
--- 初期データ: visibility_rules
--- =============================================================
--- APP-ADR-0003決定4のロール別可視範囲に従う:
---   general: resume_personal_info → can_view = false（一般エンジニアはマスクして閲覧）
---   sales:   resume_personal_info → can_view = true （営業は全項目閲覧可）
---   admin:   resume_personal_info → can_view = true （管理者は全項目閲覧可）
-INSERT INTO visibility_rules (visibility_rule_id, role_id, target_category, can_view, created_by, updated_by)
-VALUES
-    ('01970000-0000-7000-8000-000000000011',
-     '01970000-0000-7000-8000-000000000001',
-     'resume_personal_info', false, 'system:init', 'system:init'),
-    ('01970000-0000-7000-8000-000000000012',
-     '01970000-0000-7000-8000-000000000002',
-     'resume_personal_info', true,  'system:init', 'system:init'),
-    ('01970000-0000-7000-8000-000000000013',
-     '01970000-0000-7000-8000-000000000003',
-     'resume_personal_info', true,  'system:init', 'system:init');
+    ('01970000-0000-7000-8000-000000000001', 'admin',             '管理業務',     'system:init', 'system:init'),
+    ('01970000-0000-7000-8000-000000000002', 'view_personal_info','個人情報表示', 'system:init', 'system:init');

@@ -3,8 +3,8 @@
 > ステータス: 初版作成済み
 
 対象ユースケース: UC-A1〜A7（[ui-flows.md 1章](../../requirements/ui-flows.md#1-認証アカウントコンテキスト)）
-根拠テーブル: `accounts` / `roles` / `account_roles` / `visibility_rules`（[data-models.md 1章](../../requirements/data-models.md#1-認証アカウントコンテキスト)）
-参照ADR: [APP-ADR-0001](../../adr/APP-ADR-0001-テーブル設計共通方針.md) / [APP-ADR-0003](../../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md)
+根拠テーブル: `accounts` / `roles` / `account_roles`（[data-models.md 1章](../../requirements/data-models.md#1-認証アカウントコンテキスト)）
+参照ADR: [APP-ADR-0001](../../adr/APP-ADR-0001-テーブル設計共通方針.md) / [APP-ADR-0003](../../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) / [APP-ADR-0007](../../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)
 
 ---
 
@@ -64,11 +64,11 @@
 
 **検索可視性:**
 
-| ロール | 表示される status |
+| 権限 | 表示される status |
 |---|---|
-| general / sales | `active` のみ |
-| admin（デフォルト） | `active` / `suspended` |
-| admin（`status=deactivated` 明示） | `deactivated`（`name`/`email` は常にマスク） |
+| 権限なし（デフォルト） | `active` のみ |
+| `admin` 権限あり（デフォルト） | `active` / `suspended` |
+| `admin` 権限あり（`status=deactivated` 明示） | `deactivated`（`name`/`email` は常にマスク） |
 
 **`deactivated` アカウントのマスク**: `name` / `email` を `"***"` 等で伏せて返す。
 
@@ -80,13 +80,14 @@
 
 ## ロール・アクセス制御の概要
 
-APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）をもとに、各エンドポイントのアクセス制御を以下の通り整理する。
+`roles` テーブルは「できること（Permission）」のマスタ（[APP-ADR-0007](../../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）。`account_roles` でアカウントと権限を紐づけ、エンドポイントごとに必要な権限の有無で認可判定を行う。
 
-| ロール | 概要 | resume_personal_info 閲覧 |
+| `roles.code` | `roles.name` | 概要 |
 |---|---|---|
-| `general` | 一般エンジニア。自分の経歴書のみ編集可 | 不可（マスクして閲覧） |
-| `sales` | 営業。経歴書の全項目閲覧可・編集不可 | 可 |
-| `admin` | 管理者。全機能・全経歴書へのアクセス可 | 可 |
+| `admin` | 管理業務 | 権限付与・停止・復活・他ユーザー情報変更 |
+| `view_personal_info` | 個人情報表示 | 他ユーザーの `nearest_station` / `final_education` 閲覧 |
+
+権限なしのアカウントは自分のアカウント情報の参照・編集のみ可能。権限は管理者（`admin` 権限保持者）が UC-A6 で明示的に付与する。
 
 ---
 
@@ -139,7 +140,7 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
 - **メソッド・パス**: `POST /api/v1/accounts/me/registration`
 - **認証**: 必要（`status = 'provisional'` のアカウントのみ）
 - **アクセス制御**: 全ロール（ただし仮登録状態のアカウントのみ実行可能）
-- **処理概要**: 本登録申込みを受けてシステムが自動的に `accounts.status` を `provisional` から `active` へ遷移させる（UC-A4 相当の自動処理、管理者承認なし）。デフォルトロール（`general`）を `account_roles` に挿入する。
+- **処理概要**: 本登録申込みを受けてシステムが自動的に `accounts.status` を `provisional` から `active` へ遷移させる（UC-A4 相当の自動処理、管理者承認なし）。デフォルト権限の付与はなし（権限は管理者が UC-A6 で明示的に付与する）。
 
 - **リクエスト（ボディ）**: なし（認証トークンから本人を特定）
 
@@ -162,8 +163,8 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
 ### UC-A4: アカウント情報編集（本人）
 
 - **メソッド・パス**: `PATCH /api/v1/accounts/me`
-- **認証**: 必要（全ロール、本人のみ）
-- **アクセス制御**: `general` / `sales` / `admin`
+- **認証**: 必要（全ユーザー、本人のみ）
+- **アクセス制御**: 認証済みアカウント（権限不問）
 - **処理概要**: 本人が自分のアカウント表示名を編集する。`accounts.name` を更新する。`version` による楽観ロックを適用する。
 
 - **リクエスト（ボディ）**:
@@ -194,12 +195,12 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
 
 ---
 
-### UC-A6: ロール付与・変更（管理者）
+### UC-A6: 権限付与・変更（管理者）
 
 - **メソッド・パス**: `PUT /api/v1/accounts/{accountId}/roles`
-- **認証**: 必要（`admin` ロールのみ）
-- **アクセス制御**: `admin` のみ
-- **処理概要**: 対象アカウントの `account_roles` を差し替える。既存の `account_roles` 行を削除し、リクエストで指定されたロールの行を挿入する（差分更新ではなく全置換）。`accounts.version` による楽観ロックを適用する（ロール変更はアカウント集約の更新として扱う）。
+- **認証**: 必要（`admin` 権限のみ）
+- **アクセス制御**: `admin` 権限保持者のみ
+- **処理概要**: 対象アカウントの `account_roles` を全置換する。リクエストで `true` を指定した権限を `account_roles` に挿入し、`false` を指定した権限の行を削除する。`accounts.version` による楽観ロックを適用する。
 
 - **パスパラメータ**:
   - `accountId`: string（AZ0000 形式）
@@ -207,10 +208,12 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
 - **リクエスト（ボディ）**:
   ```
   {
-    "roleCodes": string[],  // 付与するロールコードの配列（例: ["general", "sales"]）
-    "version": integer      // accounts.version の現在値
+    "admin":           boolean,  // 管理業務権限の付与（true）/ 剥奪（false）
+    "viewPersonalInfo": boolean, // 個人情報表示権限の付与（true）/ 剥奪（false）
+    "version": integer           // accounts.version の現在値
   }
   ```
+  > 全権限を必ず指定する。省略不可（全置換のため）。
 
 - **レスポンス 200**:
   ```
@@ -219,7 +222,7 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
     "roles": [
       {
         "roleId": string,    // UUID
-        "code": string,      // "general" | "sales" | "admin"
+        "code": string,      // "admin" | "view_personal_info"
         "name": string
       }
     ],
@@ -228,9 +231,9 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
   ```
 
 - **レスポンス 4xx**:
-  - `400 Bad Request`: `roleCodes` が空配列、または存在しないロールコードを指定
+  - `400 Bad Request`: `admin` または `viewPersonalInfo` が未指定
   - `401 Unauthorized`: 未認証
-  - `403 Forbidden`: `admin` ロール以外のアカウントによるアクセス
+  - `403 Forbidden`: `admin` 権限なしのアカウントによるアクセス
   - `404 Not Found`: 指定した `accountId` が存在しない
   - `409 Conflict`: `version` 不一致（楽観ロック競合）
 
@@ -243,8 +246,8 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
 #### アカウント停止
 
 - **メソッド・パス**: `POST /api/v1/accounts/{accountId}/suspend`
-- **認証**: 必要（`admin` ロールのみ）
-- **アクセス制御**: `admin` のみ
+- **認証**: 必要（`admin` 権限のみ）
+- **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: `accounts.status` を `suspended`、`accounts.suspended_at` に現在日時を設定する。`accounts.version` による楽観ロックを適用する。
 
 - **パスパラメータ**:
@@ -278,8 +281,8 @@ APP-ADR-0003 決定4で定義するロール（`general` / `sales` / `admin`）�
 #### アカウント停止解除
 
 - **メソッド・パス**: `POST /api/v1/accounts/{accountId}/unsuspend`
-- **認証**: 必要（`admin` ロールのみ）
-- **アクセス制御**: `admin` のみ
+- **認証**: 必要（`admin` 権限のみ）
+- **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: `accounts.status` を `active`、`accounts.suspended_at` を NULL に設定する。`accounts.version` による楽観ロックを適用する。
 
 - **パスパラメータ**:
@@ -321,8 +324,8 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
 ### UC-A5: アカウント一覧・検索（管理者）
 
 - **メソッド・パス**: `GET /api/v1/accounts`
-- **認証**: 必要（`admin` ロールのみ）
-- **アクセス制御**: `admin` のみ
+- **認証**: 必要（`admin` 権限のみ）
+- **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: `accounts` に `account_roles` / `roles` を JOIN し、検索条件に応じてフィルタしてアカウント一覧を返す。MyBatis でドメイン層をバイパスして直接 DTO にマッピングする（Query 側）。
 
 - **クエリパラメータ**:
@@ -331,7 +334,7 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
   email:    string  （任意）メールアドレスの部分一致
   status:   string  （任意）"active" | "suspended" | "deactivated"
              ※ 未指定時は active + suspended のみ返す。deactivated は明示指定が必要
-  roleCode: string  （任意）"general" | "sales" | "admin"
+  roleCode: string  （任意）"admin" | "view_personal_info"
   page:     integer （任意、デフォルト 0）ページ番号（0始まり）
   size:     integer （任意、デフォルト 20）1ページの件数
   ```
@@ -378,8 +381,8 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
 UC-A5 の詳細画面（`AccountDetail`）に対応。UC-A6・UC-A7 の操作前に現在の `version` 値を取得する用途も兼ねる。
 
 - **メソッド・パス**: `GET /api/v1/accounts/{accountId}`
-- **認証**: 必要（`admin` ロールのみ）
-- **アクセス制御**: `admin` のみ
+- **認証**: 必要（`admin` 権限のみ）
+- **アクセス制御**: `admin` 権限保持者のみ
 - **処理概要**: `accounts` に `account_roles` / `roles` を JOIN して1件取得する（MyBatis DTO マッピング、Query 側）。
 
 - **パスパラメータ**:
@@ -423,8 +426,8 @@ UC-A5 の詳細画面（`AccountDetail`）に対応。UC-A6・UC-A7 の操作前
 マイページの表示や、本登録後のアカウント状態確認に使用する。
 
 - **メソッド・パス**: `GET /api/v1/accounts/me`
-- **認証**: 必要（全ロール、本人のみ）
-- **アクセス制御**: `general` / `sales` / `admin`
+- **認証**: 必要（全ユーザー、本人のみ）
+- **アクセス制御**: 認証済みアカウント（権限不問）
 - **処理概要**: 認証トークンから本人の `account_id` を特定し、`accounts` に `account_roles` / `roles` を JOIN して取得する（MyBatis DTO マッピング、Query 側）。
 
 - **レスポンス 200**:
@@ -460,11 +463,11 @@ UC-A5 の詳細画面（`AccountDetail`）に対応。UC-A6・UC-A7 の操作前
 | 分類 | メソッド | パス | 認証 | アクセス制御 | 根拠 UC |
 |---|---|---|---|---|---|
 | Command | POST | `/api/v1/auth/google/callback` | 不要 | — | UC-A1, UC-A2 |
-| Command | POST | `/api/v1/accounts/me/registration` | 必要 | 仮登録状態の全ロール | UC-A3, UC-A4 |
-| Command | PATCH | `/api/v1/accounts/me` | 必要 | general / sales / admin | UC-A4 |
-| Command | PUT | `/api/v1/accounts/{accountId}/roles` | 必要 | admin | UC-A6 |
-| Command | POST | `/api/v1/accounts/{accountId}/suspend` | 必要 | admin | UC-A7 |
-| Command | POST | `/api/v1/accounts/{accountId}/unsuspend` | 必要 | admin | UC-A7 |
-| Query | GET | `/api/v1/accounts` | 必要 | admin | UC-A5 |
-| Query | GET | `/api/v1/accounts/{accountId}` | 必要 | admin | UC-A5, UC-A6, UC-A7 |
-| Query | GET | `/api/v1/accounts/me` | 必要 | general / sales / admin | UC-A3, UC-A4 |
+| Command | POST | `/api/v1/accounts/me/registration` | 必要 | 仮登録状態の全ユーザー | UC-A3, UC-A4 |
+| Command | PATCH | `/api/v1/accounts/me` | 必要 | 認証済み（権限不問） | UC-A4 |
+| Command | PUT | `/api/v1/accounts/{accountId}/roles` | 必要 | admin 権限 | UC-A6 |
+| Command | POST | `/api/v1/accounts/{accountId}/suspend` | 必要 | admin 権限 | UC-A7 |
+| Command | POST | `/api/v1/accounts/{accountId}/unsuspend` | 必要 | admin 権限 | UC-A7 |
+| Query | GET | `/api/v1/accounts` | 必要 | admin 権限 | UC-A5 |
+| Query | GET | `/api/v1/accounts/{accountId}` | 必要 | admin 権限 | UC-A5, UC-A6, UC-A7 |
+| Query | GET | `/api/v1/accounts/me` | 必要 | 認証済み（権限不問） | UC-A3, UC-A4 |

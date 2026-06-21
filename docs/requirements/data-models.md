@@ -54,45 +54,43 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | created_at | timestamp | 仮登録日時 |
 | updated_at | timestamp | 最終更新日時 |
 
-### roles（ロール・区分マスタ、RDB厳密カラム）
+### roles（権限マスタ、RDB厳密カラム）
+
+`roles` テーブルは「できること（Permission）」のマスタ（[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）。Step1の初期データは以下の2件。
+
+| `code` | `name` | 概要 |
+|---|---|---|
+| `admin` | 管理業務 | 権限付与・停止・復活・他ユーザー情報変更 |
+| `view_personal_info` | 個人情報表示 | 他ユーザーの `nearest_station` / `final_education` 閲覧 |
 
 | カラム | 型 | 説明 |
 |---|---|---|
 | role_id | uuid | PK（アプリ側で採番） |
-| code | text (unique) | ロールコード（例: `general`, `sales`, `admin`） |
-| name | text | ロール名 |
+| code | text (unique) | 権限コード（例: `admin`, `view_personal_info`） |
+| name | text | 権限名 |
 | created_by / updated_by | text | 登録者・最終更新者 |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
-### account_roles（アカウント×ロール、RDB厳密カラム）
+### account_roles（アカウント×権限、RDB厳密カラム）
+
+アカウントに付与された権限の集合。認可判定は「対象操作に必要な権限が `account_roles` に存在するか」で行う。
 
 | カラム | 型 | 説明 |
 |---|---|---|
 | account_role_id | uuid | PK（アプリ側で採番） |
 | account_id | text (FK → accounts.account_id) | 対象アカウント |
-| role_id | uuid (FK → roles.role_id) | 付与されたロール |
+| role_id | uuid (FK → roles.role_id) | 付与された権限 |
 | created_by / updated_by | text | 登録者・最終更新者 |
 | created_at / updated_at | timestamp | 付与日時・更新日時 |
-
-### visibility_rules（ロール別の項目可視性ルール、RDB厳密カラム）
-
-| カラム | 型 | 説明 |
-|---|---|---|
-| visibility_rule_id | uuid | PK（アプリ側で採番） |
-| role_id | uuid (FK → roles.role_id) | 対象ロール |
-| target_category | text/enum | 可視性を制御する対象区分（例: 経歴書の個人情報項目区分） |
-| can_view | boolean | 当該ロールが対象区分を閲覧可能か |
-| created_by / updated_by | text | 登録者・最終更新者 |
-| created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### 補足
 
 - 「仮登録」「本登録（自動処理）」は`accounts.status`の状態遷移として表現する（[ui-flows.md 1章](ui-flows.md#1-認証アカウントコンテキスト)の補足で説明した内部処理・自動処理を含む）。
 - 「停止／停止解除」（UC-A7）は`accounts.status`の状態遷移として表現し、停止時に`suspended_at`を設定、解除時に`suspended_at`をNULLに戻す。
-- 「権限変更」（UC-A6）は、`accounts.role`という単一カラムではなく、`account_roles`（アカウント×ロールの多対多）の行の追加・削除として表現する。1アカウントが複数ロールを持つことを許容する。
+- 「権限変更」（UC-A6）は`account_roles`の行追加・削除として表現する。本登録時（UC-A3）のデフォルト権限付与はなし。権限は管理者が明示的に付与する。
 - **deactivatedへの自動遷移とマスク化**: `suspended_at`から1年経過したアカウントはSpring `@Scheduled`日次タスクで`status = 'deactivated'`に更新する。`deactivated`アカウントはAPIレスポンス時に`name`/`email`を常にマスク（`"***"`等）して返す（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)）。
-- **ステータスごとの検索可視性**: 非admin（`general`/`sales`）は`active`のみ参照可。adminのデフォルト検索は`active`+`suspended`のみ。`deactivated`はadminが`status=deactivated`を明示した場合のみ参照可。
-- `roles` / `visibility_rules`は、4章「経歴書コンテキスト」のマスク済み経歴書・星取表閲覧（UC-R2/UC-S5）の可視性制御と直結する。「どの区分の項目を、どのロールに見せるか」を`visibility_rules`で表現する。`target_category`は経歴書（`resumes`/`resume_projects`の列単位）・星取表（`skill_categories`/`level_categories`単位）の両方を対象とする想定。
+- **ステータスごとの検索可視性**: `view_personal_info`権限なしは`active`のみ参照可。`admin`権限ありのデフォルト検索は`active`+`suspended`のみ。`deactivated`は`admin`権限ありが`status=deactivated`を明示した場合のみ参照可。
+- 経歴書の個人情報（`nearest_station`/`final_education`）のマスク判定は`view_personal_info`権限の有無で行う（[APP-ADR-0003決定1](../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md)・[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）。
 - 会社ドメインチェック（CSVメモ「会社のドメイン（環境変数）をチェックしたい」）はアプリケーション設定（環境変数）で行うため、テーブル設計には影響しない。
 - 経歴書・星取表など他コンテキストのテーブルは`accounts.account_id`を外部キーとして参照する。
 
@@ -198,8 +196,8 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 | resume_id | uuid | PK（アプリ側で採番） |
 | account_id | text (FK → accounts.account_id, unique) | 所有者（本人）。1アカウントにつき経歴書1件 |
 | age | integer | 年齢 |
-| nearest_station | text | 最寄り駅。`visibility_rules.target_category = resume_personal_info`の対象列（マスク対象） |
-| final_education | text | 最終学歴。`visibility_rules.target_category = resume_personal_info`の対象列（マスク対象） |
+| nearest_station | text | 最寄り駅。個人情報マスク対象列（`view_personal_info` 権限なしの場合はNULL化して返す、[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)） |
+| final_education | text | 最終学歴。個人情報マスク対象列（`view_personal_info` 権限なしの場合はNULL化して返す、[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)） |
 | self_pr | text | 自己PR |
 | status | text/enum | 状態（有効／アーカイブ） |
 | version | integer | 楽観ロック用バージョン |
@@ -255,9 +253,9 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 - 経歴書のアーカイブ／アーカイブ解除（UC-R3）は`resumes.status`の状態遷移で表現する。
 - 一括登録（経歴書CSV）は[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)の方針通りSQL直接投入で対応する。
 - **フォーマット変更への対応**: キャリアシートと異なり、経歴書のフォーマット変更（項目の追加等）はJSONBスキーマ管理ではなく、テーブルへのカラム追加マイグレーションで対応する（[README.md 7章](README.md#7-イベントストーミング結果と業務ルール)で経歴書とキャリアシートのバージョニング要件を分離）。
-- **マスク済み経歴書（UC-R2）**: マスク対象は`resumes.nearest_station`（最寄り駅）と`resumes.final_education`（最終学歴）の2列とし、`visibility_rules`の`target_category = resume_personal_info`として管理する。`age`（年齢）・`self_pr`・`resume_qualifications`・`resume_projects`はマスク対象外で本人以外にも公開する。マスクの適用・解除は以下の通り判定する。
+- **マスク済み経歴書（UC-R2）**: マスク対象は`resumes.nearest_station`（最寄り駅）と`resumes.final_education`（最終学歴）の2列。`age`（年齢）・`self_pr`・`resume_qualifications`・`resume_projects`はマスク対象外で本人以外にも公開する。マスクの適用・解除は以下の通り判定する（[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）。
   - 閲覧者が経歴書の所有者本人（`resumes.account_id` = 閲覧者の`account_id`）の場合: マスクしない（UC-R1のマイページ表示）。
-  - 閲覧者が本人以外の場合: `account_roles`経由で閲覧者が持つロールのいずれかが、`visibility_rules`で`target_category = resume_personal_info`に対し`can_view: true`（例: 管理者ロール）であればマスクしない。該当ロールがなければ`nearest_station` / `final_education`をNULL化（または非選択）して返す。
+  - 閲覧者が本人以外の場合: `account_roles`経由で閲覧者が`view_personal_info`権限を持っていればマスクしない。権限がなければ`nearest_station` / `final_education`をNULL化（または非選択）して返す。
 - **経歴書更新→星取表反映（UC-R1→星取表連携）**: 経歴書の言語・ツール入力（`resume_project_skills`）は自由入力ではなく3章の`skill_master_items`からの選択とするため、経歴書保存時に`resume_project_skills`へ登録された各`skill_master_item_id`について、保存者本人の`user_skills`（3章）に未登録であれば`level_master_item_id = NULL`の行をUPSERTする。既存の`user_skills`行（レベル設定済み含む）はそのまま保持し、上書きしない。
   - 経歴書保存（UC-R1）自体は新規スキル検出有無に関わらず即時完了させる（保存処理をブロックしない）。
   - 保存後、新規追加された`user_skills`行（`level_master_item_id = NULL`）がある場合は、レベル入力を促す確認ダイアログを表示する（スキップ可）。入力された場合はその場で`level_master_item_id`を更新し、スキップした場合はNULLのまま残す。
