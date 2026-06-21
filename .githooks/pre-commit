@@ -58,8 +58,8 @@ if [[ "$pr_state" == "MERGED" ]]; then
     exit 1
 fi
 
-# .githooks/ 配下のファイルが staged されている場合に shellcheck を実行する
-# shellcheck がインストールされていない場合はスキップ（Dev Container リビルドで導入される）
+# .githooks/ 配下のファイルが staged されている場合に構文チェックを実行する
+# 未インストールの場合はスキップ（Dev Container リビルドで shellcheck が導入される）
 if command -v shellcheck &>/dev/null; then
     staged_hooks=$(git diff --cached --name-only --diff-filter=ACM | grep '^\.githooks/' || true)
     if [[ -n "$staged_hooks" ]]; then
