@@ -58,4 +58,19 @@ if [[ "$pr_state" == "MERGED" ]]; then
     exit 1
 fi
 
+# .githooks/ 配下のファイルが staged されている場合に shellcheck を実行する
+# shellcheck がインストールされていない場合はスキップ（Dev Container リビルドで導入される）
+if command -v shellcheck &>/dev/null; then
+    staged_hooks=$(git diff --cached --name-only --diff-filter=ACM | grep '^\.githooks/' || true)
+    if [[ -n "$staged_hooks" ]]; then
+        echo "[pre-commit] shellcheck でフックファイルを検証します..."
+        echo "$staged_hooks" | xargs shellcheck || {
+            echo ""
+            echo "shellcheck エラーを修正してから commit してください。"
+            echo "スキップする場合は --no-verify を使用してください。"
+            exit 1
+        }
+    fi
+fi
+
 exit 0

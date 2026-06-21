@@ -31,6 +31,7 @@ should_skip() {
         case "$file" in
             $pattern) return 0 ;;
         esac
+        # shellcheck disable=SC2254
         case "$base_name" in
             $pattern) return 0 ;;
         esac
@@ -40,7 +41,7 @@ should_skip() {
 
 missing_tests=()
 
-while read -r local_ref local_sha remote_ref remote_sha; do
+while read -r _local_ref local_sha _remote_ref remote_sha; do
     # リモートブランチが存在しない場合（新規ブランチ）は最初のコミットを基点にする
     if [[ "$remote_sha" == "0000000000000000000000000000000000000000" ]]; then
         base=$(git rev-list --max-parents=0 "$local_sha")

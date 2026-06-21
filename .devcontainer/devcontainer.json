@@ -8,8 +8,10 @@
     // コンテナ内のワークスペースルートディレクトリ
     "workspaceFolder": "/kakehashi-api",
     // 追加ツール（gh CLI: commit前のPRマージ状態確認やCI設定の手元検証に使用）
+    // shellcheck: .githooks/ 変更時のpre-commitチェックとCI（Workflow Lint）と同じ検証をローカルで実行するために使用
     "features": {
-        "ghcr.io/devcontainers/features/github-cli:1": {}
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers-contrib/features/shellcheck:1": {}
     },
     // リビルド後もワークスペース内に Gradle キャッシュを保持する
     "remoteEnv": {
