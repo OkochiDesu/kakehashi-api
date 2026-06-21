@@ -2,6 +2,37 @@
 # pre-push フック
 # push されるコミットに含まれる Kotlin ソースファイルに
 # 対応するテストコードが存在しない場合は push を中断する
+#
+# 除外パターン（テストが不要または別ブランチで扱うファイル）:
+#   - *Repository.kt     : インターフェース定義のみ（実装側でテスト）
+#   - *Config.kt         : Spring @Configuration（DI 設定のみ）
+#   - *Exceptions.kt     : 例外クラスの定義のみ（ロジックなし）
+#   - GlobalExceptionHandler.kt : Controller テスト経由で間接テスト済み
+#   - infrastructure/**  : Testcontainers（DB接続が必要）のため別ブランチで対応
+
+SKIP_PATTERNS=(
+    "*Repository.kt"
+    "*Config.kt"
+    "*Exceptions.kt"
+    "GlobalExceptionHandler.kt"
+    "src/main/kotlin/*/infrastructure/*"
+)
+
+should_skip() {
+    local file="$1"
+    local base_name
+    base_name=$(basename "$file")
+    for pattern in "${SKIP_PATTERNS[@]}"; do
+        # shellcheck disable=SC2254
+        case "$file" in
+            $pattern) return 0 ;;
+        esac
+        case "$base_name" in
+            $pattern) return 0 ;;
+        esac
+    done
+    return 1
+}
 
 missing_tests=()
 
@@ -14,6 +45,8 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     fi
 
     while IFS= read -r file; do
+        should_skip "$file" && continue
+
         base_name=$(basename "$file" .kt)
         dir_path=$(dirname "$file" | sed 's|^src/main/kotlin/||')
         test1="src/test/kotlin/${dir_path}/${base_name}Test.kt"
