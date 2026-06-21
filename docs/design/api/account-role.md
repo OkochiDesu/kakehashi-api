@@ -25,8 +25,7 @@
   - [UC-A7: アカウント停止・停止解除（管理者）](#uc-a7-アカウント停止停止解除管理者)
 - [Query（参照系）エンドポイント](#query参照系エンドポイント)
   - [UC-A5: アカウント一覧・検索（管理者）](#uc-a5-アカウント一覧検索管理者)
-  - [アカウント詳細取得（管理者）](#アカウント詳細取得管理者)
-  - [自分のアカウント情報取得（本人）](#自分のアカウント情報取得本人)
+  - [アカウント詳細取得](#アカウント詳細取得)
 - [エンドポイント一覧（サマリ）](#エンドポイント一覧サマリ)
 
 ---
@@ -370,13 +369,15 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
 
 ---
 
-### アカウント詳細取得（管理者）
+### アカウント詳細取得
 
-UC-A5 の詳細画面（`AccountDetail`）に対応。UC-A6・UC-A7 の操作前に現在の `version` 値を取得する用途も兼ねる。
+UC-A5 の詳細画面、マイページ表示、UC-A6・UC-A7 の操作前 `version` 取得を兼ねる単一エンドポイント。
 
 - **メソッド・パス**: `GET /api/v1/accounts/{accountId}`
-- **認証**: 必要（`admin` 権限のみ）
-- **アクセス制御**: `admin` 権限保持者のみ
+- **認証**: 必要（認証済みアカウント）
+- **アクセス制御**:
+  - `admin` 権限あり: 任意の `accountId` にアクセス可
+  - `admin` 権限なし: JWT から特定した本人の `accountId` のみ可（他人は `403`）
 - **処理概要**: `accounts` に `account_roles` / `roles` を JOIN して1件取得する（MyBatis DTO マッピング、Query 側）。
 
 - **パスパラメータ**:
@@ -397,58 +398,21 @@ UC-A5 の詳細画面（`AccountDetail`）に対応。UC-A6・UC-A7 の操作前
       }
     ],
     "suspendedAt": string | null,
-    "version": integer,     // 楽観ロック用。UC-A6/A7 のリクエストボディに使用する
+    "version": integer,     // 楽観ロック用。UC-A4/A6/A7 のリクエストボディに使用する
     "createdAt": string,
     "updatedAt": string,
     "updatedBy": string     // 最終更新者の accountId
   }
   ```
 
-  > マスク制御: `deactivated` アカウントは `name` / `email` を `"***"` でマスクして返す。
+  > `deactivated` アカウントは `name` / `email` を `"***"` でマスクして返す。
 
 - **レスポンス 4xx**:
   - `401 Unauthorized`: 未認証
-  - `403 Forbidden`: `admin` ロール以外のアクセス
+  - `403 Forbidden`: 他人の `accountId` に `admin` 権限なしでアクセス
   - `404 Not Found`: 指定した `accountId` が存在しない
 
-- **根拠 UC**: UC-A5（詳細画面）、UC-A6・UC-A7 の操作前の version 取得
-
----
-
-### 自分のアカウント情報取得（本人）
-
-マイページの表示や、本登録後のアカウント状態確認に使用する。
-
-- **メソッド・パス**: `GET /api/v1/accounts/me`
-- **認証**: 必要（全ユーザー、本人のみ）
-- **アクセス制御**: 認証済みアカウント（権限不問）
-- **処理概要**: 認証トークンから本人の `account_id` を特定し、`accounts` に `account_roles` / `roles` を JOIN して取得する（MyBatis DTO マッピング、Query 側）。
-
-- **レスポンス 200**:
-  ```
-  {
-    "accountId": string,
-    "name": string,
-    "email": string,
-    "status": string,
-    "roles": [
-      {
-        "code": string,
-        "name": string
-      }
-    ],
-    "version": integer,     // UC-A4（アカウント情報編集）のリクエストボディに使用する
-    "createdAt": string,
-    "updatedAt": string
-  }
-  ```
-
-  > マスク制御: 本人情報のため全フィールドをマスクなしで返す。`suspendedAt` は本人には非公開（自分が停止されているとログインできないため、このエンドポイントでは返さない）。
-
-- **レスポンス 4xx**:
-  - `401 Unauthorized`: 未認証
-
-- **根拠 UC**: UC-A4（編集前の情報取得）、UC-A3（本登録後の状態確認）
+- **根拠 UC**: UC-A3（本登録後の状態確認）、UC-A4（編集前の情報取得）、UC-A5（詳細画面）、UC-A6・UC-A7 の操作前 version 取得
 
 ---
 
@@ -463,5 +427,4 @@ UC-A5 の詳細画面（`AccountDetail`）に対応。UC-A6・UC-A7 の操作前
 | Command | POST | `/api/v1/accounts/{accountId}/suspend` | 必要 | admin 権限 | UC-A7 |
 | Command | POST | `/api/v1/accounts/{accountId}/unsuspend` | 必要 | admin 権限 | UC-A7 |
 | Query | GET | `/api/v1/accounts` | 必要 | admin 権限 | UC-A5 |
-| Query | GET | `/api/v1/accounts/{accountId}` | 必要 | admin 権限 | UC-A5, UC-A6, UC-A7 |
-| Query | GET | `/api/v1/accounts/me` | 必要 | 認証済み（権限不問） | UC-A3, UC-A4 |
+| Query | GET | `/api/v1/accounts/{accountId}` | 必要 | 本人 or admin 権限 | UC-A3, UC-A4, UC-A5, UC-A6, UC-A7 |
