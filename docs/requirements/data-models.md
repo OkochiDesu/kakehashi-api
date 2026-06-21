@@ -89,7 +89,7 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 - 「停止／停止解除」（UC-A7）は`accounts.status`の状態遷移として表現し、停止時に`suspended_at`を設定、解除時に`suspended_at`をNULLに戻す。
 - 「権限変更」（UC-A6）は`account_roles`の行追加・削除として表現する。本登録時（UC-A3）のデフォルト権限付与はなし。権限は管理者が明示的に付与する。
 - **deactivatedへの自動遷移とマスク化**: `suspended_at`から1年経過したアカウントはSpring `@Scheduled`日次タスクで`status = 'deactivated'`に更新する。`deactivated`アカウントはAPIレスポンス時に`name`/`email`を常にマスク（`"***"`等）して返す（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)）。
-- **ステータスごとの検索可視性**: `view_personal_info`権限なしは`active`のみ参照可。`admin`権限ありのデフォルト検索は`active`+`suspended`のみ。`deactivated`は`admin`権限ありが`status=deactivated`を明示した場合のみ参照可。
+- **ステータスごとの検索可視性**: status未指定時は権限に関わらず`active`のみ返す。`suspended`/`deactivated`は`admin`権限ありが明示指定した場合のみ返す（権限なしでは明示指定しても`active`に強制）（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)）。
 - 経歴書の個人情報（`nearest_station`/`final_education`）のマスク判定は`view_personal_info`権限の有無で行う（[APP-ADR-0003決定1](../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md)・[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）。
 - 会社ドメインチェック（CSVメモ「会社のドメイン（環境変数）をチェックしたい」）はアプリケーション設定（環境変数）で行うため、テーブル設計には影響しない。
 - 経歴書・星取表など他コンテキストのテーブルは`accounts.account_id`を外部キーとして参照する。

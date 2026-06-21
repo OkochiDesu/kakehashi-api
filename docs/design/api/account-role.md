@@ -27,6 +27,7 @@
   - [UC-A5: アカウント一覧・検索（管理者）](#uc-a5-アカウント一覧検索管理者)
   - [アカウント詳細取得（管理者）](#アカウント詳細取得管理者)
   - [自分のアカウント情報取得（本人）](#自分のアカウント情報取得本人)
+- [エンドポイント一覧（サマリ）](#エンドポイント一覧サマリ)
 
 ---
 
@@ -64,11 +65,14 @@
 
 **検索可視性:**
 
-| 権限 | 表示される status |
+| ケース | 返される status |
 |---|---|
-| 権限なし（デフォルト） | `active` のみ |
-| `admin` 権限あり（デフォルト） | `active` / `suspended` |
-| `admin` 権限あり（`status=deactivated` 明示） | `deactivated`（`name`/`email` は常にマスク） |
+| デフォルト（status 未指定） | `active` のみ |
+| `admin` 権限あり + `status=suspended` 明示 | `suspended` のみ |
+| `admin` 権限あり + `status=active,suspended` 明示 | `active` + `suspended` |
+| `admin` 権限あり + `status=deactivated` 明示 | `deactivated`（`name`/`email` は常にマスク） |
+
+`suspended` / `deactivated` は `admin` 権限なしでは明示指定しても返さない（サーバー側で強制 `active` フィルタ）。
 
 **`deactivated` アカウントのマスク**: `name` / `email` を `"***"` 等で伏せて返す。
 
@@ -326,17 +330,16 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
 - **メソッド・パス**: `GET /api/v1/accounts`
 - **認証**: 必要（`admin` 権限のみ）
 - **アクセス制御**: `admin` 権限保持者のみ
-- **処理概要**: `accounts` に `account_roles` / `roles` を JOIN し、検索条件に応じてフィルタしてアカウント一覧を返す。MyBatis でドメイン層をバイパスして直接 DTO にマッピングする（Query 側）。
+- **処理概要**: `accounts` テーブルを検索条件でフィルタし、アカウント一覧を返す（軽量）。MyBatis でドメイン層をバイパスして直接 DTO にマッピングする（Query 側）。`roleCode` 指定時のみ `account_roles` / `roles` を JOIN する（MyBatis `<if>` で動的に追加）。
 
 - **クエリパラメータ**:
   ```
-  name:     string  （任意）表示名の部分一致
-  email:    string  （任意）メールアドレスの部分一致
-  status:   string  （任意）"active" | "suspended" | "deactivated"
-             ※ 未指定時は active + suspended のみ返す。deactivated は明示指定が必要
-  roleCode: string  （任意）"admin" | "view_personal_info"
-  page:     integer （任意、デフォルト 0）ページ番号（0始まり）
-  size:     integer （任意、デフォルト 20）1ページの件数
+  name:     string   （任意）表示名の部分一致
+  status:   string[] （任意）"active" | "suspended" | "deactivated" の複数指定可（カンマ区切り）
+                      未指定時は active のみ。suspended / deactivated は admin 権限なしでは無効
+  roleCode: string   （任意）"admin" | "view_personal_info"（account_roles JOIN が発生）
+  page:     integer  （任意、デフォルト 0）ページ番号（0始まり）
+  size:     integer  （任意、デフォルト 20）1ページの件数
   ```
 
 - **レスポンス 200**:
@@ -346,17 +349,7 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
       {
         "accountId": string,
         "name": string,
-        "email": string,
-        "status": string,
-        "roles": [
-          {
-            "code": string,
-            "name": string
-          }
-        ],
-        "suspendedAt": string | null,
-        "createdAt": string,
-        "updatedAt": string
+        "status": string
       }
     ],
     "totalElements": integer,
@@ -366,11 +359,12 @@ Query 側は MyBatis でドメイン層をバイパスし、JOIN クエリ結果
   }
   ```
 
-  > マスク制御: `deactivated` アカウントは `name` / `email` を `"***"` でマスクして返す。`deactivated` はデフォルトでは返さず、`status=deactivated` を明示した場合のみ返す。
+  > 詳細情報（email / roles / suspendedAt / version 等）は `GET /api/v1/accounts/{accountId}` で取得する。
+  > `deactivated` アカウントの `name` は `"***"` でマスクして返す。
 
 - **レスポンス 4xx**:
   - `401 Unauthorized`: 未認証
-  - `403 Forbidden`: `admin` ロール以外のアクセス
+  - `403 Forbidden`: `admin` 権限なしのアクセス
 
 - **根拠 UC**: UC-A5
 

@@ -41,8 +41,8 @@
 1. **`suspended` に退職と一時停止を一本化する**: 「管理者による一時停止」と「退職による退会」を区別しない。いずれも管理者が `POST /api/v1/accounts/{accountId}/suspend` で停止する。
 2. **`suspended` → `deactivated` の自動遷移**: Spring Boot の `@Scheduled` アノテーションを用いた日次タスクで `suspended_at < NOW() - INTERVAL '1 year'` な行を `status = 'deactivated'` に更新する。独立したバッチ基盤は不要。
 3. **非adminからは `suspended` / `deactivated` を除外する**: `general` / `sales` ロールの検索・一覧クエリは `WHERE status = 'active'` のみを対象とする。他コンテキスト（経歴書・星取表）の検索でも同様に `active` のみを対象とする。
-4. **adminのデフォルト検索は `suspended` まで**: admin の一覧・検索クエリのデフォルトは `WHERE status IN ('active', 'suspended')` とし、`deactivated` は除外する。
-5. **adminが明示的に `status=deactivated` を指定した場合のみ表示**: `GET /api/v1/accounts?status=deactivated` のように明示的にフィルタした場合のみ `deactivated` アカウントを返す。
+4. **デフォルト検索は `active` のみ**: status 未指定時は権限に関わらず `WHERE status = 'active'` のみを対象とする。フロントエンドが必要に応じて `status=suspended` や `status=active,suspended` を明示指定する。
+5. **`suspended` / `deactivated` は admin 権限ありが明示指定した場合のみ表示**: `status=suspended` や `status=deactivated` を明示した場合のみ返す。admin 権限なしでは明示指定しても `active` に強制される。
 6. **`deactivated` アカウントの `name` / `email` は常にマスク**: `deactivated` 状態のアカウントは個人情報フィールド（`name` / `email`）を `"***"` 等で伏せて返す。
 
 ## 代替案
@@ -69,7 +69,8 @@
 - `accounts.status` が4値に拡張: `provisional` / `active` / `suspended` / `deactivated`
 - V1 マイグレーションのコメント・CHECK 制約を更新し、`deactivated` を有効値として追加する
 - 非admin 向け query は `WHERE status = 'active'` でフィルタする
-- admin 向けデフォルト query は `WHERE status IN ('active', 'suspended')` でフィルタする
+- status 未指定時のデフォルト query は権限に関わらず `WHERE status = 'active'` のみ
+- `suspended` / `deactivated` はフロントエンドが明示指定し、admin 権限なしでは無効化される
 - `deactivated` アカウントを返す場合は `name` / `email` を常にマスクする
 - `@Scheduled` タスクを `AccountService`（または専用の `AccountDeactivationService`）に実装する（日次実行、`@Transactional` を付与）
 
