@@ -54,7 +54,7 @@
 
 ## 影響
 
-- 1〜5章の全テーブル定義（`accounts`, `roles`, `account_roles`, `visibility_rules`, `skill_categories`, `skill_master_items`, `level_categories`, `level_master_items`, `user_skills`, `resumes`, `resume_qualifications`, `resume_projects`, `resume_project_skills` 等）は、本方針に従った監査カラム・PK命名・PK型で記述されている。
+- 1〜5章の全テーブル定義（`accounts`, `roles`, `account_roles`, `skill_categories`, `skill_master_items`, `level_categories`, `level_master_items`, `user_skills`, `resumes`, `resume_qualifications`, `resume_projects`, `resume_project_skills` 等）は、本方針に従った監査カラム・PK命名・PK型で記述されている。なお `visibility_rules` は [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) で廃止済み。
 - `accounts.account_id` の `AZ0000` 形式は「仮フォーマット」であり、確定フォーマット（桁数・連番の境界処理等）はFlywayマイグレーション実装時に別ADRで確定する。
 - UUID v7はライブラリ選定・生成方法（DB側 `gen_random_uuid()` 系か、アプリ側ライブラリか）を実装フェーズで確定する必要がある。
 - 編集系テーブルの楽観ロック（`version`）・編集履歴ログ（`entity_change_logs`）は本ADRの対象外とし、`data-models.md` 0章の別項目として記述されている（[quality-standards.md 1章・6章](../requirements/quality-standards.md#1-機能適合性functional-suitability)参照）。

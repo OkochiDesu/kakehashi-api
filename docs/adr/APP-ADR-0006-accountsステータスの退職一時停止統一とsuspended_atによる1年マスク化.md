@@ -38,7 +38,7 @@
 
 具体的な決定事項:
 
-1. **`suspended` に退職と一時停止を一本化する**: 「管理者による一時停止」と「退職による退会」を区別しない。いずれも管理者が `POST /api/v1/accounts/{accountId}/suspend` で停止する。
+1. **`suspended` に退職と一時停止を一本化する**: 「管理者による一時停止」と「退職による退会」を区別しない。いずれも管理者が `POST /api/accounts/{accountId}/suspend` で停止する。
 2. **`suspended` → `deactivated` の自動遷移**: Spring Boot の `@Scheduled` アノテーションを用いた日次タスクで `suspended_at < NOW() - INTERVAL '1 year'` な行を `status = 'deactivated'` に更新する。独立したバッチ基盤は不要。
 3. **非adminからは `suspended` / `deactivated` を除外する**: `general` / `sales` ロールの検索・一覧クエリは `WHERE status = 'active'` のみを対象とする。他コンテキスト（経歴書・星取表）の検索でも同様に `active` のみを対象とする。
 4. **デフォルト検索は `active` のみ**: status 未指定時は権限に関わらず `WHERE status = 'active'` のみを対象とする。フロントエンドが必要に応じて `status=suspended` や `status=active,suspended` を明示指定する。
