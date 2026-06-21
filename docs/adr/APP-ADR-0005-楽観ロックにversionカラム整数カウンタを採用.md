@@ -51,6 +51,7 @@
 - 対象テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `resumes`）のDDLに `version integer not null default 0` を含める（V1 SQL（`src/main/resources/db/migration/V1__create_accounts_and_roles.sql`）では `accounts` に実装済み）。
 - 全更新系エンドポイントのリクエストボディに `version` を必須フィールドとして含める。
 - 更新時の `version` 不一致は `409 Conflict` としてクライアントに返す。
+- 事前 version チェック通過後に別トランザクションで更新が割り込んだ場合（UPDATE 0件）は、`findById` で currentVersion を再取得して `OptimisticLockException` に渡す。クライアントは最新 version を受け取ることで再試行の判断ができる。
 
 ## 今後の見直しポイント
 

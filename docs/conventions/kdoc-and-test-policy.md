@@ -60,6 +60,7 @@
 - 権限エラー: `isAdmin = false` → `ForbiddenOperationException`
 - ステータス遷移不正: `canTransitionTo()` が false → `InvalidStatusTransitionException`
 - Not Found: 対象アカウントが存在しない → `AccountNotFoundException`
+- 不正な入力値: 未定義の `roleCode` など → `IllegalArgumentException` → `GlobalExceptionHandler` で 400 変換
 
 ### ファイル配置
 
