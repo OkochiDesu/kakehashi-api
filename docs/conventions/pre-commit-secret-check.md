@@ -5,6 +5,7 @@
 1. commit に APIキー・トークン・秘密鍵などのシークレットらしき文字列が
    誤って含まれていないかを、commit 前に簡易チェックする。
 2. 現在のブランチに対応するPRがマージ済み（MERGED）の場合、誤ってそのブランチにcommitし続けることを防ぐ。
+3. `.githooks/` 配下のファイルが staged されている場合に shellcheck で構文チェックを行い、CI（Workflow Lint）と同じ検証をローカルで事前に実施する。
 
 AI（ClaudeCode等）が `git commit` を実行できる運用（[CLAUDE.md](../../CLAUDE.md) の commit運用）に対する
 追加の防御（[design-docs/core-beliefs.md](../design-docs/core-beliefs.md) 原則2 二重の防御）として導入。
@@ -22,6 +23,11 @@ AI（ClaudeCode等）が `git commit` を実行できる運用（[CLAUDE.md](../
 - Google APIキー
 - GitHubトークン
 - Slackトークン
+
+### 3. shellcheck によるフックファイル構文チェック
+
+`.githooks/` 配下のファイルがステージされている場合、`shellcheck` コマンドで Shell スクリプトの静的解析を実行する。
+`shellcheck` が未インストールの場合はスキップされる（devcontainer リビルドで自動導入される）。
 
 ### 2. PRマージ済みチェック
 
@@ -51,6 +57,8 @@ git config core.hooksPath .githooks
 | シークレットらしき文字列が見つからない | commit 通過 |
 | シークレットらしき文字列が見つかる | commit ブロック＋該当ファイル一覧を表示 |
 | 現在のブランチに対応するPRがMERGED | commit ブロック＋新ブランチ作成手順を表示 |
+| `.githooks/` ファイルが staged かつ shellcheck エラーあり | commit ブロック＋エラー内容を表示 |
+| `.githooks/` ファイルが staged かつ shellcheck 未インストール | shellcheck スキップ（commit 通過） |
 | `gh`が未インストール | commit ブロック（fail-closed） |
 | `gh`が未認証 | commit ブロック＋`gh auth login`を促す（fail-closed） |
 | スキップしたい場合 | `git commit --no-verify` |
@@ -65,4 +73,4 @@ git config core.hooksPath .githooks
 ## 関連ファイル
 
 - `.githooks/pre-commit` — フックスクリプト本体
-- `.devcontainer/devcontainer.json` — `postCreateCommand` で自動有効化設定
+- `.devcontainer/devcontainer.json` — `postCreateCommand` で自動有効化設定、shellcheck feature で導入
