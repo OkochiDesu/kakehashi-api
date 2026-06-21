@@ -71,11 +71,13 @@ kakehashi-api のバックエンドアーキテクチャ原則として、以下
 
 - 以降の各ドメインのドメインモデル設計・API設計・実装は、本ADRの DDD/Clean Architecture と CQRS を前提とする。アカウント・ロールドメインの設計書 [docs/design/api/account-role.md](../design/api/account-role.md) は既にこの前提で記述済みである。
 - Command 側はドメイン集約 → Repository、Query 側は MyBatis Mapper → DTO という2系統の実装が並存する。Query側で集約を経由しないことを許容する（CQRSの意図的なトレードオフ）。
-- ドメイン層はフレームワーク非依存とするため、Entity/値オブジェクト/集約に Spring・MyBatis の型やアノテーションを持ち込まない実装規約となる。具体的なパッケージ構成・依存方向のルールは実装フェーズで [docs/architecture/](../architecture/) に具体化する。
+- ドメイン層はフレームワーク非依存とするため、Entity/値オブジェクト/集約に Spring・MyBatis の型やアノテーションを持ち込まない実装規約となる。
+- **パッケージ構成**: `domain/` / `usecase/` / `infrastructure/` / `presentation/` の4層で構成する。`service` という語は Spring の `@Service` と混同するため使用しない。UseCase クラスは `usecase/{context}/` に UC 単位で配置する。詳細は [docs/architecture/package-structure.md](../architecture/package-structure.md) を参照。
+- **UseCase の DI 登録**: UseCase クラスには `@Service` を付与しない。POJO として実装し、`@Configuration` クラスの `@Bean` メソッドで DI コンテナに登録する。これによりドメイン・ユースケース層を Spring に依存させず、単体テストで Spring Context なしに `new UseCase(mockRepo)` でインスタンス化できる。
+- **Enum の配置と活用**: `AccountStatus` / `RoleCode` 等のドメイン概念を表す Enum は `domain/{context}/` に配置する。ステータス遷移可否（`canTransitionTo`）・表示可否（`isSearchable`）等の業務ルールを Enum のメソッドとして実装し、UseCase・Controller への if/when 分散を防ぐ。
 - ドメインモデル（エンティティ・値オブジェクト・集約の振る舞い）の詳細設計は、永続化層スキーマを対象とする [data-models.md](../requirements/data-models.md) とは別に実装フェーズで設計する（[docs/requirements/README.md 8章 2026-06-14 のログ](../requirements/README.md#8-意思決定ログ)）。
 
 ## 今後の見直しポイント
 
 - CQRSのCommand/Query分離が運用上のオーバーヘッド（モデルの二重管理コスト等）に見合わないと判断された場合は、適用範囲の見直しを新規ADRで検討する。
-- ドメイン層の独立性を保つためのパッケージ構成・依存ルールを具体化した際は、[docs/architecture/](../architecture/) に記載し、必要に応じて本ADRから参照する。
 - イベント駆動（ドメインイベントの非同期発行・イベントハンドラ）の実装方式を確定する際は、本ADRのCommand側方針との整合を確認し、必要なら別ADRで詳細化する。

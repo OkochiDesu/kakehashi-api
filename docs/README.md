@@ -73,6 +73,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 ## Architecture（モジュール構成・パッケージ設計）
 
 - [architecture/README.md](architecture/README.md) - モジュール構成・パッケージ設計・サブプロジェクト構成（Step1実装フェーズで随時更新）
+- [architecture/package-structure.md](architecture/package-structure.md) - パッケージ構成規約（レイヤー・命名・UseCase DI・Enum 活用）
 
 ## References（外部参考資料）
 
