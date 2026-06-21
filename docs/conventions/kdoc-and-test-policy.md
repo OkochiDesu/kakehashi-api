@@ -27,6 +27,13 @@
 - `@param` / `@return` は自明でない場合のみ記載する（`id: AccountId` に「アカウントID」とだけ書くのは不要）
 - クラス・インターフェース自体にも概要 KDoc を付与する
 
+### `@throws` の記述ルール
+
+- **説明文は実装の分岐条件と正確に一致させる**
+  - 悪い例: `@throws InvalidStatusTransitionException ACTIVE以外の場合`
+  - 良い例: `@throws InvalidStatusTransitionException canTransitionTo(ACTIVE) が false の場合`
+- **実際にスローされる例外のみ列挙する**（漏れ・過剰記載に注意）
+
 ---
 
 ## コメント方針
@@ -34,6 +41,9 @@
 - **書くべきコメント**: なぜそう実装したか（非自明な制約・ADR起因のトレードオフ・意図的な例外処理）、複雑なロジックの説明
 - **書かないコメント**: コードを読めば分かること（`// null チェック`、`// 更新する` 等）
 - レビューは人間が行うため、レビュアーが文脈を理解するのに必要な情報を残す
+- **インラインコメントは条件式ベースで書く**（列挙ではなく条件を書く）
+  - 悪い例: `// active / suspended の場合は 409`
+  - 良い例: `// canTransitionTo(ACTIVE) が false の場合は 409`
 
 ---
 

@@ -28,8 +28,22 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 - **APP-ADR-0007 の認可チェック**: アクセス制御は `account_roles` の permission（`admin` / `view_personal_info`）に基づく。`visibility_rules` は廃止済みのため参照しない
 - **APP-ADR-0005 の楽観ロック**: `accounts` 等の対象テーブルには `version` チェックを実装する。楽観ロック競合（UPDATE 0件）は `OptimisticLockException` をスローし、再取得した currentVersion を渡す
 - セキュリティ: SQL インジェクション・XSS・認可バイパスが発生しないコードを書く。ユーザー入力は API バウンダリでのみバリデートし、内部では信頼する
+- **外部入力の型変換**（`RoleCode.fromCode()` 等）に `runCatching.getOrNull()` を使わない。不正値は例外をスローして `GlobalExceptionHandler` で 400 変換する
+- **Output DTO のプロパティ**に `Nothing?` を使わない。意味のある具体的な型（`OffsetDateTime?` 等）を使う
 - `git push` / `rm` 等の禁止操作は実行しない
 - テストコードも合わせて作成する（単体テスト: Service 層、結合テスト: Controller 層）
+
+## KDoc・コメントルール
+
+詳細は [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md) を参照。ClaudeCode が実装時に即適用するルールを以下に抜粋する。
+
+- **`@throws` の説明**は実装の分岐条件と正確に一致させる
+  - 悪い例: `@throws InvalidStatusTransitionException ACTIVE以外の場合`
+  - 良い例: `@throws InvalidStatusTransitionException canTransitionTo(ACTIVE) が false の場合`
+- **インラインコメント**も実装の条件式ベースで書く（列挙ではなく条件を書く）
+  - 悪い例: `// active / suspended の場合は 409`
+  - 良い例: `// canTransitionTo(ACTIVE) が false の場合は 409`
+- `@throws` に列挙する例外は実際にスローされるものだけ書く（漏れ・誤りに注意）
 
 ## 実装スタイル
 
