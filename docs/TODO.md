@@ -212,6 +212,24 @@
 - 初回ログイン時プロセスの検討
   - ユーザー登録画面は作らず、SSO認証完了後にプロフィール情報が不足している場合のみ「プロフィール設定画面」へ誘導するフローを検討する。
 
+#### Step1 アカウント実装後に別ブランチで対応（認証・認可設計）
+
+アカウント（domain / usecase / infrastructure / presentation）の実装を先行させ、以下を後続ブランチで実装する。
+
+- **JWT / 認証トークン設計**: Google の `id_token` をそのまま Bearer として使うか、UC-A1 コールバック後に自前 JWT を発行するかを決定し、Spring Security の `oauth2ResourceServer` / カスタムフィルターを実装する。`SecurityContextHolder` から accountId を取得する方法（`@AuthenticationPrincipal` 等）もここで確定する。
+- **`provisional` 状態のアクセス制御**: `POST /api/accounts/me/registration` は `provisional` のアカウントのみ実行可。他エンドポイントへの `provisional` アクセスをどのレイヤー（Spring Security フィルター / `@PreAuthorize`）で弾くかを決定する。
+
+### deactivated 自動遷移バッチ（`@Scheduled`）
+
+- `suspended_at` から1年経過したアカウントを `status = 'deactivated'` に更新する日次バッチ（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)）。
+- テスト時に意図せず動作しないよう `@ConditionalOnProperty` 等で有効・無効を切り替えられる設計にする。
+- Step1 実装完了後に着手する。
+
+### テスト戦略（Step1 実装後に確定）
+
+- どのレイヤーまでテストカバレッジを設けるか（UseCase 単体テストのみ / Controller 統合テストも含むか）を実装フェーズで確定する。
+- DB テストは Testcontainers（PostgreSQL）を利用する方向で検討する。
+
 ### 経歴書の帳票出力（Excel・PDF）
 
 > 対象: **経歴書**。レイアウト・項目は固定であり、Excel/PDF出力が必要。
