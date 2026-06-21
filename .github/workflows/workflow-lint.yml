@@ -122,7 +122,7 @@ jobs:
           if command -v shellcheck &>/dev/null; then
             shellcheck .githooks/pre-push .githooks/pre-commit || exit 1
           else
-            sudo apt-get install -y shellcheck -q
+            sudo apt-get update -q && sudo apt-get install -y shellcheck -q
             shellcheck .githooks/pre-push .githooks/pre-commit || exit 1
           fi
 

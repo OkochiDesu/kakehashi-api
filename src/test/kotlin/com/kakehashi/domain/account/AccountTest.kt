@@ -32,7 +32,7 @@ class AccountTest {
     }
 
     @Test
-    fun `register - ACTIVE以外から呼ぶと例外をスローする`() {
+    fun `register - PROVISIONAL以外から呼ぶと例外をスローする`() {
         val account = buildAccount(AccountStatus.ACTIVE)
         assertThrows<IllegalStateException> { account.register("AZ0001") }
     }

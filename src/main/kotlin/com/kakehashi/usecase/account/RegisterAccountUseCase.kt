@@ -32,7 +32,7 @@ class RegisterAccountUseCase(
      *
      * @param accountId 本登録対象のアカウントID
      * @throws AccountNotFoundException アカウントが存在しない場合
-     * @throws InvalidStatusTransitionException ACTIVE 以外の遷移元の場合（二重申込み防止）
+     * @throws InvalidStatusTransitionException PROVISIONAL 以外のステータスから呼んだ場合（二重申込み防止）
      * @throws OptimisticLockException 楽観ロック競合の場合
      */
     fun execute(accountId: AccountId): Output {
@@ -40,7 +40,7 @@ class RegisterAccountUseCase(
             accountRepository.findById(accountId)
                 ?: throw AccountNotFoundException(accountId.value)
 
-        // すでに active / suspended の場合は 409 Conflict（二重申込み防止）
+        // PROVISIONAL 以外（canTransitionTo(ACTIVE) が false）は 409 Conflict（二重申込み防止）
         if (!account.status.canTransitionTo(AccountStatus.ACTIVE)) {
             throw InvalidStatusTransitionException(
                 accountId = accountId.value,

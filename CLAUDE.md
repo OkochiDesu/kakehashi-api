@@ -15,7 +15,8 @@
 - `rm`, `rmdir` など削除コマンドは使用しない
 - `find -delete` や `rsync --delete` など再帰的な削除操作は使用しない
 - `curl`, `wget` などでインターネットからファイルをダウンロードしない
-- `.claude/settings.json` を直接編集しない。変更は必ず `/update-config` スキル経由で行う（フォーマット不正によるパースエラー防止のため）
+- `.claude/settings.json` を編集した後は必ず `jq . .claude/settings.json` で JSON 構文を確認すること（フォーマット不正によるパースエラー防止のため）
+- CLAUDE.md / AGENTS.md にスキル・コマンド・ファイルパスを記述する前に、対象が実在するかを確認すること（実在しないリソースへの参照は実行不能なルールになる）
 
 ### commit運用
 - `git commit` の前に、現在のブランチに対応するPRの状態を `gh pr view --json state,number` で確認する
