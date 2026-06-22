@@ -47,6 +47,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 | [kotlin-implementer](.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装（Entity/Repository/Service/Controller） |
 | [class-diagram-updater](.claude/agents/class-diagram-updater.md) | kotlin-implementer完了後に `src/` 配下のREADME.md（クラス図・関連図）を自動生成・更新 |
 | [src-doc-maintainer](.claude/agents/src-doc-maintainer.md) | class-diagram-updater完了後に `src/` 内README.mdとコードの整合性をチェック |
+| [design-impl-checker](.claude/agents/design-impl-checker.md) | API設計書（`docs/design/api/*.md`）とController実装のパス・リクエスト/レスポンス整合性をチェック |
 | [code-reviewer](.claude/agents/code-reviewer.md) | 実装コードのレビュー。APPROVED/REQUIRES_CHANGESを明示し人間の最終確認を支援 |
 
 ## 利用可能なスキル（.claude/skills/）

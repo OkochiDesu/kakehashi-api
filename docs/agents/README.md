@@ -31,6 +31,7 @@
 | [`.claude/agents/kotlin-implementer.md`](../../.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装エージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/class-diagram-updater.md`](../../.claude/agents/class-diagram-updater.md) | `src/` 配下の Kotlin コードからクラス図・関連図を生成し、各パッケージの README.md を更新する（kotlin-implementer完了後に自動呼び出し） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/src-doc-maintainer.md`](../../.claude/agents/src-doc-maintainer.md) | `src/` 内 README.md とソースコードの整合性チェック（読み取り専用、class-diagram-updater完了後に呼び出し） | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/design-impl-checker.md`](../../.claude/agents/design-impl-checker.md) | API設計書とController実装の整合性チェック（読み取り専用）。パス・HTTPメソッド・リクエスト/レスポンス一致を検証し、不整合があれば対応方針をユーザーに確認する | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/code-reviewer.md`](../../.claude/agents/code-reviewer.md) | 実装コードレビューエージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/skills/adr-governance/SKILL.md`](../../.claude/skills/adr-governance/SKILL.md) | `/adr-governance` スキル。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） | ClaudeCode（`/adr-governance` で起動） |
 | [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。kotlin-implementer→code-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
