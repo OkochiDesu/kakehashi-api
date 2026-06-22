@@ -44,6 +44,10 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - 悪い例: `// active / suspended の場合は 409`
   - 良い例: `// canTransitionTo(ACTIVE) が false の場合は 409`
 - `@throws` に列挙する例外は実際にスローされるものだけ書く（漏れ・誤りに注意）
+- **エラーメッセージは日本語で記述する**（`require()` / `check()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列すべて）
+  - 悪い例: `"Cannot transition from $status to ACTIVE"`
+  - 良い例: `"${status} から ACTIVE への遷移は許可されていません"`
+- **`interface` のメソッドおよびリポジトリ系の公開メソッドは `@param` を省略しない**（実装クラスとの対応追跡を容易にするため）
 
 ## 実装スタイル
 

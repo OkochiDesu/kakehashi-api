@@ -7,6 +7,7 @@
 - [KDoc フォーマット](#kdoc-フォーマット)
   - [ルール](#ルール)
   - [`@throws` の記述ルール](#throws-の記述ルール)
+  - [エラーメッセージのルール](#エラーメッセージのルール)
 - [コメント方針](#コメント方針)
 - [テスト方針](#テスト方針)
   - [原則: TDD（テスト先行）](#原則-tddテスト先行)
@@ -36,7 +37,7 @@
 
 - 1行目はメソッドが「何をするか」を動詞で始める（「取得する」「更新する」「遷移させる」等）
 - 設計書No・ADRNo は必ず記載する（該当なしは `-`）
-- `@param` / `@return` は自明でない場合のみ記載する（`id: AccountId` に「アカウントID」とだけ書くのは不要）
+- `@param` / `@return` は自明でない場合のみ記載する（`id: AccountId` に「アカウントID」とだけ書くのは不要）。ただし **`interface` のメソッドおよびリポジトリ系の公開メソッドは `@param` を省略しない**（実装クラスとの対応追跡を容易にするため）
 - クラス・インターフェース自体にも概要 KDoc を付与する
 
 ### `@throws` の記述ルール
@@ -45,6 +46,13 @@
   - 悪い例: `@throws InvalidStatusTransitionException ACTIVE以外の場合`
   - 良い例: `@throws InvalidStatusTransitionException canTransitionTo(ACTIVE) が false の場合`
 - **実際にスローされる例外のみ列挙する**（漏れ・過剰記載に注意）
+
+### エラーメッセージのルール
+
+- **エラーメッセージは日本語で記述する**（`require()` / `check()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列すべてに適用）
+  - 悪い例: `"Cannot transition from $status to ACTIVE"`
+  - 良い例: `"${status} から ACTIVE への遷移は許可されていません"`
+- 英語のエラーメッセージが残っている場合は REQUIRES_CHANGES として指摘する
 
 ---
 
