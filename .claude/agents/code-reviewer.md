@@ -46,8 +46,9 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 - **型変換の例外処理**: 外部入力の型変換（`RoleCode.fromCode()` 等）に `runCatching.getOrNull()` を使っていないか。不正値は例外スローで `GlobalExceptionHandler` に委ねているか
 - **Output DTO の型**: プロパティに `Nothing?` を使っていないか。意味のある具体的な型（`OffsetDateTime?` 等）になっているか
 - **KDoc `@throws` の正確性**: 説明文が実装の分岐条件と一致しているか。実際にスローされない例外を列挙していないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
-- **エラーメッセージの日本語化**: `require()` / `check()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列に英語が残っていないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
+- **エラーメッセージの日本語化**: `require()` / `check()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列に英語が残っていないか（**diff 行だけでなくファイル全体を確認すること**）（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
 - **`interface` / リポジトリ公開メソッドの `@param` 網羅性**: 省略されている引数がないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
+- **正規表現のアンカー漏れ**: 文字列全体にマッチさせる `Regex` に `^` / `$` が付いているか（付いていないと部分一致で誤通過する）
 
 ### 4. 仕様適合
 - `docs/design/api/<ドメイン名>.md` の設計と実装が一致しているか（パス・メソッド・レスポンス構造）
