@@ -65,9 +65,17 @@ class RegisterAccountUseCaseTest {
         }
 
         @Test
+        fun `異常系： SUSPENDED アカウントへの登録試行は InvalidStatusTransitionException`() {
+            val account = buildAccount(status = AccountStatus.SUSPENDED)
+            every { accountRepository.findById(targetAccountId) } returns account
+
+            assertThrows<InvalidStatusTransitionException> {
+                useCase.execute(targetAccountId)
+            }
+        }
+
+        @Test
         fun `異常系： DEACTIVATED アカウントへの登録試行は InvalidStatusTransitionException`() {
-            // SUSPENDED → ACTIVE は canTransitionTo が true のため InvalidStatusTransitionException にならない。
-            // DEACTIVATED → ACTIVE は canTransitionTo が false のため InvalidStatusTransitionException になる。
             val account = buildAccount(status = AccountStatus.DEACTIVATED)
             every { accountRepository.findById(targetAccountId) } returns account
 

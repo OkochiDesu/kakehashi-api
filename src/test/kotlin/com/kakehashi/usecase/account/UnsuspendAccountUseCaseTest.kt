@@ -92,6 +92,16 @@ class UnsuspendAccountUseCaseTest {
         }
 
         @Test
+        fun `異常系： PROVISIONAL から ACTIVE への解除試行は InvalidStatusTransitionException`() {
+            val account = buildAccount(status = AccountStatus.PROVISIONAL, version = 0)
+            every { accountRepository.findById(targetAccountId) } returns account
+
+            assertThrows<InvalidStatusTransitionException> {
+                useCase.execute(buildInput())
+            }
+        }
+
+        @Test
         fun `異常系： update が 0件（楽観ロック競合）は OptimisticLockException`() {
             val account =
                 buildAccount(
