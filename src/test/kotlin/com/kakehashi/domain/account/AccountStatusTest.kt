@@ -1,5 +1,6 @@
 package com.kakehashi.domain.account
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
@@ -102,12 +103,12 @@ class AccountStatusTest {
     inner class FromDbValue {
         @Test
         fun `正常系： active から ACTIVE に変換できる`() {
-            assert(AccountStatus.fromDbValue("active") == AccountStatus.ACTIVE)
+            assertEquals(AccountStatus.ACTIVE, AccountStatus.fromDbValue("active"))
         }
 
         @Test
         fun `正常系： suspended から SUSPENDED に変換できる`() {
-            assert(AccountStatus.fromDbValue("suspended") == AccountStatus.SUSPENDED)
+            assertEquals(AccountStatus.SUSPENDED, AccountStatus.fromDbValue("suspended"))
         }
 
         @Test
