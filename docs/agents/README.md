@@ -141,7 +141,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 |---|---|---|
 | [AI-ADR-0001](../adr/AI-ADR-0001-Step1実装サポート用マルチエージェントパイプライン構成の採用.md) | Step1実装サポート用マルチエージェントパイプライン構成の採用 | Accepted |
 | [AI-ADR-0002](../adr/AI-ADR-0002-ADR-Governanceエージェントの3層構造採用.md) | ADR Governanceエージェントの3層構造採用（オーケストレーター＋検索＋検証） | Accepted |
-| [AI-ADR-0003](../adr/AI-ADR-0003-doc-maintainerの読み取り専用チェッカー設計.md) | doc-maintainerの読み取り専用チェッカー設計 | Accepted |
+| [AI-ADR-0003](../adr/AI-ADR-0003-doc-maintainerの読み取り専用チェッカー設計.md) | doc-maintainerの読み取り専用チェッカー設計 | Superseded → AI-ADR-0011 |
 | [AI-ADR-0004](../adr/AI-ADR-0004-implement-review-loopスキルの救済措置としての位置づけ.md) | implement-review-loopスキルの救済措置としての位置づけ | Accepted |
 | [AI-ADR-0005](../adr/AI-ADR-0005-スキルの救済措置パターンと設計原則.md) | `.claude/skills/` の救済措置パターン（全スキル共通設計原則） | Accepted |
 | [AI-ADR-0006](../adr/AI-ADR-0006-doc-maintainerチェックのCLAUDE.md明示方式採用.md) | doc-maintainer陳腐化チェックのCLAUDE.md明示方式採用 | Accepted |
@@ -149,6 +149,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0008](../adr/AI-ADR-0008-AIのcommit権限をCLAUDE.md確認制御とpre-commit-fail-closedで管理.md) | AIのcommit権限をCLAUDE.md確認制御+pre-commit fail-closedで管理 | Accepted |
 | [AI-ADR-0009](../adr/AI-ADR-0009-CLAUDE.md-importによるコンテキスト常時注入.md) | CLAUDE.md @importによるコンテキスト常時注入（hook廃止） | Accepted |
 | [AI-ADR-0010](../adr/AI-ADR-0010-src配下README自動生成によるHITL可視性確保.md) | src配下README自動生成によるHITL可視性確保 | Accepted |
+| [AI-ADR-0011](../adr/AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md) | doc-maintainerの構造チェックと内容チェックへの分割 | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 

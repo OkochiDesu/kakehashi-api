@@ -3,8 +3,8 @@
 ## ステータス
 
 - [ ] Proposed
-- [x] Accepted
-- [ ] Superseded
+- [ ] Accepted
+- [x] Superseded → [AI-ADR-0011](AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md)
 - [ ] Rejected
 
 ## 日付
@@ -14,7 +14,7 @@
 ## 関連
 
 - Supersedes: なし
-- Superseded by: なし
+- Superseded by: [AI-ADR-0011](AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md)（doc-maintainerの構造チェックと内容チェックへの分割）
 
 ## 背景
 
