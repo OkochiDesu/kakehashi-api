@@ -24,11 +24,6 @@ AI（ClaudeCode等）が `git commit` を実行できる運用（[CLAUDE.md](../
 - GitHubトークン
 - Slackトークン
 
-### 3. shellcheck によるフックファイル構文チェック
-
-`.githooks/` 配下のファイルがステージされている場合、`shellcheck` コマンドで Shell スクリプトの静的解析を実行する。
-`shellcheck` が未インストールの場合はスキップされる（devcontainer リビルドで自動導入される）。
-
 ### 2. PRマージ済みチェック
 
 `gh pr view --json state -q .state` で現在のブランチに対応するPRの状態を確認し、`MERGED`の場合はcommitをブロックする。
@@ -37,6 +32,11 @@ AI（ClaudeCode等）が `git commit` を実行できる運用（[CLAUDE.md](../
 ブロックされた場合は、CLAUDE.mdの commit運用に従い、`origin/main`から新しい`feature/`ブランチを作成してcommitし直す。
 `gh`が未インストール・未認証でこのチェック自体が実行できない場合も、commitをブロックする（fail-closed）。
 「マージ済みブランチへの誤commit」を見逃さないため、チェック不能な状態を「安全」として通過させない方針。
+
+### 3. shellcheck によるフックファイル構文チェック
+
+`.githooks/` 配下のファイルがステージされている場合、`shellcheck` コマンドで Shell スクリプトの静的解析を実行する。
+`shellcheck` が未インストールの場合はスキップされる（devcontainer リビルドで自動導入される）。
 
 ## 有効化手順
 
