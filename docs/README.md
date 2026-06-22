@@ -78,4 +78,5 @@ Copilotでは `@ADR Governance` を呼び出してください。
 
 ## References（外部参考資料）
 
+- [references/README.md](references/README.md) - 外部参考資料フォルダの目次（収録ルール・一覧）
 - [Harness Engineering（OpenAI記事転記）](references/harness-engineering/openai-harness-engineering.md) - エージェント設計の参考記事
