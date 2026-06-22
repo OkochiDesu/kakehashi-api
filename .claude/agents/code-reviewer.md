@@ -49,6 +49,7 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 - **エラーメッセージの日本語化**: `require()` / `check()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列に英語が残っていないか（**diff 行だけでなくファイル全体を確認すること**）（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
 - **`interface` / リポジトリ公開メソッドの `@param` 網羅性**: 省略されている引数がないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
 - **正規表現のアンカー漏れ**: 文字列全体にマッチさせる `Regex` に `^` / `$` が付いているか（付いていないと部分一致で誤通過する）
+- **MyBatis `<resultMap>` の `<id>` タグ**: `<collection>` / `<association>` を使うネスト ResultMap では、親・子ともに `<id>` タグが定義されているか（未定義だと全カラムで一意性判定となり、重複行や `<collection>` の誤グルーピングが発生する）
 
 ### 4. 仕様適合
 - `docs/design/api/<ドメイン名>.md` の設計と実装が一致しているか（パス・メソッド・レスポンス構造）

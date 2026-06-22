@@ -23,7 +23,7 @@ model: sonnet
 
 1. **索引の網羅性**: `docs/README.md` および [AGENTS.md](../../AGENTS.md) に記載されたディレクトリ・ファイルが実在するか。実在するドキュメントで索引に載っていないものがないか。
 
-2. **リンク整合性**: Markdown内の相対リンクが実在するパスを指しているか（リンク切れ検出）。また、他ファイルの`#見出し`や`#見出し-1`のような連番付きアンカーへのリンクがある場合、リンク先ファイル内に同名の見出しが複数存在し、意図した章とズレていないかを確認する（[markdown-anchor-links.md](../../docs/conventions/markdown-anchor-links.md)）。
+2. **リンク整合性**: Markdown内の相対リンクが実在するパスを指しているか（リンク切れ検出）。また、`#見出し-1` のような連番付きアンカーへのリンクがある場合は規約違反として報告する（[markdown-anchor-links.md](../../docs/conventions/markdown-anchor-links.md)）。同一ファイル内でも重複する見出し（`## 概要` が複数存在する等）に自動連番アンカーでリンクしている場合も同様に報告し、**見出しを一意な名前に変更するよう修正案を提示する**。
 
 3. **.claude/構成との整合性**: [docs/agents/README.md](../../docs/agents/README.md) の「追加したファイルと役割」表および hook/サブエージェントの説明が、`.claude/settings.json`・`.claude/hooks/`・`.claude/agents/`・`.claude/skills/` の実際の構成（ファイルの有無、hooks 登録内容）と一致しているか。削除済みファイルへの言及が残っていないか。
 
