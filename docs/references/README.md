@@ -13,4 +13,4 @@
 
 | フォルダ | 内容 | 出典 |
 |---|---|---|
-| [harness-engineering/](harness-engineering/openai-harness-engineering.md) | AIエージェントを用いたソフトウェア開発のベストプラクティス | [OpenAI Harness Engineering](https://openai.com/ja-JP/index/harness-engineering/) |
+| [harness-engineering/](harness-engineering/) | AIエージェントを用いたソフトウェア開発のベストプラクティス | [OpenAI Harness Engineering](https://openai.com/ja-JP/index/harness-engineering/) |
