@@ -35,14 +35,14 @@ model: opus
 
 | 種別 | プレフィックス | 対象 | 索引先 |
 |---|---|---|---|
-| 通常ADR | `ADR-XXXX-` | システム・アーキテクチャ・CI/CD・業務仕様等の決定 | `docs/adr/README.md` の「ADR一覧（カテゴリ別索引）」 |
+| 通常ADR | `{PREFIX}-ADR-XXXX-`（PREFIX: `APP` / `CICD` / `DOC`） | システム・アーキテクチャ・CI/CD・業務仕様等の決定 | `docs/adr/README.md` の「ADR一覧（カテゴリ別索引）」 |
 | AI-ADR | `AI-ADR-XXXX-` | エージェント設計・マルチエージェント構成の決定 | `docs/agents/README.md` の「エージェント設計ADR（AI-ADR）索引」 |
 
 - AI-ADRの場合、根拠は git diff ではなくセッション内の意思決定・exec-planの内容を使用してよい。
 - AI-ADRは `docs/adr/README.md` のカテゴリ別索引には**含めない**（`docs/agents/README.md` で一元管理）。
 
 ## ワークフロー
-1. 種別判定: 通常ADR（`ADR-XXXX-`）か AI-ADR（`AI-ADR-XXXX-`）かを決定する。
+1. 種別判定: 通常ADR（`{PREFIX}-ADR-XXXX-`）か AI-ADR（`AI-ADR-XXXX-`）かを決定する。
    - エージェント設計・マルチエージェント方針に関する決定 → AI-ADR
    - それ以外 → 通常ADR
 2. 根拠の収集:

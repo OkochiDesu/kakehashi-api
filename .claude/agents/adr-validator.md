@@ -14,8 +14,11 @@ model: haiku
 
 ## バリデーションチェックリスト
 
-### 通常ADR（`ADR-XXXX-` プレフィックス）
-1. ファイル名が `ADR-XXXX-タイトル.md` の命名規則に従っている（`docs/adr/README.md` 参照）。
+### 通常ADR（`{PREFIX}-ADR-XXXX-` プレフィックス）
+
+PREFIX は `APP` / `CICD` / `DOC` のいずれか（詳細: `docs/adr/README.md` のファイル命名規則参照）。
+
+1. ファイル名が `{PREFIX}-ADR-XXXX-タイトル.md` の命名規則に従っている（例: `APP-ADR-0001-テーブル設計共通方針.md`）。
 2. ステータスブロックがマーカー形式を使用し、アクティブ状態がちょうど1つである。
 3. Supersededがアクティブな場合、後継ADRへのリンクが存在する。
 4. 関連ADR間で `Supersedes` / `Superseded by` が整合している。
