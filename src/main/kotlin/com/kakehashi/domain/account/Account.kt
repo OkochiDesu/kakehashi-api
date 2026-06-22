@@ -30,8 +30,8 @@ data class Account(
      * @throws IllegalStateException 遷移不可の場合
      */
     fun register(updatedBy: String): Account {
-        check(status.canTransitionTo(AccountStatus.ACTIVE)) {
-            "$status から ACTIVE への遷移は許可されていません"
+        check(status == AccountStatus.PROVISIONAL) {
+            "register() は PROVISIONAL のみ実行可能です（現在のステータス: $status）"
         }
         return copy(
             status = AccountStatus.ACTIVE,
@@ -86,8 +86,8 @@ data class Account(
      * @throws IllegalStateException 遷移不可の場合
      */
     fun unsuspend(updatedBy: String): Account {
-        check(status.canTransitionTo(AccountStatus.ACTIVE)) {
-            "$status から ACTIVE への遷移は許可されていません"
+        check(status == AccountStatus.SUSPENDED) {
+            "unsuspend() は SUSPENDED のみ実行可能です（現在のステータス: $status）"
         }
         return copy(
             status = AccountStatus.ACTIVE,

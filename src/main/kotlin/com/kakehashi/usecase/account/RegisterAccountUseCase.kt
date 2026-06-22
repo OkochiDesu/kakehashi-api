@@ -40,8 +40,8 @@ class RegisterAccountUseCase(
             accountRepository.findById(accountId)
                 ?: throw AccountNotFoundException(accountId.value)
 
-        // PROVISIONAL 以外（canTransitionTo(ACTIVE) が false）は 409 Conflict（二重申込み防止）
-        if (!account.status.canTransitionTo(AccountStatus.ACTIVE)) {
+        // UC-A3: PROVISIONAL のみ実行可能（ACTIVE/SUSPENDED/DEACTIVATED は 409）
+        if (account.status != AccountStatus.PROVISIONAL) {
             throw InvalidStatusTransitionException(
                 accountId = accountId.value,
                 from = account.status,

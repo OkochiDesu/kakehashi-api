@@ -62,7 +62,8 @@ class UnsuspendAccountUseCase(
             throw OptimisticLockException(input.targetAccountId.value, input.version, account.version)
         }
 
-        if (!account.status.canTransitionTo(AccountStatus.ACTIVE)) {
+        // UC-A7: SUSPENDED のみ実行可能（それ以外は 409）
+        if (account.status != AccountStatus.SUSPENDED) {
             throw InvalidStatusTransitionException(
                 accountId = input.targetAccountId.value,
                 from = account.status,

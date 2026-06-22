@@ -27,7 +27,7 @@
         <result property="createdAt"  column="created_at"/>
         <result property="updatedAt"  column="updated_at"/>
         <result property="updatedBy"  column="updated_by"/>
-        <collection property="roles" ofType="com.kakehashi.infrastructure.account.RoleRow">
+        <collection property="roles" ofType="com.kakehashi.infrastructure.account.RoleRow" notNullColumn="role_id">
             <id     property="roleId" column="role_id"/>
             <result property="code"   column="role_code"/>
             <result property="name"   column="role_name"/>
