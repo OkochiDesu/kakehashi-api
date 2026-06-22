@@ -85,15 +85,15 @@ class RegisterAccountUseCaseTest {
         }
 
         @Test
-        fun `異常系： update が 0件（楽観ロック競合）の場合は OptimisticLockException`() {
+        fun `異常系： update が 0件（楽観ロック競合）の場合は OptimisticLockException（currentVersion を再取得）`() {
             val account = buildAccount(status = AccountStatus.PROVISIONAL, version = 0)
-            every { accountRepository.findById(targetAccountId) } returns account
-            // 0件更新 = 楽観ロック競合
+            val accountAfterConcurrentUpdate = buildAccount(status = AccountStatus.ACTIVE, version = 5)
+            every { accountRepository.findById(targetAccountId) } returnsMany listOf(account, accountAfterConcurrentUpdate)
             every { accountRepository.update(any()) } returns 0
 
-            assertThrows<OptimisticLockException> {
-                useCase.execute(targetAccountId)
-            }
+            val ex = assertThrows<OptimisticLockException> { useCase.execute(targetAccountId) }
+            assertEquals(0, ex.requestVersion)
+            assertEquals(5, ex.currentVersion)
         }
     }
 }

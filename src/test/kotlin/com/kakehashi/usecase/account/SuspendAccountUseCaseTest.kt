@@ -84,14 +84,15 @@ class SuspendAccountUseCaseTest {
         }
 
         @Test
-        fun `異常系： update が 0件（楽観ロック競合）は OptimisticLockException`() {
+        fun `異常系： update が 0件（楽観ロック競合）は OptimisticLockException（currentVersion を再取得）`() {
             val account = buildAccount(status = AccountStatus.ACTIVE, version = 0)
-            every { accountRepository.findById(targetAccountId) } returns account
+            val accountAfterConcurrentUpdate = buildAccount(status = AccountStatus.ACTIVE, version = 5)
+            every { accountRepository.findById(targetAccountId) } returnsMany listOf(account, accountAfterConcurrentUpdate)
             every { accountRepository.update(any()) } returns 0
 
-            assertThrows<OptimisticLockException> {
-                useCase.execute(buildInput())
-            }
+            val ex = assertThrows<OptimisticLockException> { useCase.execute(buildInput()) }
+            assertEquals(0, ex.requestVersion)
+            assertEquals(5, ex.currentVersion)
         }
     }
 }
