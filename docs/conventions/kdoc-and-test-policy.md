@@ -49,7 +49,7 @@
 
 ### エラーメッセージのルール
 
-- **エラーメッセージは日本語で記述する**（`require()` / `check()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列すべてに適用）
+- **エラーメッセージは日本語で記述する**（`require()` / `check()` / `checkNotNull()` / `requireNotNull()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列すべてに適用）
   - 悪い例: `"Cannot transition from $status to ACTIVE"`
   - 良い例: `"${status} から ACTIVE への遷移は許可されていません"`
 - 英語のエラーメッセージが残っている場合は REQUIRES_CHANGES として指摘する
