@@ -54,7 +54,7 @@
 
 > **方針変更（2026-06-16）**: Step1要件定義が概ね完了しているため、Phase 2のサブエージェントを「要件定義用」から「Step1実装サポート用」に刷新した。
 > 要件定義用エージェント（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）はStep2開始時または手戻り発生時に別途作成する。
-> ワークフロー: `db-designer` → `api-designer` → `kotlin-implementer` → `code-reviewer` → 人間確認 → commit
+> ワークフロー: `db-designer` → `api-designer` → `kotlin-implementer` → `class-diagram-updater` → `src-doc-maintainer` → `code-reviewer` → 人間確認 → commit
 
 ## 構成概要（Phase 2: Step1実装サポート）
 
@@ -62,16 +62,22 @@
 ユーザー
   │（機能単位で指示）
   ▼
-[db-designer]        DB スキーマ設計・Flyway SQL 生成
+[db-designer]           DB スキーマ設計・Flyway SQL 生成
   │
   ▼
-[api-designer]       REST API エンドポイント設計書生成
+[api-designer]          REST API エンドポイント設計書生成
   │
   ▼
-[kotlin-implementer] Spring Boot 実装（Entity/Repository/Service/Controller + テスト）
+[kotlin-implementer]    Spring Boot 実装（Entity/Repository/Service/Controller + テスト）
   │
   ▼
-[code-reviewer]      ADR・セキュリティ・仕様適合レビュー → APPROVED/REQUIRES_CHANGES
+[class-diagram-updater] src/ 配下 README.md のクラス図自動生成・更新
+  │
+  ▼
+[src-doc-maintainer]    src/ 内 README.md とコードの整合性チェック（読み取り専用）
+  │
+  ▼
+[code-reviewer]         ADR・セキュリティ・仕様適合レビュー → APPROVED/REQUIRES_CHANGES
   │
   ▼
 人間確認 → commit
@@ -82,14 +88,19 @@
 | db-designer | Flyway マイグレーション SQL 設計・作成 | data-models.md / ADR | `V*.sql` | Read, Grep, Glob, Write |
 | api-designer | REST API エンドポイント設計書生成 | ui-flows.md / data-models.md | `docs/design/api/*.md` | Read, Grep, Glob, Write |
 | kotlin-implementer | Spring Boot (Kotlin) 実装 | API 設計書 / data-models.md | Kotlin コード + テスト | Read, Write, Edit, Bash |
+| class-diagram-updater | src/ 配下 README.md のクラス図自動生成・更新 | 実装コード | `src/***/README.md` | Read, Write, Edit |
+| src-doc-maintainer | src/ 内 README.md とコードの整合性チェック（読み取り専用） | 実装コード + README.md | OK / REQUIRES_FIX レポート | Read, Grep, Glob |
 | code-reviewer | ADR・セキュリティ・仕様適合レビュー | 実装コード | APPROVED/REQUIRES_CHANGES レポート | Read, Grep, Glob, Bash |
-| doc-maintainer | `docs/` の索引・整合性・鮮度チェック | 生成・更新ドキュメント | OK / 要対応リスト | Read, Grep, Glob |
+| doc-maintainer-structure | `docs/` の索引・リンク整合性・ToC チェック（コミット前） | 変更ドキュメント | OK / 要対応リスト | Read, Grep, Glob |
+| doc-maintainer-content | `docs/` の ADR整合・exec-plans・TODO実行可能性チェック（定期） | docs/ 全体 | OK / 要対応リスト | Read, Grep, Glob |
 
 実装サポートワークフロー:
 1. db-designer を起動し、Flyway マイグレーション SQL を設計・生成する
 2. api-designer を起動し、対象 UC の REST API 設計書（`docs/design/api/*.md`）を生成する
 3. 人間が設計書を確認し、承認する
 4. kotlin-implementer を起動し、Entity/Repository/Service/Controller + テストを実装する
+4.5. class-diagram-updater を起動し、src/ 配下の README.md（クラス図・関連図）を自動生成・更新する
+4.6. src-doc-maintainer を起動し、README.md とコードの整合性を確認する（読み取り専用）
 5. code-reviewer を起動し、実装コードをレビューする（ADR・OWASP Top 10・仕様適合）
 6. REQUIRES_CHANGES の場合は手順4に戻り、最大3回ループする（救済措置: `/implement-review-loop` スキル）
 7. code-reviewer が APPROVED を出したら、人間に最終確認・commit を求める
@@ -108,6 +119,8 @@
 - 2026-06-15: CLAUDE.md先頭への `@AGENTS.md` import追加、sessionフック廃止 → [AI-ADR-0009](../../adr/AI-ADR-0009-CLAUDE.md-importによるコンテキスト常時注入.md)
 - 2026-06-15: hookによる自動化見送り、doc-maintainerのチェック項目を拡張（チェック項目9: `.claude/`構成との整合性確認）。理由: エージェント数を増やさず「docs/全体の整合性チェック」という役割に一貫させるため。
 - 2026-06-16: Phase 2サブエージェントをStep1実装サポート用に刷新 → [AI-ADR-0001](../../adr/AI-ADR-0001-Step1実装サポート用マルチエージェントパイプライン構成の採用.md)
+- 2026-06-22: class-diagram-updater / src-doc-maintainer / design-impl-checker を追加しパイプラインを拡張 → [AI-ADR-0010](../../adr/AI-ADR-0010-src配下README自動生成によるHITL可視性確保.md)
+- 2026-06-22: doc-maintainer を索引・リンク系（structure）と ADR・exec-plans系（content）の2エージェントに分割し、コミット前は軽量チェック・定期チェックは並列実行する方式を採用
 
 ## 残課題・引き継ぎ事項
 
