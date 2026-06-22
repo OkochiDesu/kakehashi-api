@@ -85,7 +85,7 @@
 
 各 UseCase に対して以下を最低限テストする。
 
-- 正常系: 期待通りの状態遷移・戻り値
+- 正常系: 期待通りの状態遷移・戻り値。**状態を変更する UseCase では、`updatedAt` が更新されていること・`updatedBy` が操作者 ID になっていることを同じテストケース内で検証すること**（別テストに分離しない）
 - 楽観ロック競合: `update()` が 0件 → `OptimisticLockException`
 - 権限エラー: `isAdmin = false` → `ForbiddenOperationException`
 - ステータス遷移不正: `canTransitionTo()` が false → `InvalidStatusTransitionException`

@@ -69,7 +69,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 3. 関連 ADR を確認する（特に APP-ADR-0001・0008）
 4. 既存の実装ファイルを `src/` 配下で確認し、命名規則・パッケージ構成を踏襲する
 5. Entity → Repository → Service → Controller の順で実装する
-6. テストコードを作成する
+6. テストコードを作成する。**状態を変更する UseCase の正常系テストでは、`updatedAt` が更新されていること・`updatedBy` が操作者 ID になっていることを同じテストケース内で検証すること**
 7. `./gradlew build` でビルドエラーがないことを確認する
 
 ## 出力
