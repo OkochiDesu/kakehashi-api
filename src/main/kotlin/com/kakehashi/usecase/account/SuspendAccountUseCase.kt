@@ -13,7 +13,7 @@ import java.time.OffsetDateTime
  * UC-A7: アカウント停止（管理者）UseCase
  *
  * 根拠: docs/design/api/account-role.md（UC-A7 アカウント停止）
- * - admin 権限保持者のみ実行可能（呼び出し元で保証）
+ * - admin 権限保持者のみ実行可能（UseCase 内で isAdmin フラグを検証）
  * - accounts.status を suspended、suspended_at に現在日時を設定する
  * - APP-ADR-0005: version による楽観ロック
  * - 既に suspended の場合は 409 Conflict（InvalidStatusTransitionException）
@@ -80,7 +80,7 @@ class SuspendAccountUseCase(
         return Output(
             accountId = suspended.accountId.value,
             status = suspended.status,
-            suspendedAt = checkNotNull(suspended.suspendedAt) { "suspendedAt must not be null after suspend()" },
+            suspendedAt = checkNotNull(suspended.suspendedAt) { "suspend() 後に suspendedAt が null であってはなりません" },
             version = suspended.version,
         )
     }

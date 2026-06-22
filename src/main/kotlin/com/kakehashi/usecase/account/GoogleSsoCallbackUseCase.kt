@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
  * 根拠: docs/design/api/account-role.md（UC-A1）
  * - Google id_token の検証・sub ハッシュ照合はこのクラスの外（Adapter 層）で行う想定
  * - 本クラスは「sub ハッシュが確定済みの状態」から JIT プロビジョニングを行う
- * - deactivated アカウントは ACTIVE と同様に拒否（ログイン不可）
+ * - deactivated アカウントはログイン不可（/error/deactivated へリダイレクト）
  *
  * 注意: Spring Security + Google OIDC の本格実装は別ブランチで行う。
  * 現時点では id_token の検証はスタブ実装。

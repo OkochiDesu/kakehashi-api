@@ -13,7 +13,7 @@ import java.time.OffsetDateTime
  * UC-A7: アカウント停止解除（管理者）UseCase
  *
  * 根拠: docs/design/api/account-role.md（UC-A7 アカウント停止解除）
- * - admin 権限保持者のみ実行可能（呼び出し元で保証）
+ * - admin 権限保持者のみ実行可能（UseCase 内で isAdmin フラグを検証）
  * - accounts.status を active、suspended_at を NULL に設定する
  * - APP-ADR-0005: version による楽観ロック
  * - suspended 状態でない場合は 409 Conflict（InvalidStatusTransitionException）
