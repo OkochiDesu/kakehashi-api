@@ -26,6 +26,7 @@
   - 上記のPRマージ済みチェックは `.githooks/pre-commit` でも自動実行され、MERGEDの場合はcommit自体がブロックされる（[pre-commit-secret-check.md](docs/conventions/pre-commit-secret-check.md)）。ただしブランチの作成・切り替えはフックでは行わないため、上記の手順に従って対応する
 - **doc-maintainer チェック（必須）**: `docs/` 配下のファイルを含む変更をコミットする前に陳腐化チェックを行うこと。チェックは2つのエージェントに分割されており、状況に応じて使い分ける
   - **コミット前（軽量・必須）**: `doc-maintainer-structure` サブエージェントを diff スコープで呼び出し、索引・リンク整合性・`.claude/` 構成・ToC を確認する
+  - **新規ファイル追加を含むコミット前（必須）**: `doc-maintainer-structure` と `doc-maintainer-content` を**並列で**呼び出す。新規ファイルは diff スコープでは「既存ドキュメントからの言及漏れ」や「既存 ADR との矛盾」を検出できないため
   - **定期チェック（PR作成前 / ユーザー明示指示時）**: `doc-maintainer-structure` と `doc-maintainer-content` を**並列で**呼び出し、全体の陳腐化・ADR整合・exec-plans・TODO実行可能性を確認する
   - チェック範囲は diff に含まれるファイルに関連する範囲に絞る（コミット前チェックの場合）
   - 実装ファイルの変更であっても、関連する設計書・ADR・`docs/` 側の記述が陳腐化していないかを確認すること
