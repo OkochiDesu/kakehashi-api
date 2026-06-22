@@ -29,6 +29,8 @@
 | [`.claude/agents/db-designer.md`](../../.claude/agents/db-designer.md) | Flywayマイグレーション設計・作成エージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/api-designer.md`](../../.claude/agents/api-designer.md) | REST API設計書生成エージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/kotlin-implementer.md`](../../.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装エージェント | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/class-diagram-updater.md`](../../.claude/agents/class-diagram-updater.md) | `src/` 配下の Kotlin コードからクラス図・関連図を生成し、各パッケージの README.md を更新する（kotlin-implementer完了後に自動呼び出し） | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/src-doc-maintainer.md`](../../.claude/agents/src-doc-maintainer.md) | `src/` 内 README.md とソースコードの整合性チェック（読み取り専用、class-diagram-updater完了後に呼び出し） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/code-reviewer.md`](../../.claude/agents/code-reviewer.md) | 実装コードレビューエージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/skills/adr-governance/SKILL.md`](../../.claude/skills/adr-governance/SKILL.md) | `/adr-governance` スキル。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） | ClaudeCode（`/adr-governance` で起動） |
 | [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。kotlin-implementer→code-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
@@ -143,6 +145,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0007](../adr/AI-ADR-0007-AGENTS.mdを目次型マップとして採用.md) | AGENTS.mdを目次型（マップ）として採用 | Accepted |
 | [AI-ADR-0008](../adr/AI-ADR-0008-AIのcommit権限をCLAUDE.md確認制御とpre-commit-fail-closedで管理.md) | AIのcommit権限をCLAUDE.md確認制御+pre-commit fail-closedで管理 | Accepted |
 | [AI-ADR-0009](../adr/AI-ADR-0009-CLAUDE.md-importによるコンテキスト常時注入.md) | CLAUDE.md @importによるコンテキスト常時注入（hook廃止） | Accepted |
+| [AI-ADR-0010](../adr/AI-ADR-0010-src配下README自動生成によるHITL可視性確保.md) | src配下README自動生成によるHITL可視性確保 | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 

@@ -15,6 +15,7 @@
 
 - Supersedes: なし
 - Superseded by: なし
+- 関連: [AI-ADR-0010](AI-ADR-0010-src配下README自動生成によるHITL可視性確保.md)（クラス図生成エージェント追加による拡張）
 
 ## 背景
 
@@ -28,7 +29,7 @@ Step1の要件定義（A〜E確定・ADR化）が概ね完了し、実装フェ�
 Step1実装サポート用として、以下の4エージェントによる順次パイプライン構成を採用する。
 
 ```
-[db-designer] → [api-designer] → [kotlin-implementer] → [code-reviewer] → 人間確認 → commit
+[db-designer] → [api-designer] → [kotlin-implementer] → [class-diagram-updater] → [src-doc-maintainer] → [code-reviewer] → 人間確認 → commit
 ```
 
 | エージェント | 役割 | 入力 | 出力 |
@@ -36,6 +37,8 @@ Step1実装サポート用として、以下の4エージェントによる順�
 | [db-designer](../../.claude/agents/db-designer.md) | FlywayマイグレーションSQL設計・作成 | data-models.md / ADR | `V*.sql` |
 | [api-designer](../../.claude/agents/api-designer.md) | REST APIエンドポイント設計書生成 | ui-flows.md / data-models.md | `docs/design/api/*.md` |
 | [kotlin-implementer](../../.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装 | API設計書 / data-models.md | Kotlinコード + テスト |
+| [class-diagram-updater](../../.claude/agents/class-diagram-updater.md) | src/ 配下 README.md のクラス図自動生成・更新 | 実装コード | `src/***/README.md` |
+| [src-doc-maintainer](../../.claude/agents/src-doc-maintainer.md) | src/ 内 README.md とコードの整合性チェック（読み取り専用） | 実装コード + README.md | OK / REQUIRES_FIX レポート |
 | [code-reviewer](../../.claude/agents/code-reviewer.md) | ADR・セキュリティ・仕様適合レビュー | 実装コード | APPROVED / REQUIRES_CHANGES |
 
 加えて、ヒューマンインザループを以下のとおり維持する。
@@ -51,7 +54,7 @@ Step1実装サポート用として、以下の4エージェントによる順�
 
 ## 影響
 
-- 実装フェーズは「設計 → 人間承認 → 実装 → レビュー → 人間確認 → commit」という固定フローに従う。
+- 実装フェーズは「設計 → 人間承認 → 実装 → クラス図生成・整合確認 → レビュー → 人間確認 → commit」という固定フローに従う。
 - 各エージェントは入力ドキュメント（data-models.md / ui-flows.md / API設計書 / ADR）を唯一の根拠とするため、これらのドキュメントの整備状態が成果物の品質を左右する。
 - code-reviewer → kotlin-implementer の差し戻しループが発生しうる。これが自動実行できない場合の救済措置として `/implement-review-loop` スキルを用意している（[AI-ADR-0004](AI-ADR-0004-implement-review-loopスキルの救済措置としての位置づけ.md)）。
 
