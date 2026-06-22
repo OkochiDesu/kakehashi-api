@@ -29,6 +29,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 - **APP-ADR-0005 の楽観ロック**: `accounts` 等の対象テーブルには `version` チェックを実装する。楽観ロック競合（UPDATE 0件）は `OptimisticLockException` をスローし、再取得した currentVersion を渡す
 - セキュリティ: SQL インジェクション・XSS・認可バイパスが発生しないコードを書く。ユーザー入力は API バウンダリでのみバリデートし、内部では信頼する
 - **外部入力の型変換**（`RoleCode.fromCode()` 等）に `runCatching.getOrNull()` を使わない。不正値は例外をスローして `GlobalExceptionHandler` で 400 変換する
+- **バリデーション挙動を変更した場合**（`runCatching.getOrNull()` 廃止・例外スロー追加等）は、対応する UseCase/Query の単体テストにエラーパスを**同時に**追加・更新すること
 - **Output DTO のプロパティ**に `Nothing?` を使わない。意味のある具体的な型（`OffsetDateTime?` 等）を使う
 - `git push` / `rm` 等の禁止操作は実行しない
 - テストコードも合わせて作成する（単体テスト: Service 層、結合テスト: Controller 層）

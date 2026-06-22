@@ -43,6 +43,7 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 - **Kotlin 慣用性**: `!!` の不用意な使用・null 安全の回避がないか
 - **トランザクション管理**: Service 層の `@Transactional` が適切に付与されているか
 - **テストカバレッジ**: Service 層の単体テスト・Controller 層の結合テストが作成されているか。主要なエラーケースがカバーされているか
+- **バリデーション変更時のエラーパステスト**: バリデーション挙動を変更した diff（`runCatching.getOrNull()` 廃止・例外スロー追加・型変換ロジック変更等）がある場合、対応する UseCase/Query テストに **エラーパスが同じ diff 内に追加・更新されているか**を必ず確認すること。変更のみでテストが追加されていない場合は REQUIRES_CHANGES として指摘する
 - **テストアサーション**: `assert(...)` （Kotlin/Java assertion）を使っていないか。JVM の `-ea` が無効だと評価されず常に成功するため、`assertEquals` / `assertTrue` / `assertThrows` 等 JUnit アサーションを使うこと
 - **型変換の例外処理**: 外部入力の型変換（`RoleCode.fromCode()` 等）に `runCatching.getOrNull()` を使っていないか。不正値は例外スローで `GlobalExceptionHandler` に委ねているか
 - **Output DTO の型**: プロパティに `Nothing?` を使っていないか。意味のある具体的な型（`OffsetDateTime?` 等）になっているか
