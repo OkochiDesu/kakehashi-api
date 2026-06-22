@@ -2,7 +2,7 @@
 -- ドメイン1: アカウント・ロール
 -- 根拠: docs/requirements/data-models.md 1章
 --       docs/adr/APP-ADR-0001（テーブル設計共通方針）
---       docs/adr/APP-ADR-0003（ロール別可視範囲・visibility_rules初期データ）
+--       docs/adr/APP-ADR-0007（権限Permissionベース設計・visibility_rules廃止）
 --       docs/adr/APP-ADR-0004（Flyway運用方針）
 
 -- =============================================================

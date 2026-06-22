@@ -477,6 +477,6 @@ data class SuspendResponse(
 data class UnsuspendResponse(
     val accountId: String,
     val status: String,
-    val suspendedAt: Nothing?,
+    val suspendedAt: String?,
     val version: Int,
 )
