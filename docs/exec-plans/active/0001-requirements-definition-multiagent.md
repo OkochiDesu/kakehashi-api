@@ -50,11 +50,13 @@
 ### Phase 2: Step1実装サポート用マルチエージェント構成
 - [x] システムコンテキストの共有（目的・ドメイン・制約をユーザーから受領）
 - [x] 実装サポート用サブエージェントの定義・作成（db-designer / api-designer / kotlin-implementer / code-reviewer）
-- [ ] 動作確認（小さなタスクで試運転）
+- [x] 動作確認（小さなタスクで試運転）
 
 > **方針変更（2026-06-16）**: Step1要件定義が概ね完了しているため、Phase 2のサブエージェントを「要件定義用」から「Step1実装サポート用」に刷新した。
 > 要件定義用エージェント（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）はStep2開始時または手戻り発生時に別途作成する。
 > ワークフロー: `db-designer` → `api-designer` → `kotlin-implementer` → `class-diagram-updater` → `src-doc-maintainer` → `code-reviewer` → 人間確認 → commit
+
+> **動作確認完了（2026-06-22）**: Step1アカウント・ロールドメイン実装（Kotlin 20ファイル超・テスト16ファイル・Flyway SQL 2ファイル）でパイプラインの試運転が完了した。
 
 ## 構成概要（Phase 2: Step1実装サポート）
 

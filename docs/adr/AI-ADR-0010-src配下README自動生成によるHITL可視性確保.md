@@ -42,3 +42,7 @@ HITL（Human-in-the-Loop）運用において、人間がPRレビューや意思
 - kotlin-implementerが実装を変更した後は必ずclass-diagram-updaterを呼び出す。
 - `src/` 配下の `README.md` は手動編集しない（自動生成ファイルである旨をREADME内に明記する）。
 - doc-maintainerのチェック範囲は `docs/` のみを維持し、`src/` 内READMEはsrc-doc-maintainerが担当する（[AI-ADR-0003](AI-ADR-0003-doc-maintainerの読み取り専用チェッカー設計.md) のチェック範囲分離方針と整合）。
+
+## 今後の見直しポイント
+
+- kotlin-implementer → class-diagram-updater → src-doc-maintainer のパイプラインが実運用で安定したことが確認できた時点で、呼び出しポリシー（自動 vs 手動トリガー）の調整を検討する。
