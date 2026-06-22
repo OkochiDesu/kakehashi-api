@@ -50,6 +50,8 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 - **`interface` のメソッドおよびリポジトリ系の公開メソッドは `@param` を省略しない**（実装クラスとの対応追跡を容易にするため）
 - **文字列全体にマッチさせる正規表現には必ず `^` と `$` アンカーを付与する**（例: `Regex("^AZ\\d{4}$")`）。アンカーなしだと部分一致で誤通過する
 - **MyBatis `<resultMap>` で `<collection>` / `<association>` を使う場合は、親・子ともに `<id>` タグを必ず定義する**（未定義だと全カラムで一意性判定となり、重複行や誤グルーピングが発生する）
+- **MyBatis `<collection>` に LEFT JOIN を使う場合は `notNullColumn="<子の主キー列>"` を必ず付与する**（未指定だと JOIN 先が NULL でも要素が生成され、non-null Kotlin フィールドの構築時に例外が発生する）
+- **UseCase / ドメインメソッドのステータスチェックは設計書の「許可される元ステータス」に合わせて特定する**。`canTransitionTo()` 等の汎用チェックは複数のユースケース間で条件が重なることがあるため、設計書（UC-XX の事前条件）を確認してから `status == AccountStatus.XXX` のような明示チェックを使うか判断すること
 
 ## 実装スタイル
 

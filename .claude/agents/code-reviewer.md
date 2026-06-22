@@ -56,6 +56,8 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 - **`interface` / リポジトリ公開メソッドの `@param` 網羅性**: 省略されている引数がないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
 - **正規表現のアンカー漏れ**: 文字列全体にマッチさせる `Regex` に `^` / `$` が付いているか（付いていないと部分一致で誤通過する）
 - **MyBatis `<resultMap>` の `<id>` タグ**: `<collection>` / `<association>` を使うネスト ResultMap では、親・子ともに `<id>` タグが定義されているか（未定義だと全カラムで一意性判定となり、重複行や `<collection>` の誤グルーピングが発生する）
+- **MyBatis `<collection>` の `notNullColumn`**: LEFT JOIN を伴う `<collection>` では `notNullColumn="<子の主キー列>"` が指定されているか。未指定だと JOIN 結果が NULL 行のときも要素が生成され、non-null フィールドの Kotlin オブジェクト構築時に例外が発生する
+- **ステータスチェックの特定性**: `canTransitionTo()` などの汎用遷移チェックを UseCase / ドメインメソッドで使う場合、設計書（UC-XX）が指定する **許可される元ステータス** と照合し、汎用チェックだけでは範囲が広すぎないかを確認すること（例: `register()` は PROVISIONAL のみ受け付けるべきだが `canTransitionTo(ACTIVE)` は SUSPENDED も true になる）
 
 ### 4. 仕様適合
 - `docs/design/api/<ドメイン名>.md` の設計と実装が一致しているか（パス・メソッド・レスポンス構造）
