@@ -150,6 +150,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0009](../adr/AI-ADR-0009-CLAUDE.md-importによるコンテキスト常時注入.md) | CLAUDE.md @importによるコンテキスト常時注入（hook廃止） | Accepted |
 | [AI-ADR-0010](../adr/AI-ADR-0010-src配下README自動生成によるHITL可視性確保.md) | src配下README自動生成によるHITL可視性確保 | Accepted |
 | [AI-ADR-0011](../adr/AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md) | doc-maintainerの構造チェックと内容チェックへの分割 | Accepted |
+| [AI-ADR-0012](../adr/AI-ADR-0012-エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う.md) | エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 
