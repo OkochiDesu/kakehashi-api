@@ -9,6 +9,7 @@
     "workspaceFolder": "/kakehashi-api",
     // 追加ツール（gh CLI: commit前のPRマージ状態確認やCI設定の手元検証に使用）
     // shellcheck: .githooks/ 変更時のpre-commitチェックとCI（Workflow Lint）と同じ検証をローカルで実行するために使用
+    // 注：Bookworm以降のGLIBC 2.36対応により、nanolayerの互換性問題が解決
     "features": {
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers-extra/features/shellcheck:1": {}
