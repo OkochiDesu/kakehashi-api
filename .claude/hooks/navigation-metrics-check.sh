@@ -11,6 +11,8 @@ SESSION_START_FILE="/tmp/claude_kakehashi_session_start"
 TOOL_COUNT_FILE="/tmp/claude_kakehashi_tool_count"
 LAST_SESSION_FILE="/tmp/claude_kakehashi_last_session.json"
 
+json_escape() { local s="${1//\\/\\\\}"; s="${s//\"/\\\"}"; printf '%s' "$s"; }
+
 # --- 1. セッション計測開始 ---
 date +%s > "$SESSION_START_FILE"
 echo "0" > "$TOOL_COUNT_FILE"
@@ -27,7 +29,7 @@ if [ -f "$LAST_SESSION_FILE" ]; then
   rm -f "$LAST_SESSION_FILE"
 fi
 
-[ -f "$METRICS_FILE" ] || { [ -n "$prev_msg" ] && printf '{"additionalContext": "%s"}\n' "$prev_msg"; exit 0; }
+[ -f "$METRICS_FILE" ] || { [ -n "$prev_msg" ] && printf '{"additionalContext": "%s"}\n' "$(json_escape "$prev_msg")"; exit 0; }
 
 # --- 3. 閾値チェック ---
 high_cost_count=$(grep '^|' "$METRICS_FILE" \
@@ -67,4 +69,4 @@ fi
 
 [ -n "$msgs" ] || exit 0
 
-printf '{"additionalContext": "%s"}\n' "$msgs"
+printf '{"additionalContext": "%s"}\n' "$(json_escape "$msgs")"

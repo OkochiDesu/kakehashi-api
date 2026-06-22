@@ -16,7 +16,7 @@ value class AccountId(
     }
 
     companion object {
-        private val PATTERN = Regex("AZ\\d{4}")
+        private val PATTERN = Regex("^AZ\\d{4}$")
 
         /**
          * PostgreSQL シーケンス値から AccountId を生成する

@@ -87,7 +87,7 @@ data class Account(
      */
     fun unsuspend(updatedBy: String): Account {
         check(status.canTransitionTo(AccountStatus.ACTIVE)) {
-            "Cannot transition from $status to ACTIVE"
+            "$status から ACTIVE への遷移は許可されていません"
         }
         return copy(
             status = AccountStatus.ACTIVE,
