@@ -12,13 +12,13 @@
     <!-- ==================== ResultMap ==================== -->
 
     <resultMap id="accountSummaryMap" type="com.kakehashi.infrastructure.account.AccountSummaryRow">
-        <result property="accountId" column="account_id"/>
+        <id     property="accountId" column="account_id"/>
         <result property="name"      column="name"/>
         <result property="status"    column="status"/>
     </resultMap>
 
     <resultMap id="accountDetailMap" type="com.kakehashi.infrastructure.account.AccountDetailRow">
-        <result property="accountId"  column="account_id"/>
+        <id     property="accountId"  column="account_id"/>
         <result property="name"       column="name"/>
         <result property="email"      column="email"/>
         <result property="status"     column="status"/>
@@ -28,7 +28,7 @@
         <result property="updatedAt"  column="updated_at"/>
         <result property="updatedBy"  column="updated_by"/>
         <collection property="roles" ofType="com.kakehashi.infrastructure.account.RoleRow">
-            <result property="roleId" column="role_id"/>
+            <id     property="roleId" column="role_id"/>
             <result property="code"   column="role_code"/>
             <result property="name"   column="role_name"/>
         </collection>

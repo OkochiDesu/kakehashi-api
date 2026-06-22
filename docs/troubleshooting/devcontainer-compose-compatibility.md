@@ -5,7 +5,7 @@
 - [第1回: Dev Container 起動エラー（Compose互換性）](#dev-container-起動エラーの整理)
   - [概要](#概要) / [発生したエラー](#発生したエラー) / [原因](#原因) / [対応方針](#対応方針) / [判断フロー](#判断フロー) / [再発防止メモ](#再発防止メモ)
 - [第2回: DNS解決失敗 + コンテナ起動エラー（2026-05-02）](#第2回-dev-container-内-dns-解決失敗--コンテナ起動エラー2026-05-02)
-  - [概要](#概要-1) / [発生したエラー](#発生したエラー-1) / [原因](#原因-1) / [対応内容](#対応内容) / [再発防止メモ](#再発防止メモ-1)
+  - [概要](#概要第2回) / [発生したエラー](#発生したエラー第2回) / [原因](#原因第2回) / [対応内容](#対応内容) / [再発防止メモ](#再発防止メモ第2回)
 
 ## 概要
 
@@ -122,12 +122,12 @@ flowchart TD
 
 # 第2回: Dev Container 内 DNS 解決失敗 + コンテナ起動エラー（2026-05-02）
 
-## 概要
+## 概要（第2回）
 
 Docker Desktop + Compose V2 環境へ移行後、Dev Container 内から `api.github.com` 等の外部ホストへの名前解決がすべて失敗（`EAI_AGAIN`）し、GitHub Copilot が接続不能になった。  
 また `docker-compose.yml` の `network_mode: service:db` 設定が原因で、Rebuild 時にコンテナがネットワーク不整合を起こした。
 
-## 発生環境
+## 発生環境（第2回）
 
 - OS: Windows 11 + WSL2
 - Dev Containers: 0.457.0
@@ -136,7 +136,7 @@ Docker Desktop + Compose V2 環境へ移行後、Dev Container 内から `api.gi
 - Docker Engine: 29.4.1
 - Docker Compose: 5.1.3 (Compose V2)
 
-## 発生したエラー
+## 発生したエラー（第2回）
 
 ### 1. GitHub Copilot が全エンドポイントで `EAI_AGAIN`
 
@@ -168,7 +168,7 @@ mkdir: can't create directory '...': No space left on device
 
 Docker Desktop の VHD 内ストレージが枯渇していた（未使用イメージ 2.69 GB、未使用ボリューム 489 MB）。
 
-## 原因
+## 原因（第2回）
 
 | エラー | 直接原因 |
 |---|---|
@@ -238,7 +238,7 @@ docker compose -f .devcontainer/docker-compose.yml config
 docker system df
 ```
 
-## 再発防止メモ
+## 再発防止メモ（第2回）
 
 - `network_mode: service:X` は「X のポートに直接アクセスしたい」特殊用途向け。通常の Dev Container では使わない
 - Compose ファイルの `network_mode` を変更した場合は必ず旧コンテナを削除してから Rebuild する（`--no-recreate` によるコンテナ再利用がネットワーク不整合を起こす）
