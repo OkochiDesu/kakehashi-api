@@ -6,7 +6,7 @@
 
 ## このリポジトリについて
 
-kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現在は初期セットアップ・要件定義フェーズ。
+kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現在はStep1実装フェーズ（アカウント・ロールドメイン実装中）。
 
 ## 最初に読むもの
 
@@ -38,7 +38,9 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 
 | エージェント | 用途 |
 |------|------|
-| [doc-maintainer](.claude/agents/doc-maintainer.md) | `docs/` の整合性・索引・鮮度チェック |
+| [doc-maintainer-structure](.claude/agents/doc-maintainer-structure.md) | `docs/` の索引・リンク整合性・ToC チェック（コミット前軽量チェック用） |
+| [doc-maintainer-content](.claude/agents/doc-maintainer-content.md) | `docs/` の ADR整合・exec-plans・design-docs・TODO実行可能性チェック（定期チェック用、structure と並列実行） |
+| [doc-maintainer](.claude/agents/doc-maintainer.md) | `docs/` の全項目フルチェック（レガシー、上記2エージェントの並列実行を推奨） |
 | [adr-governance](.claude/agents/adr-governance.md) | ADRの作成・更新・Supersedeのオーケストレーター |
 | [adr-search](.claude/agents/adr-search.md) | 変更に関連するADR候補の検索（adr-governanceから呼び出し） |
 | [adr-validator](.claude/agents/adr-validator.md) | ADR・AI-ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |

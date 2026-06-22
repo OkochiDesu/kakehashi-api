@@ -24,8 +24,10 @@
   - 新しいブランチ名は、作業内容をユーザーに確認したうえで決定する（[Git Prefixes](docs/conventions/git-prefixes.md)のブランチ名規約に従い `feature/` プレフィックスを付ける）
   - PRが存在しない、または未マージ（`OPEN`等）の場合は、現在のブランチのままcommitを進める
   - 上記のPRマージ済みチェックは `.githooks/pre-commit` でも自動実行され、MERGEDの場合はcommit自体がブロックされる（[pre-commit-secret-check.md](docs/conventions/pre-commit-secret-check.md)）。ただしブランチの作成・切り替えはフックでは行わないため、上記の手順に従って対応する
-- **doc-maintainer チェック（必須）**: `docs/` 配下のファイルを含む変更をコミットする前に、`doc-maintainer` サブエージェントで陳腐化チェックを行うこと
-  - チェック範囲は diff に含まれるファイルに関連する範囲に絞る（`docs/` 全体ではなく、変更ファイルと関連する索引・ADR・設計書）
+- **doc-maintainer チェック（必須）**: `docs/` 配下のファイルを含む変更をコミットする前に陳腐化チェックを行うこと。チェックは2つのエージェントに分割されており、状況に応じて使い分ける
+  - **コミット前（軽量・必須）**: `doc-maintainer-structure` サブエージェントを diff スコープで呼び出し、索引・リンク整合性・`.claude/` 構成・ToC を確認する
+  - **定期チェック（PR作成前 / ユーザー明示指示時）**: `doc-maintainer-structure` と `doc-maintainer-content` を**並列で**呼び出し、全体の陳腐化・ADR整合・exec-plans・TODO実行可能性を確認する
+  - チェック範囲は diff に含まれるファイルに関連する範囲に絞る（コミット前チェックの場合）
   - 実装ファイルの変更であっても、関連する設計書・ADR・`docs/` 側の記述が陳腐化していないかを確認すること
   - チェック結果に要対応事項がある場合は、修正を同一コミットに含めてから進める
 - `git commit` は、コミットメッセージと `git diff --cached` の内容をユーザーに提示し、明示的な確認を得た場合にのみ実行する（**Auto Mode がアクティブな場合も例外なし**。「タスクへの承認」はコミットへの承認ではない）
@@ -59,4 +61,4 @@
 - 運用原則: [docs/design-docs/core-beliefs.md](docs/design-docs/core-beliefs.md)
 - 実行計画（exec-plans）の運用ルール: [docs/exec-plans/README.md](docs/exec-plans/README.md)
 - マルチエージェント構成の詳細: [docs/exec-plans/active/0001-requirements-definition-multiagent.md](docs/exec-plans/active/0001-requirements-definition-multiagent.md)
-- ドキュメント整備サブエージェント: [.claude/agents/doc-maintainer.md](.claude/agents/doc-maintainer.md)
+- ドキュメント整備サブエージェント（分割型）: [doc-maintainer-structure](.claude/agents/doc-maintainer-structure.md) / [doc-maintainer-content](.claude/agents/doc-maintainer-content.md)

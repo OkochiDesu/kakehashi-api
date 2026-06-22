@@ -22,7 +22,9 @@
 | [`.claude/settings.json`](../../.claude/settings.json) | ClaudeCodeの権限設定。`git push`、`rm`、`find -delete`、`rsync --delete`、`curl`/`wget` 等を禁止。`git commit` はdenyリストに含めず、CLAUDE.mdの「commit運用」に従い都度確認のうえ実行可 | ClaudeCode（自動適用） |
 | [`CLAUDE.md`](../../CLAUDE.md) | ClaudeCodeの行動指針（禁止事項・推奨事項） | ClaudeCode（自動で読み込まれる） |
 | [`AGENTS.md`](../../AGENTS.md) | リポジトリ全体の「目次」。docsの構成・サブエージェント一覧へのリンク集 | AIエージェント全般（自動で読み込まれる） |
-| [`.claude/agents/doc-maintainer.md`](../../.claude/agents/doc-maintainer.md) | ドキュメント整備サブエージェント定義 | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/doc-maintainer-structure.md`](../../.claude/agents/doc-maintainer-structure.md) | 索引・リンク整合性・`.claude/`構成・ToCチェック（コミット前軽量チェック用） | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/doc-maintainer-content.md`](../../.claude/agents/doc-maintainer-content.md) | ADR整合・exec-plans・design-docs・TODO実行可能性チェック（定期チェック用、structureと並列実行） | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/doc-maintainer.md`](../../.claude/agents/doc-maintainer.md) | 全項目フルチェック（レガシー、上記2エージェントの並列実行を推奨） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/adr-governance.md`](../../.claude/agents/adr-governance.md) | ADR作成・更新・Supersedeのオーケストレーター（model: opus） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/adr-search.md`](../../.claude/agents/adr-search.md) | ADR候補の検索（adr-governanceから呼び出し、model: haiku） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/adr-validator.md`](../../.claude/agents/adr-validator.md) | ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し、model: haiku） | ClaudeCode（呼び出すと動く） |
