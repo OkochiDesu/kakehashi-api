@@ -3,7 +3,7 @@
 ## 目次
 
 - [Platform / DevEx](#platform--devex)
-  - [コーディング規約](#コーディング規約) / [カバレッジ](#カバレッジ) / [CI パフォーマンス](#ci-パフォーマンス) / [Copilot 活用](#copilot-活用) / [AI駆動ドキュメンテーション](#ai駆動ドキュメンテーションナレッジ管理)
+  - [コーディング規約](#コーディング規約) / [カバレッジ](#カバレッジ) / [CI 設計課題](#ci-設計課題) / [CI パフォーマンス](#ci-パフォーマンス) / [Copilot 活用](#copilot-活用) / [AI駆動ドキュメンテーション](#ai駆動ドキュメンテーションナレッジ管理)
 - [Frontend](#frontend)
   - [フロントエンド連携](#フロントエンド連携) / [フロントエンド実装・UI開発](#フロントエンド実装ui開発)
 - [Backend](#backend)
@@ -31,6 +31,17 @@
   - 例: インフラ層（MyBatis Mapper・設定クラス）はカバレッジ計測から除外
 - `jacocoCoverageVerification` タスクに除外パターンと閾値を設定する
   - MyBatis導入後にパッケージ構成が固まってから対応する
+
+### CI 設計課題
+
+#### workflow-lint.yml の Shellcheck ステップに if: 条件がない（先送り）
+
+> Copilot 指摘 PR #10 comment 3450700854（先送り理由を記録）
+
+- **指摘内容**: `.github/workflows/workflow-lint.yml` の "Shellcheck for git hooks" ステップに `if:` が無いため、`only_meta != 'true'`（ソースコード変更混在）時でも実行される
+- **提案された修正**: `if: steps.changed-files.outputs.only_meta == 'true'` を追加してスキップ可能にする
+- **先送り理由**: このワークフロー以外に `.githooks/` の Shellcheck を実行する CI が存在しないため、`if:` を追加すると「`.githooks/` 変更 + ソースコード変更」の組み合わせで Shellcheck がどの CI でも走らないカバレッジ欠如が生まれる。安全側を優先して現状維持とする
+- **対応タイミング**: `.githooks/` の Shellcheck を main CI（`ci.yml`）に移設できた時点で本 TODO を再検討する
 
 ### CI パフォーマンス
 
