@@ -52,7 +52,7 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 | [APP-ADR-0002](APP-ADR-0002-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
 | [APP-ADR-0003](APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted（決定4のみAPP-ADR-0007で置換） |
 | [APP-ADR-0005](APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md) | 楽観ロックにversionカラム（整数カウンタ）を採用 | 業務仕様 | Accepted |
-| [APP-ADR-0006](APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md) | accounts.statusに4値設計（deactivated追加）と非adminからのsuspended/deactivated除外 | 業務仕様 | Accepted |
+| [APP-ADR-0006](APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md) | accounts.statusに4値設計（deactivated追加）と非adminからのsuspended/deactivated除外 | 業務仕様 | Accepted |
 | [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) | `roles` を権限（Permission）ベースに再定義し `visibility_rules` を廃止 | 業務仕様 | Accepted |
 | [DOC-ADR-0001](DOC-ADR-0001-ドキュメントにchangelogセクションを持たない.md) | ドキュメントにchangelogセクションを持たない（git + ADRリンクで代替） | ドキュメント方針（DOC-ADR） | Accepted |
 

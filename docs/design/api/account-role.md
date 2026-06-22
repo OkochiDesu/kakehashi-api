@@ -53,7 +53,7 @@
 
 ### アカウントステータス設計と可視性制御
 
-`accounts.status` は以下の4値とする（[APP-ADR-0006](../../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)）。
+`accounts.status` は以下の4値とする（[APP-ADR-0006](../../adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md)）。
 
 | status | 意味 | 遷移 |
 |---|---|---|

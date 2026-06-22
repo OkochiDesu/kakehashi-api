@@ -105,6 +105,6 @@ stateDiagram-v2
 ## 関連 ADR
 
 - [APP-ADR-0005](../../../../../docs/adr/APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md) — 楽観ロック
-- [APP-ADR-0006](../../../../../docs/adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md) — ステータス設計
+- [APP-ADR-0006](../../../../../docs/adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md) — ステータス設計
 - [APP-ADR-0007](../../../../../docs/adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) — 権限設計
 - [APP-ADR-0008](../../../../../docs/adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) — DDD / CQRS

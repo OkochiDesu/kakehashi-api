@@ -232,7 +232,7 @@
 
 ### deactivated 自動遷移バッチ（`@Scheduled`）
 
-- `suspended_at` から1年経過したアカウントを `status = 'deactivated'` に更新する日次バッチ（[APP-ADR-0006](../adr/APP-ADR-0006-accountsステータスの退職一時停止統一とsuspended_atによる1年マスク化.md)）。
+- `suspended_at` から1年経過したアカウントを `status = 'deactivated'` に更新する日次バッチ（[APP-ADR-0006](../adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md)）。
 - テスト時に意図せず動作しないよう `@ConditionalOnProperty` 等で有効・無効を切り替えられる設計にする。
 - Step1 実装完了後に着手する。
 

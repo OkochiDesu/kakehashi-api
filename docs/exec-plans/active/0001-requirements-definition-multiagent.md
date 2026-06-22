@@ -126,5 +126,6 @@
 
 ## 残課題・引き継ぎ事項
 
-- Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始する。
+- Step1実装フェーズ完了済み（2026-06-22時点）: Flywayマイグレーション・API設計・Kotlin実装（domain/usecase/infrastructure/presentation 全層）・Copilot Rv対応まで完了。
+- 後続タスク（着手可能）: deactivated 自動遷移バッチ（`@Scheduled`）・カバレッジ設定・Controller 統合テスト戦略。詳細は [docs/TODO.md](../../TODO.md) を参照。
 - 要件定義用エージェント（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）は、Step2開始時または手戻り発生時に定義する。

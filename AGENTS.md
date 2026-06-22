@@ -6,7 +6,7 @@
 
 ## このリポジトリについて
 
-kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現在はStep1実装フェーズ（アカウント・ロールドメイン実装中）。
+kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step1（アカウント・ロールドメイン）実装完了済み。
 
 ## 最初に読むもの
 
@@ -67,7 +67,7 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ### ドキュメント変更時
 1. 変更対象のドキュメントを編集する。
-2. `doc-maintainer` サブエージェントで索引・リンク整合をチェックする。
+2. `doc-maintainer-structure` サブエージェントで索引・リンク整合性・ToC をチェックする（コミット前軽量チェック）。新規ファイル追加を含む場合は `doc-maintainer-content` も並列で呼び出す。
 3. 必要であれば `docs/README.md` の索引を更新する。
 
 ### タスク開始時（exec-plan判定）
