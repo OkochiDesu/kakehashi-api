@@ -52,4 +52,4 @@ model: sonnet
 - [docs/requirements/ui-flows.md](../../docs/requirements/ui-flows.md)
 - [docs/requirements/data-models.md](../../docs/requirements/data-models.md)
 - [docs/requirements/quality-standards.md](../../docs/requirements/quality-standards.md)
-- [docs/adr/](../../docs/adr/)（特に APP-ADR-0003）
+- [docs/adr/](../../docs/adr/)（特に APP-ADR-0007・APP-ADR-0008・APP-ADR-0009）
