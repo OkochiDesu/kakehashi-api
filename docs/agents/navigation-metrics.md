@@ -2,15 +2,23 @@
 
 このファイルは、AIエージェント（主にClaudeCode）が `AGENTS.md` / `docs/README.md` を「目次」として
 実際にどの程度効率よく使えているかを記録するログです。
-[openAI_harness_enjineerring.md](openAI_harness_enjineerring.md) で紹介されている
+[Harness Engineering（OpenAI記事）](../references/harness-engineering/openai-harness-engineering.md) で紹介されている
 「AGENTS.mdを百科事典ではなく目次として扱う」という方針が、このリポジトリで機能しているかを
 セッションを跨いで定量的に振り返るために使います。
 
 ## チェック・記録タイミング（実行バリエーション）
 
-### 自動チェック（SessionStart hook）
-毎セッション開始時に [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) が自動実行される。
-直近5件のうち3件以上で探索コストが3以上の場合、警告メッセージがClaudeのコンテキストへ自動注入される。
+### 自動計測・チェック（SessionStart / PostToolUse / Stop hook）
+
+セッション計測は以下の3つのhookが連携して動作する。
+
+| hookイベント | スクリプト | 役割 |
+|---|---|---|
+| SessionStart | [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | セッション開始時刻・ツールカウンタを初期化。前回セッションサマリーをコンテキストへ注入。閾値チェック・鮮度チェックを実行し、超過時に警告を注入 |
+| PostToolUse | [`.claude/hooks/tool-counter.sh`](../../.claude/hooks/tool-counter.sh) | ツール呼び出し回数を `/tmp/claude_kakehashi_tool_count` にインクリメント |
+| Stop | [`.claude/hooks/session-end.sh`](../../.claude/hooks/session-end.sh) | セッション終了時にツール数・所要時間を `/tmp/claude_kakehashi_last_session.json` に保存。次回SessionStart時に読み込まれ、navigation-metrics.md への記録を促す |
+
+直近5件のうち3件以上で探索コストが3以上の場合、SessionStart時に警告メッセージがClaudeのコンテキストへ自動注入される。
 
 ### 詳細分析（手動: doc-maintainer）
 `doc-maintainerサブエージェントでdocs/の整合性をチェックして` と依頼すると、
@@ -59,3 +67,4 @@
 | 日付 | セッション概要 | 難易度 | 探索コスト | 備考 |
 |------|------|------|------|------|
 | 2026-06-15 | 要件定義の進行確認＋本ナビゲーション指標ログの設計・新設 | 3 | 0 | `memory`の要約から会話を継続でき、本タスクもAGENTS.md/docs/READMEのリンクから直接doc-maintainer定義等に到達できた |
+| 2026-06-19 | AI-ADR-0006作成・CLAUDE.mdにdoc-maintainer必須ルール＋ADR自動提案ルール追加・docs/references/整理 | 4 | 1 | AGENTS.md/docs/READMEから必要なファイルにほぼ直接到達できた。doc-maintainerチェックをコミット後に実行するミスを2回。feedbackメモリに記録済み |

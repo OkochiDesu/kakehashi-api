@@ -1,4 +1,8 @@
-# ADR-0008: 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断
+# APP-ADR-0003: 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断
+
+## 目次
+
+[ステータス](#ステータス) / [関連](#関連) / [背景](#背景) / [決定](#決定) / [代替案](#代替案) / [影響](#影響) / [今後の見直しポイント](#今後の見直しポイント)
 
 ## ステータス
 
@@ -14,7 +18,7 @@
 ## 関連
 
 - Supersedes: なし
-- Superseded by: なし
+- Superseded by: 決定4のみ [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) で置換（決定1〜3は引き続き有効）
 
 ## 背景
 
@@ -34,7 +38,7 @@
 
 マスクの適用・解除は以下の通り判定する。
 - 閲覧者が経歴書の所有者本人（`resumes.account_id` = 閲覧者の `account_id`）の場合: マスクしない。
-- 閲覧者が本人以外の場合: `account_roles` 経由で閲覧者が持つロールのいずれかが、`visibility_rules` で `target_category = resume_personal_info` に対し `can_view: true`（例: 管理者ロール）であればマスクしない。該当ロールがなければ `nearest_station` / `final_education` をNULL化（または非選択）して返す。
+- 閲覧者が本人以外の場合: `account_roles` 経由で閲覧者が `view_personal_info` 権限を持っている場合はマスクしない。持っていない場合は `nearest_station` / `final_education` をNULL化（または非選択）して返す。（判定方式の詳細は [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) 参照）
 
 ロール別の詳細な可視範囲（どのロールが何を閲覧可能か）は「決定4」を参照。
 
@@ -49,6 +53,8 @@ Step1ではエンジニア間の直接コンタクト（Googleメッセージ起
 対象ファイル: [docs/requirements/data-models.md](../requirements/data-models.md)（1章・4章・5章） / [docs/requirements/ui-flows.md](../requirements/ui-flows.md)（2章・4章・5章）
 
 ### 4. ロール別可視範囲（`visibility_rules` 初期データ方針）
+
+> **⚠️ この決定は [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) で置換済み。** `roles` は権限ベースに再定義され `visibility_rules` は廃止された。以下は記録として残す。
 
 Step1で定義するロールは `general`（一般エンジニア）・`sales`（営業）・`admin`（管理者）の3種類とし（[data-models.md 1章](../requirements/data-models.md#1-認証アカウントコンテキスト) の `roles.code`）、`visibility_rules` の初期データは以下の通りとする。
 
@@ -66,7 +72,7 @@ Step1で定義するロールは `general`（一般エンジニア）・`sales`�
 
 #### 代替案A: 経歴書全体を本人以外に非公開とする
 - 長所: 個人情報保護が最大化される
-- 短所: 「検索画面」「エンジニアページ」での経歴書活用（主要機能の1つ）が成立しない。星取表との連携（ADR-0007）の前提も崩れる。
+- 短所: 「検索画面」「エンジニアページ」での経歴書活用（主要機能の1つ）が成立しない。星取表との連携（APP-ADR-0002）の前提も崩れる。
 
 #### 代替案B: マスク対象列をロール別に細かく設定可能にする（汎用的な列単位制御）
 - 長所: 将来的な個人情報項目の追加・変更に柔軟に対応できる

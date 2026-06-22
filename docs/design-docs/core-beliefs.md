@@ -3,7 +3,7 @@
 このリポジトリでAIエージェントと協働する際に大事にしている原則をまとめる。
 「なぜこの構成にしたか」の判断基準として使う。新しいルールを追加する際は、まず既存の原則と矛盾しないか確認すること。
 
-参考: [Harness Engineering（OpenAI記事）](../agents/openAI_harness_enjineerring.md)
+参考: [Harness Engineering（OpenAI記事）](../references/harness-engineering/openai-harness-engineering.md)
 
 ## 1. AGENTS.mdは目次（マップ）であり、百科事典ではない
 
@@ -21,9 +21,10 @@
 
 ## 3. ドキュメントの整合性は読み取り専用エージェントがチェックする
 
-- [doc-maintainer](../../.claude/agents/doc-maintainer.md) が `docs/` の索引網羅性・リンク整合性・鮮度をチェックする。
+- コミット前（軽量・必須）: [doc-maintainer-structure](../../.claude/agents/doc-maintainer-structure.md) が索引・リンク整合性・ToC をチェックする。
+- 定期チェック（PR作成前 / ユーザー明示指示時）: `doc-maintainer-structure` と [doc-maintainer-content](../../.claude/agents/doc-maintainer-content.md) を並列で呼び出し、ADR整合・鮮度・exec-plans・TODO実行可能性をチェックする（[AI-ADR-0011](../adr/AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md)）。
 - ファイルの作成・編集・削除は行わず、レポートのみを返す。適用判断は人間（または呼び出し元）に委ねる。
-- 新しいドキュメント追加後・docs構成変更後に呼び出す。
+- レガシーの [doc-maintainer](../../.claude/agents/doc-maintainer.md)（フルチェック版）も維持しているが、上記2エージェントの並列実行を推奨。
 
 ## 4. ADRはリポジトリの事実のみを根拠に、証拠ベースで更新する
 
@@ -41,7 +42,20 @@
 - このリポジトリでは、すべてをAIに任せきりにしない。1機能・1PR単位で人間の確認を挟む。
 - exec-planの作成判断、ADRの編集適用、ドキュメント整備の結果反映など、最終判断は常に人間が行う。
 
-## 7. ADRとexec-plan意思決定ログの使い分け
+## 7. AIのミスは「仕組み」でカバーする（ハーネスエンジニアリングの裏目標）
+
+このプロジェクトはHITL（Human-In-The-Loop）を初めて導入する実験でもある。
+AIがミスを犯したとき、「次は気をつける」という口約束で終わらせず、再発しない仕組みに変換することを目標とする。
+
+- ユーザーからの指摘・訂正は、以下のいずれかに分類して仕組み化する:
+  - **一時的な文脈ミス** → `memory/` に保存（次セッションに引き継ぐ）
+  - **このプロジェクト固有の行動ルール違反** → `CLAUDE.md` にルールとして追記
+  - **特定エージェントの設計ミス** → `.claude/agents/` の定義を更新
+  - **設計判断レベルの問題** → AI-ADR として記録
+- 仕組み化の提案はAIが自動で行い、ユーザーが確認・承認する（ヒューマンインザループを維持）
+- 参考: [Harness Engineering](../references/harness-engineering/openai-harness-engineering.md)
+
+## 8. ADRとexec-plan意思決定ログの使い分け
 
 - **ADR（[docs/adr/](../adr/README.md)）**: kakehashi-api という**製品・システムそのもの**に関する恒久的な決定。アーキテクチャ・業務仕様・データモデル・CI/CDポリシー・セキュリティポリシーなど（ADR一覧のカテゴリ表を参照）。将来このシステムに触る誰もが「なぜこの仕組みか」を索引表から探せる前提で書く。
 - **exec-plan意思決定ログ（[docs/exec-plans/active/](../exec-plans/README.md)）**: その実行計画を進める**過程**での意思決定。特にCLAUDE.md・`.claude/`・`.githooks/`・devcontainerなど、**AIエージェントとの協働方法・開発プロセス**に関する決定はここに記録する。

@@ -31,9 +31,13 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     // MyBatis
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4")
+    // Bean Validation
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
     // CI環境でのDB統合テストが必要になった時点でTestcontainersを追加予定
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

@@ -6,12 +6,24 @@ ISO/IEC 25010:2023 に基づき、本プロジェクトの技術スタックと�
 
 前提となるプロジェクトコンテキストは [README.md](README.md) を参照。ui-flows.md / data-models.mdとの対応は各章に記載する。
 
+## 目次
+
+- [1. 機能適合性](#1-機能適合性functional-suitability)
+- [2. 性能効率性](#2-性能効率性performance-efficiency)
+- [3. 互換性](#3-互換性compatibility)
+- [4. インタラクション能力](#4-インタラクション能力interaction-capability)
+- [5. 信頼性](#5-信頼性reliability)
+- [6. セキュリティ](#6-セキュリティsecurity)
+- [7. 保守性](#7-保守性maintainability)
+- [8. 移植性](#8-移植性portability)
+- [9. 安全性](#9-安全性safety)
+
 ## 1. 機能適合性（Functional Suitability）
 
 ui-flows.md / data-models.mdで定義した機能要件を正しく満たすことを基本とし、特に以下の点に漏れがないことを品質目標とする。
 
 - **個人情報のマスク化／非表示の漏れ防止**:
-  - 検索ページからエンジニアページに遷移した際の経歴書閲覧（[ui-flows.md UC-R2](ui-flows.md#4-経歴書コンテキスト)）で、マスク対象項目（[data-models.md `visibility_rules`](data-models.md#1-認証アカウントコンテキスト)）が確実に適用されること
+  - 検索ページからエンジニアページに遷移した際の経歴書閲覧（[ui-flows.md UC-R2](ui-flows.md#4-経歴書コンテキスト)）で、個人情報マスク（`view_personal_info` 権限判定、[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）が確実に適用されること
   - マスク対象は経歴書に限らず、エンジニアページで表示する情報全般（星取表閲覧UC-S5等を含む）を対象として再確認する（検索結果一覧自体ではなく、エンジニアページ遷移後の表示が対象）
 - **同時更新時の整合性**: 同一データへの同時更新が発生した場合、楽観ロックにより一方の更新のみを成功させ、後勝ちによる無自覚な上書きを防ぐ
 - **アカウントの停止・復活**: 管理者によるアカウント停止・停止解除（UC-A7）が正しく反映されること
@@ -25,7 +37,7 @@ ui-flows.md / data-models.mdで定義した機能要件を正しく満たすこ�
 
 - **楽観ロック用カラム**: 編集対象テーブル（`accounts` / `skill_master_items` / `level_master_items` / `user_skills` / `resumes`）に`version`を追加済み（[data-models.md 0章](data-models.md#0-設計方針)）
 - **長期停止の判定**: `accounts.suspended_at`を追加済み。バッチ更新／動的判定のどちらにするかは実装フェーズで決定（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）
-- **マスク対象範囲の拡張**: `visibility_rules.target_category`は経歴書・星取表の両方を対象とする想定として整理済み（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）
+- **マスク対象範囲の拡張**: 個人情報マスク対象は`resumes.nearest_station`/`final_education`の2列（[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）。将来の拡張は`roles`テーブルへの権限コード追加で対応する。
 - **検索条件への対応**: 経歴書は`resumes` / `resume_projects`の正規化テーブル化、星取表は`skill_categories` / `level_categories`によるスキル×レベルの構造化により対応済み（[data-models.md 3章・4章](data-models.md#3-星取表コンテキスト)）
 
 ## 2. 性能効率性（Performance Efficiency）
@@ -92,7 +104,7 @@ ui-flows.md / data-models.mdで定義した機能要件を正しく満たすこ�
 ## 6. セキュリティ（Security）
 
 - **機密性・真正性**: Google SSO + JIT（Just-In-Time）プロビジョニングにより認証する。識別子は`accounts.google_sub_hash`（決定的ハッシュ）で照合し、平文の`sub`は保持しない（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）。
-- **認可**: `@PreAuthorize`によるロール制御に加え、`roles` / `account_roles` / `visibility_rules`（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）により、ロール単位で経歴書等の項目可視性を制御する。
+- **認可**: `@PreAuthorize`によるロール制御に加え、`roles` / `account_roles`（[data-models.md 1章](data-models.md#1-認証アカウントコンテキスト)）により、権限（Permission）単位で経歴書等の項目可視性を制御する（[APP-ADR-0007](../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md)）。
 - **通信の暗号化**: HTTPS必須とする。
 - **認証情報の管理**: Google SSOのみを利用し、本システム独自のパスワード管理は行わない。
 - **責任追跡性（編集ログ）**: 経歴書・星取表等の編集操作について、「誰が・いつ・何を編集したか」を記録する。具体的には、全テーブルに登録者・更新者（`created_by` / `updated_by`、`accounts.account_id`またはバッチのリクエストID、[data-models.md 0章](data-models.md#0-設計方針)）を持たせることに加え、変更履歴を残すログ・テーブルの追加を検討する。
@@ -130,7 +142,7 @@ ui-flows.md / data-models.mdで定義した機能要件を正しく満たすこ�
 
 本プロジェクトでは物理的な危害は想定しないが、経歴書・星取表という個人のキャリア情報を扱うため、「情報の取り扱いによって本人に不利益・悪影響が生じないこと」を安全性の目標とする。
 
-- **意図しない情報開示の防止**: 経歴書・星取表が、可視性ルール（[6章 セキュリティ](#6-セキュリティsecurity)の`visibility_rules`）に反して意図しない相手に表示されないこと。誤った情報開示は、社内での評価・人間関係に悪影響を与える可能性があるため、1章「機能適合性」のマスク化の漏れ防止と合わせて重視する。
+- **意図しない情報開示の防止**: 経歴書・星取表が、権限制御（[6章 セキュリティ](#6-セキュリティsecurity)の`view_personal_info`権限判定）に反して意図しない相手に表示されないこと。誤った情報開示は、社内での評価・人間関係に悪影響を与える可能性があるため、1章「機能適合性」のマスク化の漏れ防止と合わせて重視する。
 - **誤操作による不利益の防止**: 経歴書・星取表の誤削除・誤更新が、本人のキャリア情報に重大な不利益を与えないよう、1章の楽観ロックおよび6章の編集ログ（誰が・いつ・何を編集したか）により、誤操作の検知・追跡を可能にする。
 
 ### 補足

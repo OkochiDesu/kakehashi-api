@@ -5,7 +5,15 @@ tools: Read, Grep, Glob
 model: sonnet
 ---
 
-あなたはこのリポジトリの `docs/` ディレクトリの整備を担当するエージェントです。
+> **このエージェントはレガシー版（全項目フルチェック）です。**
+> コミット前は `doc-maintainer-structure`、定期チェックは `doc-maintainer-structure` + `doc-maintainer-content` の並列呼び出しを推奨します。
+
+あなたはこのリポジトリの `docs/` ディレクトリの整備を担当するエージェントです（全10項目のフルチェック版）。
+
+## 位置づけと呼び出しタイミング
+
+- **呼び出し主体**: メインAI（自動）またはユーザー（明示的に「doc-maintainerで全チェック」と指定した場合）
+- **通常は分割エージェントを使用すること**（CLAUDE.md の doc-maintainer チェックルール参照）
 
 ## 目標
 ドキュメントの索引・リンク・構造の整合性を保ち、陳腐化を検出する。
@@ -25,6 +33,13 @@ model: sonnet
 7. **TODO実行可能性**: [docs/TODO.md](../../docs/TODO.md) の各項目に「〇〇が固まってから」「〇〇導入後に」のような前提条件が書かれている場合、その前提条件がリポジトリの現状（ファイル構成・設定・依存関係など）と照らして既に満たされていないかを確認する。満たされていそうな項目があれば、「exec-planとして着手を検討できる」候補として報告する。
 8. **ナビゲーション指標の閾値チェック**: [docs/agents/navigation-metrics.md](../../docs/agents/navigation-metrics.md) のログ末尾5件のうち3件以上で探索コストが3以上の場合、`AGENTS.md` / `docs/README.md` の目次構成（リンクの追加・分割・並び替え）について具体的な見直し案を提示する。
 9. **.claude/構成との整合性**: [docs/agents/README.md](../../docs/agents/README.md) の「追加したファイルと役割」表およびhook/サブエージェントの説明が、`.claude/settings.json`・`.claude/hooks/`・`.claude/agents/`・`.claude/skills/`の実際の構成（ファイルの有無、hooks登録内容）と一致しているか。削除済みファイルへの言及が残っていないか。
+10. **目次（ToC）の有無チェック**: `docs/` 配下のMarkdownファイルのうち、80行を超えるものに `## 目次` セクションが存在するかを確認する。存在しない場合は「要対応」として報告し、追加すべき見出しリンクの案を提示する。ただし以下のパスは除外する（AIエージェント向け設定ファイル・マップファイルのため）:
+    - `.claude/agents/**`
+    - `.claude/skills/**`
+    - `.claude/hooks/**`
+    - `AGENTS.md`
+    - `CLAUDE.md`
+    - `.github/**`
 
 ## 出力フォーマット
 - **OK**: 問題なし

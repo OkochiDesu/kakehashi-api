@@ -1,8 +1,8 @@
 services:
   # 開発用アプリケーションコンテナ
   app:
-    # Java 21 ベースの Dev Container 公式イメージ（Debian bullseye）
-    image: mcr.microsoft.com/devcontainers/java:21-bullseye
+    # Java 21 ベースの Dev Container 公式イメージ（Debian bookworm）
+    image: mcr.microsoft.com/devcontainers/java:21-bookworm
     volumes:
       # リポジトリルート（..）をコンテナ内の /kakehashi-api にマウント（cachedでI/O高速化）
       - ..:/kakehashi-api:cached

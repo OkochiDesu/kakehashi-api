@@ -7,7 +7,8 @@
       "Bash(git log*)",
       "Bash(git branch*)",
       "Bash(git stash*)",
-      "Bash(git show*)"
+      "Bash(git show*)",
+      "Bash(gh api repos/*/pulls/*/comments/*/replies --method POST*)"
     ],
     "deny": [
       "Bash(git push*)",
@@ -26,7 +27,32 @@
   "hooks": {
     "SessionStart": [
       {
-        "command": "bash /kakehashi-api/.claude/hooks/navigation-metrics-check.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/navigation-metrics-check.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/tool-counter.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/session-end.sh"
+          }
+        ]
       }
     ]
   }

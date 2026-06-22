@@ -18,6 +18,7 @@
 - [Pre-commit Secret Check](conventions/pre-commit-secret-check.md)
 - [PR Summary 自動生成](conventions/pr-summary-automation.md)
 - [Markdown見出しアンカーへのリンク規約](conventions/markdown-anchor-links.md)
+- [KDoc・テスト方針](conventions/kdoc-and-test-policy.md)
 
 ## ADR 作成方法
 
@@ -37,6 +38,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [Gradle Java Home Invalid Folder](troubleshooting/gradle-javahome-invalid-folder.md)
 - [Gradle Wrapper Lock Contention](troubleshooting/gradle-wrapper-lock-contention.md)
 - [GitHub PR マージ状態 UNKNOWN](troubleshooting/github-merge-status-unknown.md)
+- [Dev Container shellcheck nanolayer GLIBC エラー](troubleshooting/devcontainer-shellcheck-nanolayer-glibc.md)
 
 ---
 
@@ -45,7 +47,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [Agents概要・使い方（人間向け）](agents/README.md)
 - [ナビゲーション指標ログ](agents/navigation-metrics.md) - 目次（AGENTS.md/docs/README.md）の機能度を振り返るログ
 - [マルチエージェント構成 実行計画（exec-plan 0001）](exec-plans/active/0001-requirements-definition-multiagent.md)
-- [旧マルチエージェント構成セットアップガイド（移行済み・リダイレクト）](agents/multi-agent-setup-guide.md)
+
 
 全体マップ（AIエージェント向け索引）は [AGENTS.md](../AGENTS.md) を参照。
 
@@ -62,6 +64,20 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [requirements/data-models.md](requirements/data-models.md) - データモデル設計（レビュー完了・要件定義確定）
 - [requirements/quality-standards.md](requirements/quality-standards.md) - 非機能要件・品質目標（レビュー完了・要件定義確定）
 
+## Database（テーブルカタログ）
+
+- [database/README.md](database/README.md) - 実装済みテーブル一覧・DDL/データモデル/ADRへのリンク集
+
+## Design（API・詳細設計）
+
+- [design/api/account-role.md](design/api/account-role.md) - REST API設計書: アカウント・ロールドメイン（UC-A1〜A7）
+
 ## Architecture（モジュール構成・パッケージ設計）
 
 - [architecture/README.md](architecture/README.md) - モジュール構成・パッケージ設計・サブプロジェクト構成（Step1実装フェーズで随時更新）
+- [architecture/package-structure.md](architecture/package-structure.md) - パッケージ構成規約（レイヤー・命名・UseCase DI・Enum 活用）
+
+## References（外部参考資料）
+
+- [references/README.md](references/README.md) - 外部参考資料フォルダの目次（収録ルール・一覧）
+- [Harness Engineering（OpenAI記事転記）](references/harness-engineering/openai-harness-engineering.md) - エージェント設計の参考記事

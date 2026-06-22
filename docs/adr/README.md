@@ -2,6 +2,20 @@
 
 このディレクトリは Architecture Decision Record (ADR) を管理する。
 
+## 目次
+
+- [目的](#目的)
+- [ADR一覧（カテゴリ別索引）](#adr一覧カテゴリ別索引)
+- [ファイル命名規則](#ファイル命名規則)
+- [ADR の標準構成](#adr-の標準構成)
+- [ステータス運用](#ステータス運用)
+- [ADR対象か、exec-plan対象か](#adr対象か-exec-plan意思決定ログ対象か)
+- [既存ADRの修正 vs 新規ADR追加](#既存adrを修正するか新規adrを追加するか)
+- [運用フロー](#運用フロー)
+- [レビュー観点](#レビュー観点)
+- [ADRエージェント運用](#adrエージェント運用)
+- [ADR テンプレート](#adr-テンプレート)
+
 ## 目的
 
 - 重要な技術判断を時系列で残す
@@ -12,6 +26,7 @@
 
 ADRが増えてもファイル・連番は分割せず、この表でカテゴリ別に把握する。
 新規ADRを追加・Supersedeした際は、この表にも行を追加・更新すること。
+なお、AI-ADR（エージェント設計ADR、`AI-ADR-` プレフィックス）は [docs/agents/README.md](../agents/README.md) の索引で一元管理するため、この表には含めない。
 
 利用するカテゴリ:
 
@@ -20,26 +35,61 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 - **セキュリティ**: 認証・認可・シークレット管理
 - **業務仕様**: ドメインモデル・業務ルール・データ設計
 - **ドキュメント/運用**: ドキュメント体系・エージェント運用・開発フロー
+- **ドキュメント方針（DOC-ADR）**: ドキュメントの記述方式・構成方針に関する決定（`DOC-ADR-` プレフィックスを使用）
+- **エージェント設計**: エージェント構成・役割分担・マルチエージェント方針（`AI-ADR-` プレフィックスを使用）
 
 | ADR | タイトル | カテゴリ | ステータス |
 |---|---|---|---|
-| [ADR-0001](ADR-0001-CI品質ゲートとDependabot運用方針.md) | CI品質ゲートとDependabot運用方針 | CI/CD | Superseded → ADR-0002 |
-| [ADR-0002](ADR-0002-CIトリガー分離とWorkflow検証運用方針.md) | CIトリガー分離とWorkflow検証運用方針 | CI/CD | Accepted |
-| [ADR-0003](ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) | 複雑度しきい値によるCIフェイル条件導入 | CI/CD | Accepted |
-| [ADR-0004](ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md) | コミットメッセージベースのPRサマリー自動コメント導入 | CI/CD | Accepted（決定4のみADR-0005で置換） |
-| [ADR-0005](ADR-0005-PR本文への変更内容自動反映方式への変更.md) | PR本文への変更内容自動反映方式への変更 | CI/CD | Accepted |
-| [ADR-0006](ADR-0006-テーブル設計共通方針.md) | テーブル設計共通方針 | 業務仕様 | Accepted |
-| [ADR-0007](ADR-0007-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
-| [ADR-0008](ADR-0008-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted |
-| [ADR-0009](ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) | 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL） | コーディング | Accepted |
+| [CICD-ADR-0001](CICD-ADR-0001-CI品質ゲートとDependabot運用方針.md) | CI品質ゲートとDependabot運用方針 | CI/CD | Superseded → CICD-ADR-0002 |
+| [CICD-ADR-0002](CICD-ADR-0002-CIトリガー分離とWorkflow検証運用方針.md) | CIトリガー分離とWorkflow検証運用方針 | CI/CD | Accepted |
+| [CICD-ADR-0003](CICD-ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) | 複雑度しきい値によるCIフェイル条件導入 | CI/CD | Accepted |
+| [CICD-ADR-0004](CICD-ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md) | コミットメッセージベースのPRサマリー自動コメント導入 | CI/CD | Accepted（決定4のみCICD-ADR-0005で置換） |
+| [CICD-ADR-0005](CICD-ADR-0005-PR本文への変更内容自動反映方式への変更.md) | PR本文への変更内容自動反映方式への変更 | CI/CD | Accepted |
+| [APP-ADR-0004](APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) | 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL） | コーディング | Accepted |
+| [APP-ADR-0008](APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) | DDD + CQRS アーキテクチャ原則の採用 | コーディング | Accepted |
+| [APP-ADR-0009](APP-ADR-0009-APIパスにバージョンプレフィックスを含めない.md) | API パスにバージョンプレフィックスを含めない | コーディング | Accepted |
+| [APP-ADR-0001](APP-ADR-0001-テーブル設計共通方針.md) | テーブル設計共通方針 | 業務仕様 | Accepted |
+| [APP-ADR-0002](APP-ADR-0002-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
+| [APP-ADR-0003](APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted（決定4のみAPP-ADR-0007で置換） |
+| [APP-ADR-0005](APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md) | 楽観ロックにversionカラム（整数カウンタ）を採用 | 業務仕様 | Accepted |
+| [APP-ADR-0006](APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md) | accounts.statusに4値設計（deactivated追加）と非adminからのsuspended/deactivated除外 | 業務仕様 | Accepted |
+| [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) | `roles` を権限（Permission）ベースに再定義し `visibility_rules` を廃止 | 業務仕様 | Accepted |
+| [DOC-ADR-0001](DOC-ADR-0001-ドキュメントにchangelogセクションを持たない.md) | ドキュメントにchangelogセクションを持たない（git + ADRリンクで代替） | ドキュメント方針（DOC-ADR） | Accepted |
 
 ## ファイル命名規則
 
-- 形式: ADR-連番4桁-日本語タイトル.md
-- 例: ADR-0002-CIトリガー分離とWorkflow検証運用方針.md
+CI/CD ADR（CICD-ADR）:
+
+- 形式: `CICD-ADR-連番4桁-日本語タイトル.md`
+- 例: `CICD-ADR-0002-CIトリガー分離とWorkflow検証運用方針.md`
+- 対象: CI/CDパイプライン・PR自動化・品質ゲートに関する決定
+- 連番は CICD-ADR 独自の通し番号（0001 から始まる）
+
+アプリケーションADR（APP-ADR）:
+
+- 形式: `APP-ADR-連番4桁-日本語タイトル.md`
+- 例: `APP-ADR-0001-テーブル設計共通方針.md`
+- 対象: バックエンド・フロントエンド・DB設計・業務仕様に関する決定（ドメイン横断の場合は影響セクションに明記）
+- 連番は APP-ADR 独自の通し番号（0001 から始まる）
+
+ドキュメント方針ADR（DOC-ADR）:
+
+- 形式: `DOC-ADR-連番4桁-日本語タイトル.md`
+- 例: `DOC-ADR-0001-ドキュメントにchangelogセクションを持たない.md`
+- 対象: ドキュメントの記述方式・構成方針に関する決定
+- 連番は DOC-ADR 独自の通し番号（ADR / AI-ADR の連番と独立して 0001 から始まる）
+- `docs/adr/` 配下に配置し、本READMEの「ADR一覧（カテゴリ別索引）」に含める
+
+エージェント設計ADR（AI-ADR）:
+
+- 形式: `AI-ADR-連番4桁-日本語タイトル.md`
+- 例: `AI-ADR-0001-マルチエージェント構成採用方針.md`
+- 連番は AI-ADR 独自の通し番号（ADR の連番と独立して 0001 から始まる）
+
+共通ルール:
+
 - 可読性を優先し、ファイル名に日本語を使用する
-- 命名揺れを避けるため、スペースは使わず記号はハイフン（`-`）のみを使用する
-- 連番は欠番を作らず、最新番号の次を採番する
+- スペースは使わず記号はハイフン（`-`）のみを使用する
 - 命名規則は CI（`.github/workflows/workflow-lint.yml`）で検証し、違反時はチェックを失敗させる
 
 ## ADR の標準構成
@@ -74,8 +124,13 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 ## ADR対象か、exec-plan意思決定ログ対象か
 
 ADRは「kakehashi-api（製品・システム）に関する恒久的な決定」を対象とする。
-CLAUDE.md・`.claude/`・`.githooks/`・devcontainerなど、AIエージェント運用や開発プロセスに関する決定は
-ADRではなく対応するexec-planの意思決定ログに記録する。
+
+例外として **エージェント設計に関するアーキテクチャ決定**（どのエージェントを採用したか、分割方針、役割分担など）は
+`AI-ADR-`（Agent Architecture Decision Record）プレフィックスで `docs/adr/` に記録する。
+AI-ADR は `docs/agents/README.md` からも索引する（他のメンバーがエージェント構成の背景を辿れるようにするため）。
+
+一方、CLAUDE.md・`.claude/`・`.githooks/`・devcontainerなど、**AIエージェントの運用設定・開発プロセス**に関する決定は
+ADR/AI-ADR ではなく対応する exec-plan の意思決定ログに記録する。
 判断軸の詳細は [core-beliefs.md 原則7](../design-docs/core-beliefs.md#7-adrとexec-plan意思決定ログの使い分け) を参照。
 
 ## 既存ADRを修正するか、新規ADRを追加するか
@@ -121,10 +176,10 @@ ADRではなく対応するexec-planの意思決定ログに記録する。
 
 ## ADR テンプレート
 
-新しい ADR を追加する際は以下をコピーして `docs/adr/ADR-NNNN-<日本語タイトル>.md` として保存する。
+新しい ADR を追加する際は、プレフィックスを選択（`CICD-ADR-` / `APP-ADR-` / `DOC-ADR-` / `AI-ADR-`）してコピーする。
 
 ```markdown
-# ADR-NNNN: タイトル
+# <PREFIX>-NNNN: タイトル
 
 ## ステータス
 

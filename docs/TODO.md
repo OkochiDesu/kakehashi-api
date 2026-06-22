@@ -1,5 +1,17 @@
 # TODO
 
+## 目次
+
+- [Platform / DevEx](#platform--devex)
+  - [コーディング規約](#コーディング規約) / [カバレッジ](#カバレッジ) / [CI 設計課題](#ci-設計課題) / [CI パフォーマンス](#ci-パフォーマンス) / [Copilot 活用](#copilot-活用) / [AI駆動ドキュメンテーション](#ai駆動ドキュメンテーションナレッジ管理)
+- [Frontend](#frontend)
+  - [フロントエンド連携](#フロントエンド連携) / [フロントエンド実装・UI開発](#フロントエンド実装ui開発)
+- [Backend](#backend)
+  - [認証・セキュリティ](#認証セキュリティ) / [認証・認可](#認証認可) / [帳票出力](#経歴書の帳票出力excelpdf) / [キャリアシート基盤](#キャリアシートダイナミックフォーム基盤) / [利用状況分析](#利用状況分析step2-aiレコメンド連携) / [コンタクト経路](#コンタクト経路の見直しstep2) / [クラウド選定](#クラウド事業者ホスティング選定)
+- [Cross-cutting](#cross-cutting)
+  - [クリーンアーキテクチャの依存方向維持](#クリーンアーキテクチャの依存方向維持) / [冪等性キーチェック基盤](#冪等性キーチェック基盤)
+- [Done（履歴）](#done履歴)
+
 ## Platform / DevEx
 
 ### コーディング規約
@@ -20,6 +32,17 @@
 - `jacocoCoverageVerification` タスクに除外パターンと閾値を設定する
   - MyBatis導入後にパッケージ構成が固まってから対応する
 
+### CI 設計課題
+
+#### workflow-lint.yml の Shellcheck ステップに if: 条件がない（先送り）
+
+> Copilot 指摘 PR #10 comment 3450700854（先送り理由を記録）
+
+- **指摘内容**: `.github/workflows/workflow-lint.yml` の "Shellcheck for git hooks" ステップに `if:` が無いため、`only_meta != 'true'`（ソースコード変更混在）時でも実行される
+- **提案された修正**: `if: steps.changed-files.outputs.only_meta == 'true'` を追加してスキップ可能にする
+- **先送り理由**: このワークフロー以外に `.githooks/` の Shellcheck を実行する CI が存在しないため、`if:` を追加すると「`.githooks/` 変更 + ソースコード変更」の組み合わせで Shellcheck がどの CI でも走らないカバレッジ欠如が生まれる。安全側を優先して現状維持とする
+- **対応タイミング**: `.githooks/` の Shellcheck を main CI（`ci.yml`）に移設できた時点で本 TODO を再検討する
+
 ### CI パフォーマンス
 
 #### プロジェクト拡大時のCIビルド高速化
@@ -33,7 +56,7 @@
 
 #### 複雑度しきい値の定義（fail条件導入済み・仮値）
 
-> 関連: [ADR-0001 今後の見直しポイント](adr/ADR-0001-CI品質ゲートとDependabot運用方針.md#今後の見直しポイント)
+> 関連: [CICD-ADR-0001 今後の見直しポイント](adr/CICD-ADR-0001-CI品質ゲートとDependabot運用方針.md#今後の見直しポイント)
 
 - CCN上限を仮値10として `reports` ジョブのfail条件に導入済み（`.github/workflows/ci.yml`）
 - 運用しながら閾値が適切か見直し、必要なら調整する
@@ -173,12 +196,10 @@
 
 ## Backend
 
-### ~~データベース・マイグレーション基盤の導入~~ ✅ 完了（[ADR-0009](adr/ADR-0009-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)）
+### CI統合テスト環境（マイグレーション実行）
 
-- `build.gradle.kts` への Flyway / PostgreSQL / MyBatis 依存追加済み
-- `application.properties` の datasource / `spring.flyway.enabled=true` / mapper 設定済み
-- マイグレーションファイル配置先: `src/main/resources/db/migration/V*.sql`
-- 残タスク: CI（GitHub Actions）でのマイグレーション実行（統合テスト環境整備時に対応）
+- GitHub Actions で PostgreSQL サービスコンテナを起動し、`V*.sql` の Flyway マイグレーションを統合テストとして実行する環境を整備する
+- 現在の `ci.yml` は単体テスト（JUnit）のみで、DBマイグレーションの自動検証は未対応
 
 ### 認証・セキュリティ
 
@@ -201,6 +222,24 @@
   - 未登録の場合は自動で `Engineer` 集約を作成し、DBへ保存するフローを実装する。
 - 初回ログイン時プロセスの検討
   - ユーザー登録画面は作らず、SSO認証完了後にプロフィール情報が不足している場合のみ「プロフィール設定画面」へ誘導するフローを検討する。
+
+#### Step1 アカウント実装後に別ブランチで対応（認証・認可設計）
+
+アカウント（domain / usecase / infrastructure / presentation）の実装を先行させ、以下を後続ブランチで実装する。
+
+- **JWT / 認証トークン設計**: Google の `id_token` をそのまま Bearer として使うか、UC-A1 コールバック後に自前 JWT を発行するかを決定し、Spring Security の `oauth2ResourceServer` / カスタムフィルターを実装する。`SecurityContextHolder` から accountId を取得する方法（`@AuthenticationPrincipal` 等）もここで確定する。
+- **`provisional` 状態のアクセス制御**: `POST /api/accounts/me/registration` は `provisional` のアカウントのみ実行可。他エンドポイントへの `provisional` アクセスをどのレイヤー（Spring Security フィルター / `@PreAuthorize`）で弾くかを決定する。
+
+### deactivated 自動遷移バッチ（`@Scheduled`）
+
+- `suspended_at` から1年経過したアカウントを `status = 'deactivated'` に更新する日次バッチ（[APP-ADR-0006](../adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md)）。
+- テスト時に意図せず動作しないよう `@ConditionalOnProperty` 等で有効・無効を切り替えられる設計にする。
+- Step1 実装完了後に着手する。
+
+### テスト戦略（Step1 実装後に確定）
+
+- どのレイヤーまでテストカバレッジを設けるか（UseCase 単体テストのみ / Controller 統合テストも含むか）を実装フェーズで確定する。
+- DB テストは Testcontainers（PostgreSQL）を利用する方向で検討する。
 
 ### 経歴書の帳票出力（Excel・PDF）
 
@@ -288,7 +327,33 @@
 - ユースケース層は `SkillSheetExporter` インターフェースのみに依存させる。
 - Excel操作や外部コマンド発行（LibreOffice）の具体的知識はすべてインフラ層に閉じ込め、将来的なライブラリ変更に備える。
 
+### 冪等性キーチェック基盤
+
+#### Spring Interceptor + AOP + Redis による冪等性キーチェック
+
+POST など副作用を持つエンドポイントで、クライアントが `Idempotency-Key` ヘッダーを付与した場合に同一リクエストの二重実行を防ぐ仕組みを用意する。
+
+**採用方針（検討結果）**
+
+- `@Idempotent` カスタムアノテーションで対象エンドポイントを宣言的にマーキング（AOP）
+- `HandlerInterceptor.preHandle` でRedisをチェックし、キー済みなら Controller に到達させずキャッシュ済みレスポンスを返す
+- `SET NX` + TTL（24h 目安）で in-flight の二重実行も防止
+- エラーレスポンス（4xx系）はキャッシュしない方針
+
+**UseCase層でチェックする案との比較・却下理由**
+
+UseCase層でのチェックも検討したが、以下の理由で Interceptor 方式を有力案とした：
+
+- 冪等性キーは「HTTPプロトコルレベルの関心事」（Stripe API等のREST慣例に由来）であり、Interceptorに置く方が自然
+- UseCase層に持ち込むと Redis依存をポートインターフェースで抽象化する必要があり、複雑度が上がる
+- クリーンアーキテクチャの依存方向（UseCase層をインフラ非依存に保つ）と相性が悪い
+
+なお「業務的な二重実行防止」（例：同じ申請を2回送らない）はDB制約（PostgreSQL ユニーク制約）で保証する方が堅牢であり、責務として分離する。
+
+**実装タイミングでADR化すること。**
+
 ## Done（履歴）
 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - push時のGitHub Actionsで複雑度レポートを作成: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
+- データベース・マイグレーション基盤の導入（Flyway / MyBatis / PostgreSQL）: [APP-ADR-0004](adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)

@@ -6,7 +6,7 @@
 
 ## このリポジトリについて
 
-kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現在は初期セットアップ・要件定義フェーズ。
+kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step1（アカウント・ロールドメイン）実装完了済み。
 
 ## 最初に読むもの
 
@@ -21,6 +21,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 | ディレクトリ | 内容 |
 |------|------|
 | `docs/architecture/` | モジュール構成・パッケージ設計・サブプロジェクト構成（実装フェーズで具体化予定） |
+| `docs/database/` | 実装済みテーブルカタログ。DDL・データモデル・ADRへのリンク集。索引は [docs/database/README.md](docs/database/README.md) |
 | `docs/adr/` | アーキテクチャ決定record (ADR)。命名・運用ルールは [docs/adr/README.md](docs/adr/README.md) |
 | `docs/conventions/` | コーディング規約・運用ルール |
 | `docs/troubleshooting/` | 既知の問題と対処方法 |
@@ -28,6 +29,8 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 | `docs/exec-plans/` | 実行計画（進行中/完了/技術的負債）。運用ルールは [docs/exec-plans/README.md](docs/exec-plans/README.md) |
 | `docs/design-docs/` | 運用原則・思想（[core-beliefs.md](docs/design-docs/core-beliefs.md)） |
 | `docs/requirements/` | 要件定義ドキュメント（UI・データモデル・品質目標）。索引は [docs/requirements/README.md](docs/requirements/README.md) |
+| `docs/design/` | API・詳細設計書（REST APIエンドポイント設計等）。索引は [docs/README.md](docs/README.md) |
+| `docs/references/` | 外部参考資料（記事転記・画像）。記事ごとにサブフォルダで管理 |
 
 新しいドキュメントを追加する場合は、適切なディレクトリに配置し、必ず [docs/README.md](docs/README.md) からリンクすること。
 
@@ -35,20 +38,25 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。現�
 
 | エージェント | 用途 |
 |------|------|
-| [doc-maintainer](.claude/agents/doc-maintainer.md) | `docs/` の整合性・索引・鮮度チェック |
+| [doc-maintainer-structure](.claude/agents/doc-maintainer-structure.md) | `docs/` の索引・リンク整合性・ToC チェック（コミット前軽量チェック用） |
+| [doc-maintainer-content](.claude/agents/doc-maintainer-content.md) | `docs/` の ADR整合・exec-plans・design-docs・TODO実行可能性チェック（定期チェック用、structure と並列実行） |
+| [doc-maintainer](.claude/agents/doc-maintainer.md) | `docs/` の全項目フルチェック（レガシー、上記2エージェントの並列実行を推奨） |
 | [adr-governance](.claude/agents/adr-governance.md) | ADRの作成・更新・Supersedeのオーケストレーター |
 | [adr-search](.claude/agents/adr-search.md) | 変更に関連するADR候補の検索（adr-governanceから呼び出し） |
-| [adr-validator](.claude/agents/adr-validator.md) | ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
+| [adr-validator](.claude/agents/adr-validator.md) | ADR・AI-ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
 | [db-designer](.claude/agents/db-designer.md) | Flywayマイグレーションスクリプトの設計・作成 |
 | [api-designer](.claude/agents/api-designer.md) | REST APIエンドポイントの設計（kotlin-implementerへの入力） |
 | [kotlin-implementer](.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装（Entity/Repository/Service/Controller） |
+| [class-diagram-updater](.claude/agents/class-diagram-updater.md) | kotlin-implementer完了後に `src/` 配下のREADME.md（クラス図・関連図）を自動生成・更新 |
+| [src-doc-maintainer](.claude/agents/src-doc-maintainer.md) | class-diagram-updater完了後に `src/` 内README.mdとコードの整合性をチェック |
+| [design-impl-checker](.claude/agents/design-impl-checker.md) | API設計書（`docs/design/api/*.md`）とController実装のパス・リクエスト/レスポンス整合性をチェック |
 | [code-reviewer](.claude/agents/code-reviewer.md) | 実装コードのレビュー。APPROVED/REQUIRES_CHANGESを明示し人間の最終確認を支援 |
 
 ## 利用可能なスキル（.claude/skills/）
 
 | スキル | 用途 |
 |------|------|
-| [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADRの作成・更新・Supersedeを行う |
+| [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） |
 | [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。kotlin-implementer→code-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
 
 ## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）
@@ -59,7 +67,7 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ### ドキュメント変更時
 1. 変更対象のドキュメントを編集する。
-2. `doc-maintainer` サブエージェントで索引・リンク整合をチェックする。
+2. `doc-maintainer-structure` サブエージェントで索引・リンク整合性・ToC をチェックする（コミット前軽量チェック）。新規ファイル追加を含む場合は `doc-maintainer-content` も並列で呼び出す。
 3. 必要であれば `docs/README.md` の索引を更新する。
 
 ### タスク開始時（exec-plan判定）
