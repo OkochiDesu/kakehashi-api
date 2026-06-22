@@ -61,7 +61,7 @@ class GetAccountQuery(
         // 認可チェック: admin 権限なしで他人のアカウントを参照しようとした場合
         if (!input.isAdmin && input.targetAccountId.value != input.requestAccountId) {
             throw ForbiddenOperationException(
-                "Account ${input.requestAccountId} is not allowed to access ${input.targetAccountId.value}",
+                "アカウント ${input.requestAccountId} には ${input.targetAccountId.value} の情報を参照する権限がありません",
             )
         }
 

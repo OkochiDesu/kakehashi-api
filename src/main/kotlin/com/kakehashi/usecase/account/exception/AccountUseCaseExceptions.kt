@@ -5,14 +5,14 @@ import com.kakehashi.domain.account.AccountStatus
 /** 指定した accountId のアカウントが存在しない（404 Not Found） */
 class AccountNotFoundException(
     val accountId: String,
-) : RuntimeException("Account not found: $accountId")
+) : RuntimeException("アカウントが見つかりません: $accountId")
 
 /** ステータス遷移が許可されていない（409 Conflict） */
 class InvalidStatusTransitionException(
     val accountId: String,
     val from: AccountStatus,
     val to: AccountStatus,
-) : RuntimeException("Cannot transition account $accountId from $from to $to")
+) : RuntimeException("アカウント $accountId のステータスを $from から $to へ遷移できません")
 
 /** 楽観ロック競合（409 Conflict） */
 class OptimisticLockException(
@@ -20,8 +20,7 @@ class OptimisticLockException(
     val requestVersion: Int,
     val currentVersion: Int,
 ) : RuntimeException(
-        "Optimistic lock conflict for account $accountId: " +
-            "request version=$requestVersion, current version=$currentVersion",
+        "アカウント $accountId で競合が発生しました（リクエスト version: $requestVersion、DB の現在 version: $currentVersion）",
     )
 
 /** 認可エラー（403 Forbidden） */

@@ -12,7 +12,7 @@ value class AccountId(
     val value: String,
 ) {
     init {
-        require(value.matches(PATTERN)) { "Invalid account_id format: $value (expected AZ[0-9]{4})" }
+        require(value.matches(PATTERN)) { "account_id の形式が不正です: $value（期待形式: AZ[0-9]{4}）" }
     }
 
     companion object {

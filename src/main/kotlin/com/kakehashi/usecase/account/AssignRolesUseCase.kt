@@ -67,7 +67,7 @@ class AssignRolesUseCase(
     fun execute(input: Input): Output {
         // admin 権限チェック（UC-A6: 管理者のみ実行可能）
         if (!input.isAdmin) {
-            throw ForbiddenOperationException("Only admin users can assign roles")
+            throw ForbiddenOperationException("ロールの付与・変更は管理者権限が必要です")
         }
 
         val account =

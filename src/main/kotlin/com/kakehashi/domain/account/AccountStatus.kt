@@ -83,6 +83,6 @@ enum class AccountStatus {
          */
         fun fromDbValue(value: String): AccountStatus =
             entries.firstOrNull { it.name.lowercase() == value.lowercase() }
-                ?: throw IllegalArgumentException("Unknown account status: $value")
+                ?: throw IllegalArgumentException("不明なアカウントステータスです: $value")
     }
 }

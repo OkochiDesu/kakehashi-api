@@ -28,7 +28,7 @@ class GlobalExceptionHandler {
     fun handleNotFound(ex: AccountNotFoundException): ResponseEntity<ErrorResponse> =
         ResponseEntity
             .status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse(code = "ACCOUNT_NOT_FOUND", message = ex.message ?: "Account not found"))
+            .body(ErrorResponse(code = "ACCOUNT_NOT_FOUND", message = ex.message ?: "アカウントが見つかりません"))
 
     /**
      * 409 Conflict — 楽観ロック競合
@@ -38,7 +38,7 @@ class GlobalExceptionHandler {
     fun handleOptimisticLock(ex: OptimisticLockException): ResponseEntity<ErrorResponse> =
         ResponseEntity
             .status(HttpStatus.CONFLICT)
-            .body(ErrorResponse(code = "OPTIMISTIC_LOCK_CONFLICT", message = ex.message ?: "Version conflict"))
+            .body(ErrorResponse(code = "OPTIMISTIC_LOCK_CONFLICT", message = ex.message ?: "バージョン競合が発生しました"))
 
     /**
      * 409 Conflict — ステータス遷移不可
@@ -51,7 +51,7 @@ class GlobalExceptionHandler {
             .body(
                 ErrorResponse(
                     code = "INVALID_STATUS_TRANSITION",
-                    message = ex.message ?: "Invalid status transition",
+                    message = ex.message ?: "ステータス遷移が許可されていません",
                 ),
             )
 
@@ -60,7 +60,7 @@ class GlobalExceptionHandler {
     fun handleForbidden(ex: ForbiddenOperationException): ResponseEntity<ErrorResponse> =
         ResponseEntity
             .status(HttpStatus.FORBIDDEN)
-            .body(ErrorResponse(code = "FORBIDDEN", message = ex.message ?: "Forbidden"))
+            .body(ErrorResponse(code = "FORBIDDEN", message = ex.message ?: "この操作を実行する権限がありません"))
 
     /** 400 Bad Request — バリデーションエラー（@Valid） */
     @ExceptionHandler(MethodArgumentNotValidException::class)
@@ -78,5 +78,5 @@ class GlobalExceptionHandler {
     fun handleIllegalArgument(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> =
         ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(code = "BAD_REQUEST", message = ex.message ?: "Bad request"))
+            .body(ErrorResponse(code = "BAD_REQUEST", message = ex.message ?: "不正なリクエストです"))
 }

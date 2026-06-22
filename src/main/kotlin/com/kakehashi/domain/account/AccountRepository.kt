@@ -12,23 +12,27 @@ import java.util.UUID
 interface AccountRepository {
     /**
      * アカウントを ID で取得する
+     * @param accountId 取得対象のアカウントID
      * @return Account、存在しない場合は null
      */
     fun findById(accountId: AccountId): Account?
 
     /**
      * Google sub ハッシュでアカウントを取得する（ログイン照合用）
+     * @param googleSubHash Google sub クレームの SHA-256 ハッシュ値
      * @return Account、存在しない場合は null
      */
     fun findByGoogleSubHash(googleSubHash: String): Account?
 
     /**
      * アカウントを新規保存する（仮登録 UC-A1 / UC-A2）
+     * @param account 保存するアカウント（status = provisional）
      */
     fun save(account: Account)
 
     /**
      * アカウントを更新する（楽観ロック: version 一致を確認）
+     * @param account 更新後のアカウント（version インクリメント済み）
      * @return 更新件数（0 の場合は version 不一致 → 409 Conflict）
      */
     fun update(account: Account): Int
@@ -41,6 +45,8 @@ interface AccountRepository {
 
     /**
      * 対象アカウントが保持する role_id 一覧を取得する
+     * @param accountId 取得対象のアカウントID
+     * @return role_id の Set（ロールなしの場合は空 Set）
      */
     fun findRoleIdsByAccountId(accountId: AccountId): Set<UUID>
 

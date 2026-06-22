@@ -25,6 +25,6 @@ enum class RoleCode(
          */
         fun fromCode(code: String): RoleCode =
             entries.firstOrNull { it.code == code }
-                ?: throw IllegalArgumentException("Unknown role code: $code")
+                ?: throw IllegalArgumentException("不明なロールコードです: $code")
     }
 }

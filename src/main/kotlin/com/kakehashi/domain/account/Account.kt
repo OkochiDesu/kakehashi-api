@@ -31,7 +31,7 @@ data class Account(
      */
     fun register(updatedBy: String): Account {
         check(status.canTransitionTo(AccountStatus.ACTIVE)) {
-            "Cannot transition from $status to ACTIVE"
+            "$status から ACTIVE への遷移は許可されていません"
         }
         return copy(
             status = AccountStatus.ACTIVE,
@@ -51,7 +51,7 @@ data class Account(
         name: String,
         updatedBy: String,
     ): Account {
-        require(name.isNotBlank()) { "name must not be blank" }
+        require(name.isNotBlank()) { "表示名は空文字列にできません" }
         return copy(
             name = name,
             version = version + 1,
@@ -68,7 +68,7 @@ data class Account(
      */
     fun suspend(updatedBy: String): Account {
         check(status.canTransitionTo(AccountStatus.SUSPENDED)) {
-            "Cannot transition from $status to SUSPENDED"
+            "$status から SUSPENDED への遷移は許可されていません"
         }
         return copy(
             status = AccountStatus.SUSPENDED,

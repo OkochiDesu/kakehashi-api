@@ -50,7 +50,7 @@ class UnsuspendAccountUseCase(
     fun execute(input: Input): Output {
         // admin 権限チェック（UC-A7: 管理者のみ実行可能）
         if (!input.isAdmin) {
-            throw ForbiddenOperationException("Only admin users can unsuspend accounts")
+            throw ForbiddenOperationException("アカウントの停止解除は管理者権限が必要です")
         }
 
         val account =
