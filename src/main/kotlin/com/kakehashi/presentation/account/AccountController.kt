@@ -278,9 +278,9 @@ class AccountController(
                 AssignRolesUseCase.Input(
                     targetAccountId = AccountId(accountId),
                     operatorAccountId = requestAccountId,
-                    isAdmin = isAdmin,
-                    admin = body.admin,
-                    viewPersonalInfo = body.viewPersonalInfo,
+                    operatorIsAdmin = isAdmin,
+                    grantAdminRole = body.admin,
+                    grantViewPersonalInfoRole = body.viewPersonalInfo,
                     version = body.version,
                 ),
             )
