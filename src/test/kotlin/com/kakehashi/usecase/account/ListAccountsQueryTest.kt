@@ -9,6 +9,7 @@ import io.mockk.slot
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 /**
  * ListAccountsQuery 単体テスト
@@ -128,6 +129,23 @@ class ListAccountsQueryTest {
             val output = query.execute(input)
 
             assertEquals(2, output.totalPages)
+        }
+    }
+
+    @Nested
+    inner class AbnormalCases {
+        @Test
+        fun `異常系： 不正な roleCode を渡すと IllegalArgumentException がスローされる`() {
+            assertThrows<IllegalArgumentException> {
+                query.execute(
+                    ListAccountsQuery.Input(
+                        name = null,
+                        statuses = null,
+                        roleCode = "invalid_role",
+                        isAdmin = true,
+                    ),
+                )
+            }
         }
     }
 }
