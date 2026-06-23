@@ -28,21 +28,23 @@ user-invocable: true
 ## 手順
 
 1. 引数（UCまたはドメイン名）と `docs/design/api/` の設計書を確認する
-2. `kotlin-implementer` サブエージェントを呼び出し実装を行う
-3. `code-reviewer` サブエージェントを呼び出し本体コードをレビューする
-4. `code-reviewer` が **REQUIRES_CHANGES** を返した場合:
+2. `test-scenario-planner` サブエージェントを呼び出しテストシナリオ一覧を生成する
+3. **シナリオ一覧をユーザーに提示し、承認を得る**（承認なしに次へ進まない）
+4. `kotlin-implementer` サブエージェントを呼び出す。シナリオ一覧を入力として渡す
+5. `code-reviewer` サブエージェントを呼び出し本体コードをレビューする
+6. `code-reviewer` が **REQUIRES_CHANGES** を返した場合:
    - 指摘内容を `kotlin-implementer` に伝えて修正を依頼する
-   - 手順3に戻る（最大3回まで自動ループ）
-5. `code-reviewer` が **APPROVED** を返した場合:
-   - `test-reviewer` サブエージェントを呼び出しテストコードをレビューする
-6. `test-reviewer` が **REQUIRES_CHANGES** を返した場合:
-   - 指摘内容を `kotlin-implementer` に伝えてテストを修正依頼する
    - 手順5に戻る（最大3回まで自動ループ）
-7. `test-reviewer` が **APPROVED** を返した場合:
+7. `code-reviewer` が **APPROVED** を返した場合:
+   - `test-reviewer` サブエージェントを呼び出しテストコードをレビューする
+8. `test-reviewer` が **REQUIRES_CHANGES** を返した場合:
+   - 指摘内容を `kotlin-implementer` に伝えてテストを修正依頼する
+   - 手順7に戻る（最大3回まで自動ループ）
+9. `test-reviewer` が **APPROVED** を返した場合:
    - 実装内容・変更ファイル一覧・両レビュー結果をユーザーに提示する
    - commit 確認をユーザーに求める（commitはユーザー承認後のみ実行）
-8. いずれかが3回ループしても APPROVED にならない場合:
-   - 残存する指摘事項をまとめてユーザーに報告し、判断を委ねる
+10. いずれかが3回ループしても APPROVED にならない場合:
+    - 残存する指摘事項をまとめてユーザーに報告し、判断を委ねる
 
 ## 安全設定
 
