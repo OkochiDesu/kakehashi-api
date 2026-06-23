@@ -44,6 +44,7 @@
 | [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時にセッション計測を開始し、前回サマリー注入・閾値チェック・鮮度チェックを実行 | ClaudeCode（自動実行） |
 | [`.claude/hooks/tool-counter.sh`](../../.claude/hooks/tool-counter.sh) | PostToolUse時にツール呼び出し回数をカウント（`/tmp/claude_kakehashi_tool_count` に記録） | ClaudeCode（自動実行） |
 | [`.claude/hooks/session-end.sh`](../../.claude/hooks/session-end.sh) | Stop時にツール数・所要時間を集計し次回SessionStartへ引き継ぐ（`/tmp/claude_kakehashi_last_session.json` に保存） | ClaudeCode（自動実行） |
+| [`.claude/hooks/docs-change-check.sh`](../../.claude/hooks/docs-change-check.sh) | PostToolUse時に `docs/` 配下ファイルを変更したセッションで doc-maintainer チェックリマインダーを一度だけ表示 | ClaudeCode（自動実行） |
 | [`docs/exec-plans/`](../exec-plans/README.md) | 実行計画（進行中/完了/技術的負債）の運用ルールと実体 | 人間（あなた）・Claude |
 | [`docs/design-docs/core-beliefs.md`](../design-docs/core-beliefs.md) | このリポジトリの運用原則・思想 | 人間（あなた）・Claude |
 | [`references/harness-engineering/`](../references/harness-engineering/openai-harness-engineering.md) | 参考にした元記事の転記（Harness Engineering） | 人間（あなた）・Claude |
@@ -121,11 +122,11 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 ### 7. 実装・レビューループスキル（implement-review-loop）
 
 `/implement-review-loop <UC名 or ドメイン名>` で起動するユーザー明示型スキル。
-kotlin-implementer と code-reviewer を APPROVED が出るまで最大3回ループする**救済措置**。
+test-scenario-planner → kotlin-implementer → code-reviewer → test-reviewer を APPROVED が出るまで最大3回ループする**救済措置**。
 通常は同一セッション内でメイン AI がこのフローを自動実行するが、
 AI 側の理由でうまくループできない場合や改めてスキルとして実行したい場合に使う。
 
-前提条件: db-designer / api-designer の設計書が作成済みで、人間が設計を承認済みであること。
+前提条件: db-designer / api-designer の設計書が作成済みで、人間が設計を承認済みであること。test-scenario-planner によるシナリオ承認ゲートもループ内に含まれる。
 
 → **使い方**:
 ```
