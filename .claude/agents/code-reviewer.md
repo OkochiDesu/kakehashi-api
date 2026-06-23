@@ -29,7 +29,7 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 ### 1. ADR 準拠
 - **APP-ADR-0001**: 監査カラム（`created_by` / `updated_by` / `created_at` / `updated_at`）が全テーブルに付与されているか。楽観ロック（`version`）が対象テーブルに実装されているか
 - **APP-ADR-0007**: アクセス制御が `account_roles` の permission（`admin` / `view_personal_info`）に基づいているか。`visibility_rules` は廃止済みのため参照していないか
-- **APP-ADR-0005**: 楽観ロック競合（UPDATE 0件）時の `OptimisticLockException` で `requestVersion` と `currentVersion` に正確な値（再取得した DB の現在バージョン）を渡しているか。テストでは `findById()` の2回目呼び出しに別バージョンを返すモックを用意し `ex.currentVersion` が正しいことまで検証すること（`returnsMany` を使用）
+- **APP-ADR-0005**: 楽観ロック競合（UPDATE 0件）時の `OptimisticLockException` で `requestVersion` と `currentVersion` に正確な値（再取得した DB の現在バージョン）を渡しているか（テスト側の検証は `test-reviewer` が担当）
 - **APP-ADR-0002**: 経歴書 → 星取表の連携（スキル未登録時の `user_skills` 自動追加）が仕様通りか
 
 ### 2. セキュリティ（OWASP Top 10）

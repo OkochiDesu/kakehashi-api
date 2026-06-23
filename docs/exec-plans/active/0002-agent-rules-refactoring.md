@@ -37,8 +37,9 @@
 - [ ] `docs/README.md` 更新（必要に応じて確認済み → 不要）
 
 ### Phase 7: 旧重複コンテンツのクリーンアップ（ユーザー確認後）
-- [ ] `code-reviewer.md` / `kotlin-implementer.md` から移管済みの重複記述を削除
-- [ ] 不要になったファイルをユーザーが手動削除
+- [x] `code-reviewer.md` から APP-ADR-0005 のテスト検証記述を削除（test-reviewer に委譲済みのため）
+- [x] `kotlin-implementer.md` — 削除候補なし（Phase 5 で整理済み）
+- [x] 不要になったファイル — 該当なし（Windows通知ファイルは前セッションでリバート済み）
 
 ## 意思決定ログ
 
