@@ -41,19 +41,27 @@ globs:
 
 Testcontainers を使う `@SpringBootTest` 統合テストでは以下を遵守すること：
 
-- **`companion object` の `@Container` には必ず `@JvmStatic` を付与する**: Kotlin の companion object プロパティは `@JvmStatic` なしでは JVM 上で static フィールドにならない。JUnit 5 の `@Container` 拡張はクラスレベルライフサイクルのために static を要求するため、`@JvmStatic` がないと `@ServiceConnection` が Spring コンテキスト起動前にコンテナを登録できず `NoSuchBeanDefinitionException` が連鎖する（pre-commit でも検出する）
+- **`@ServiceConnection` は使わず `@DynamicPropertySource` で明示的に datasource を上書きする**: Spring Boot 4.x では `@ServiceConnection` によるコンテナ検出タイミングが不安定。コンテナを `companion object` の `init {}` または `.also { it.start() }` で明示的に起動してから `@DynamicPropertySource` でプロパティを登録する（pre-commit で `@Container` あり `@JvmStatic` なしも検出する）
 - `@ActiveProfiles("integration-test")` を付与し devcontainer の DB に接続しないようにすること
 - `@Transactional` を付与してテスト間のデータ汚染を防ぐこと
 
 ```kotlin
-// 良い例
+// 推奨パターン
 companion object {
-    @Container
-    @ServiceConnection
+    private val postgres: PostgreSQLContainer<*> =
+        PostgreSQLContainer("postgres:16-alpine").also { it.start() }
+
     @JvmStatic
-    val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+    @DynamicPropertySource
+    fun postgresProperties(registry: DynamicPropertyRegistry) {
+        registry.add("spring.datasource.url") { postgres.jdbcUrl }
+        registry.add("spring.datasource.username") { postgres.username }
+        registry.add("spring.datasource.password") { postgres.password }
+    }
 }
 ```
+
+詳細: [testcontainers-jvmstatic-kotlin.md](../../docs/troubleshooting/testcontainers-jvmstatic-kotlin.md)
 
 ## テスト命名
 

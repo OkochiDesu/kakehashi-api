@@ -10,12 +10,11 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -26,18 +25,25 @@ import java.util.UUID
  * - JdbcClient を使った実際の SQL が正しく動くことを保証する
  * - 楽観ロックの version カラム動作もここで検証する
  *
- * 参照: docs/TODO.md（CI統合テスト環境・テスト戦略）、APP-ADR-0005
+ * @DynamicPropertySource: Spring Boot 4.x での @ServiceConnection 動作不安定のため
+ * 明示的に datasource プロパティを上書きする方式を採用
+ * 参照: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0005
  */
 @SpringBootTest
-@Testcontainers
 @ActiveProfiles("integration-test")
 @Transactional
 class AccountRepositoryImplIntegrationTest {
     companion object {
-        @Container
-        @ServiceConnection
+        private val postgres: PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:16-alpine").also { it.start() }
+
         @JvmStatic
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+        @DynamicPropertySource
+        fun postgresProperties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url") { postgres.jdbcUrl }
+            registry.add("spring.datasource.username") { postgres.username }
+            registry.add("spring.datasource.password") { postgres.password }
+        }
     }
 
     @Autowired
@@ -67,7 +73,6 @@ class AccountRepositoryImplIntegrationTest {
 
     @Test
     fun `Flyway マイグレーション（V1・V2）が正常に完了し accounts テーブルが存在する`() {
-        // シーケンスが使えることで V2 も適用済みを確認
         val seq = repository.nextAccountIdSequence()
         assertTrue(seq > 0, "accounts_account_id_seq が存在しシーケンスが取得できること")
     }

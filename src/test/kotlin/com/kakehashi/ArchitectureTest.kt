@@ -1,6 +1,7 @@
 package com.kakehashi
 
 import com.tngtech.archunit.core.importer.ClassFileImporter
+import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import org.junit.jupiter.api.Test
 
@@ -14,10 +15,17 @@ import org.junit.jupiter.api.Test
  * Query UseCase（APP-ADR-0008）: MyBatis Mapper（infrastructure）をドメインバイパスで直接参照するため
  * infrastructure への依存を例外として許容する。ただし presentation への依存は禁止。
  *
+ * ImportOption.DoNotIncludeTests(): テストクラスを除外して本番コードのみをスキャンする。
+ * テストコードは同一パッケージに置かれることがあり、テスト用 Mapper モックが
+ * infrastructure をインポートするため誤検知が発生する。
+ *
  * 参照: harness-and-guardrails.md（ガードレール層）、APP-ADR-0010
  */
 class ArchitectureTest {
-    private val classes = ClassFileImporter().importPackages("com.kakehashi")
+    private val classes =
+        ClassFileImporter()
+            .withImportOption(ImportOption.DoNotIncludeTests())
+            .importPackages("com.kakehashi")
 
     @Test
     fun `domain層はusecase・infrastructure・presentation層に依存しない`() {

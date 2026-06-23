@@ -64,6 +64,8 @@
 
 この例外は意図的な設計であり、ルールを削除・緩和するのではなく「非 Query / Query に分割」することで設計書と整合させている。
 
+また `ClassFileImporter().withImportOption(ImportOption.DoNotIncludeTests())` を必ず指定すること。テストクラスが本番パッケージ（例: `com.kakehashi.usecase.account`）に置かれている場合、テスト用 Mapper モックが infrastructure をインポートするため本番クラスと同一スキャン対象になると誤検知が発生する。
+
 ---
 
 ## 新しいチェックを追加するときの判断フロー

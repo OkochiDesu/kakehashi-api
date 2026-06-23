@@ -1,4 +1,4 @@
-# Testcontainers: Kotlin companion object で @JvmStatic が必要
+# Testcontainers: Kotlin + Spring Boot 4.x での統合テスト設定
 
 ## 現象
 
@@ -13,22 +13,39 @@ java.lang.IllegalStateException: Failed to load ApplicationContext
 
 ## 原因
 
-Kotlin の `companion object` プロパティは、`@JvmStatic` を付与しない限り JVM 上で static フィールドにならない。JUnit 5 の `@Container` 拡張はクラスレベルライフサイクルを実現するために **static フィールド** を要求する。
+Spring Boot 4.x では `@ServiceConnection` によるコンテナ検出が不安定になることがある。`@ServiceConnection` は Spring Boot がコンテキスト起動前にコンテナを検出・起動する仕組みだが、Kotlin の `companion object` + JUnit 5 の `@Testcontainers` 拡張との組み合わせで、コンテナが起動する前に Spring コンテキストが初期化されてしまう場合がある。
 
-`@JvmStatic` なしの場合、Testcontainers は `@Container` を インスタンスフィールドとして扱う。`@ServiceConnection` が Postgres コンテナを Spring コンテキスト起動前に登録できず、`DataSource` の自動設定が失敗する。その結果、`JdbcClient` → `AccountRepositoryImpl` → `AccountRepository` の依存チェーンで `NoSuchBeanDefinitionException` が連鎖する。
+コンテナが起動していないと `DataSource` の自動設定が失敗し、`JdbcClient` → `AccountRepositoryImpl` → `AccountRepository` の依存チェーンで `NoSuchBeanDefinitionException` が連鎖する。
 
-## 対処
+## 対処（推奨パターン）
+
+`@ServiceConnection` / `@Testcontainers` を使わず、`@DynamicPropertySource` で明示的にプロパティを上書きする：
 
 ```kotlin
-companion object {
-    @Container
-    @ServiceConnection
-    @JvmStatic  // ← これが必要
-    val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+@SpringBootTest
+@ActiveProfiles("integration-test")
+@Transactional
+class MyIntegrationTest {
+    companion object {
+        private val postgres: PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:16-alpine").also { it.start() }  // 明示的に起動
+
+        @JvmStatic
+        @DynamicPropertySource
+        fun postgresProperties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url") { postgres.jdbcUrl }
+            registry.add("spring.datasource.username") { postgres.username }
+            registry.add("spring.datasource.password") { postgres.password }
+        }
+    }
 }
 ```
 
 ## 防止策
 
-- `.githooks/pre-commit` が `@Container` あり `@JvmStatic` なしの `*Test.kt` ファイルを検出してコミットをブロックする（`src/test/kotlin/` 配下のみ対象）
-- `.claude/rules/test-rules.md` に `@Container` + `@JvmStatic` 必須ルールを記載
+- `.claude/rules/test-rules.md` に Testcontainers 統合テストの推奨パターンを記載
+- `AccountRepositoryImplIntegrationTest.kt` が参照実装として機能する
+
+## 以前の試み（効果なし）
+
+- `@JvmStatic` を `@Container` と同じ companion object プロパティに追加 → `@ServiceConnection` の検出タイミング問題は解消されなかった
