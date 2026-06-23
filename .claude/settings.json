@@ -11,8 +11,8 @@
       "Bash(gh api repos/*/pulls/*/comments/*/replies --method POST*)"
     ],
     "deny": [
-      "Bash(git push*)",
       "Bash(git reset --hard*)",
+      "Bash(gh pr merge*)",
       "Bash(git clean*)",
       "Bash(rm *)",
       "Bash(rm)",

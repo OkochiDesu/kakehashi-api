@@ -95,4 +95,4 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ## 禁止事項・安全設定
 
-破壊的操作（`git push`、`rm`、`find -delete`、`rsync --delete`、外部ダウンロード等）の制限と、`git commit` の運用ルール（コミットメッセージと差分を提示し確認後にAIが実行可、`git push` は人間のみ）は [CLAUDE.md](CLAUDE.md) および [.claude/settings.json](.claude/settings.json) を参照。
+破壊的操作（`rm`、`find -delete`、`rsync --delete`、外部ダウンロード等）の制限と、`git commit` / `git push` の運用ルール（対象コミット・プッシュ先を提示し明示的な確認後にAIが実行）は [CLAUDE.md](CLAUDE.md) および [.claude/settings.json](.claude/settings.json) を参照。
