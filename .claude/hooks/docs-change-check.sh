@@ -13,8 +13,8 @@ if command -v jq &>/dev/null; then
   tool_name=$(echo "$input" | jq -r '.tool_name // empty')
   file_path=$(echo "$input" | jq -r '.tool_input.file_path // empty')
 else
-  tool_name=$(echo "$input" | grep -o '"tool_name":"[^"]*"' | cut -d'"' -f4)
-  file_path=$(echo "$input" | grep -o '"file_path":"[^"]*"' | cut -d'"' -f4)
+  tool_name=$(echo "$input" | grep -oE '"tool_name"\s*:\s*"[^"]*"' | grep -oE '"[^"]*"$' | tr -d '"')
+  file_path=$(echo "$input" | grep -oE '"file_path"\s*:\s*"[^"]*"' | grep -oE '"[^"]*"$' | tr -d '"')
 fi
 
 # Edit または Write ツールで docs/ 配下のファイルを変更した場合

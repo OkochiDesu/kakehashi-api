@@ -13,7 +13,7 @@
 
 ## 2. 危険な操作は機械的に防ぎ、行動指針で明文化する（二重の防御）
 
-- 機械的な防御: [.claude/settings.json](../../.claude/settings.json) の deny リストで `gh pr merge`・`git reset --hard`・`rm`系・`find -delete`/`rsync --delete`・`curl`/`wget` をブロックする（[AI-ADR-0014](../adr/AI-ADR-0014-AIのgit-gh操作権限を3層モデルで整理.md)）。
+- 機械的な防御: [.claude/settings.json](../../.claude/settings.json) の deny リストで `gh pr merge`・`git reset --hard`・`git clean`・`rm`系・`find -delete`/`rsync --delete`・`curl`/`wget` をブロックする（[AI-ADR-0014](../adr/AI-ADR-0014-AIのgit-gh操作権限を3層モデルで整理.md)）。
 - 行動指針: [CLAUDE.md](../../CLAUDE.md) に同内容を明文化し、エージェントが意図を理解した上で同じ判断ができるようにする。
 - `git commit` / `git push` / `git merge` は、対象コミット・プッシュ先・マージ元をユーザーに提示し、明示的な確認を得た場合にのみAIが実行できる（settings.jsonのdenyリストには含めず、確認後に実行する運用）。
 - commitのauthor/committerはユーザー自身のgit configに紐づき、AIの関与は `Co-Authored-By` で記録されるため、誰が承認・実行したかはcommitメタデータから追跡できる。

@@ -19,7 +19,7 @@
 
 | ファイル | 役割 | 誰が読むか |
 |------|------|------|
-| [`.claude/settings.json`](../../.claude/settings.json) | ClaudeCodeの権限設定。`gh pr merge`・`git reset --hard`・`rm`・`find -delete`・`rsync --delete`・`curl`/`wget` 等を禁止。`git commit`/`push`/`merge` はdenyリストに含めず、CLAUDE.mdの「commit運用」に従い確認のうえ実行可 | ClaudeCode（自動適用） |
+| [`.claude/settings.json`](../../.claude/settings.json) | ClaudeCodeの権限設定。`gh pr merge`・`git reset --hard`・`git clean`・`rm`・`find -delete`・`rsync --delete`・`curl`/`wget` 等を禁止。`git commit`/`push`/`merge` はdenyリストに含めず、CLAUDE.mdの「commit運用」に従い確認のうえ実行可 | ClaudeCode（自動適用） |
 | [`CLAUDE.md`](../../CLAUDE.md) | ClaudeCodeの行動指針（禁止事項・推奨事項） | ClaudeCode（自動で読み込まれる） |
 | [`AGENTS.md`](../../AGENTS.md) | リポジトリ全体の「目次」。docsの構成・サブエージェント一覧へのリンク集 | AIエージェント全般（自動で読み込まれる） |
 | [`.claude/agents/doc-maintainer-structure.md`](../../.claude/agents/doc-maintainer-structure.md) | 索引・リンク整合性・`.claude/`構成・ToCチェック（コミット前軽量チェック用） | ClaudeCode（呼び出すと動く） |
