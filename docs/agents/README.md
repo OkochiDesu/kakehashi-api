@@ -159,6 +159,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0012](../adr/AI-ADR-0012-エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う.md) | エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う | Accepted |
 | [AI-ADR-0013](../adr/AI-ADR-0013-LLMとスクリプトの役割分離とglobルール採用とtest-reviewer順次分離.md) | LLMとスクリプトの役割分離・globルール採用・test-reviewer順次分離 | Accepted |
 | [AI-ADR-0014](../adr/AI-ADR-0014-AIのgit-gh操作権限を3層モデルで整理.md) | AIのgit/gh操作権限を3層モデル（自動・確認・ブロック）に整理 | Accepted |
+| [AI-ADR-0015](../adr/AI-ADR-0015-タスク開始時にTodoWriteでプランを作成し見える範囲と見えない範囲を明示する.md) | タスク開始時にTodoWriteでプランを作成し見える範囲・見えない範囲を明示する | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 
