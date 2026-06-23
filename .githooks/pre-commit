@@ -73,4 +73,50 @@ if command -v shellcheck &>/dev/null; then
     fi
 fi
 
+# src/main/kotlin 配下の staged ファイルに英語エラーメッセージが含まれていないか確認する
+# require() / check() / Exception() 等の引数が ASCII 英字のみの場合は日本語化を促す
+staged_main_kt=$(git diff --cached --name-only --diff-filter=ACM | grep '^src/main/kotlin/.*\.kt$' || true)
+if [[ -n "$staged_main_kt" ]]; then
+    english_msgs=$(
+        echo "$staged_main_kt" | while IFS= read -r f; do
+            git diff --cached -U0 -- "$f" \
+              | grep '^+' | grep -v '^+++' \
+              | grep -E 'require\(|check\(|checkNotNull\(|requireNotNull\(|Exception\(' \
+              | grep -E '\{ "' \
+              | LC_ALL=C grep -v '[^ -~]' \
+              | sed "s|^|  ${f}: |"
+        done
+    )
+    if [[ -n "$english_msgs" ]]; then
+        echo "[pre-commit] エラーメッセージに英語が含まれています（日本語で記述してください）:"
+        echo "$english_msgs"
+        echo ""
+        echo "誤検知の場合は --no-verify でスキップできます:"
+        echo "  git commit --no-verify"
+        exit 1
+    fi
+fi
+
+# src/test/kotlin 配下の staged ファイルに assert() 誤使用がないか確認する
+# JVM の -ea が無効だと assert() は評価されないため JUnit アサーションを使うこと
+staged_test_kt=$(git diff --cached --name-only --diff-filter=ACM | grep '^src/test/kotlin/.*Test\.kt$' || true)
+if [[ -n "$staged_test_kt" ]]; then
+    bad_asserts=$(
+        echo "$staged_test_kt" | while IFS= read -r f; do
+            git diff --cached -U0 -- "$f" \
+              | grep '^+' | grep -v '^+++' \
+              | grep -E '^\+[[:space:]]*assert\(' \
+              | sed "s|^|  ${f}: |"
+        done
+    )
+    if [[ -n "$bad_asserts" ]]; then
+        echo "[pre-commit] assert() は JVM の -ea が無効だと評価されません。assertEquals / assertTrue / assertThrows 等を使ってください:"
+        echo "$bad_asserts"
+        echo ""
+        echo "誤検知の場合は --no-verify でスキップできます:"
+        echo "  git commit --no-verify"
+        exit 1
+    fi
+fi
+
 exit 0

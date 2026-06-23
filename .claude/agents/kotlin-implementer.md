@@ -45,13 +45,12 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - 悪い例: `// active / suspended の場合は 409`
   - 良い例: `// canTransitionTo(ACTIVE) が false の場合は 409`
 - `@throws` に列挙する例外は実際にスローされるものだけ書く（漏れ・誤りに注意）
-- **エラーメッセージは日本語で記述する**（`require()` / `check()` / `checkNotNull()` / `requireNotNull()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列すべて）。修正時はファイル全体を grep して英語メッセージを網羅的に確認すること
+- **エラーメッセージは日本語で記述する**（`require()` / `check()` / `checkNotNull()` / `requireNotNull()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列すべて）。pre-commit でも検出するが、実装時にも徹底すること
   - 悪い例: `"Cannot transition from $status to ACTIVE"`
   - 良い例: `"${status} から ACTIVE への遷移は許可されていません"`
 - **`interface` のメソッドおよびリポジトリ系の公開メソッドは `@param` を省略しない**（実装クラスとの対応追跡を容易にするため）
 - **文字列全体にマッチさせる正規表現には必ず `^` と `$` アンカーを付与する**（例: `Regex("^AZ\\d{4}$")`）。アンカーなしだと部分一致で誤通過する
-- **MyBatis `<resultMap>` で `<collection>` / `<association>` を使う場合は、親・子ともに `<id>` タグを必ず定義する**（未定義だと全カラムで一意性判定となり、重複行や誤グルーピングが発生する）
-- **MyBatis `<collection>` に LEFT JOIN を使う場合は `notNullColumn="<子の主キー列>"` を必ず付与する**（未指定だと JOIN 先が NULL でも要素が生成され、non-null Kotlin フィールドの構築時に例外が発生する）
+- **MyBatis を使う場合は [mybatis-rules.md](../../.claude/rules/mybatis-rules.md) を参照すること**（`<id>` タグ・`notNullColumn`・`#{}` 使用等）
 - **UseCase / ドメインメソッドのステータスチェックは設計書の「許可される元ステータス」に合わせて特定する**。`canTransitionTo()` 等の汎用チェックは複数のユースケース間で条件が重なることがあるため、設計書（UC-XX の事前条件）を確認してから `status == AccountStatus.XXX` のような明示チェックを使うか判断すること
 
 ## 実装スタイル
@@ -69,7 +68,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 3. 関連 ADR を確認する（特に APP-ADR-0001・0008）
 4. 既存の実装ファイルを `src/` 配下で確認し、命名規則・パッケージ構成を踏襲する
 5. Entity → Repository → Service → Controller の順で実装する
-6. テストコードを作成する
+6. テストコードを作成する。テストコードの規約は [test-rules.md](../../.claude/rules/test-rules.md) を参照すること（`updatedAt`/`updatedBy` 検証・アサーション種別・TDD 原則等）
 7. `./gradlew build` でビルドエラーがないことを確認する
 
 ## 出力

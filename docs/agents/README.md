@@ -35,8 +35,11 @@
 | [`.claude/agents/src-doc-maintainer.md`](../../.claude/agents/src-doc-maintainer.md) | `src/` 内 README.md とソースコードの整合性チェック（読み取り専用、class-diagram-updater完了後に呼び出し） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/design-impl-checker.md`](../../.claude/agents/design-impl-checker.md) | API設計書とController実装の整合性チェック（読み取り専用）。パス・HTTPメソッド・リクエスト/レスポンス一致を検証し、不整合があれば対応方針をユーザーに確認する | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/code-reviewer.md`](../../.claude/agents/code-reviewer.md) | 実装コードレビューエージェント | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/test-reviewer.md`](../../.claude/agents/test-reviewer.md) | テストコードレビューエージェント（code-reviewer APPROVED後に呼び出し） | ClaudeCode（呼び出すと動く） |
+| [`.claude/rules/test-rules.md`](../../.claude/rules/test-rules.md) | `*Test.kt` 編集時に自動適用されるテストコード規約（globs: `**/*Test.kt`） | ClaudeCode（glob一致時に自動適用） |
+| [`.claude/rules/mybatis-rules.md`](../../.claude/rules/mybatis-rules.md) | `*Mapper.xml`/`*Mapper.kt` 編集時に自動適用されるMyBatis規約 | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/skills/adr-governance/SKILL.md`](../../.claude/skills/adr-governance/SKILL.md) | `/adr-governance` スキル。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） | ClaudeCode（`/adr-governance` で起動） |
-| [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。kotlin-implementer→code-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
+| [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
 | [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時にセッション計測を開始し、前回サマリー注入・閾値チェック・鮮度チェックを実行 | ClaudeCode（自動実行） |
 | [`.claude/hooks/tool-counter.sh`](../../.claude/hooks/tool-counter.sh) | PostToolUse時にツール呼び出し回数をカウント（`/tmp/claude_kakehashi_tool_count` に記録） | ClaudeCode（自動実行） |
 | [`.claude/hooks/session-end.sh`](../../.claude/hooks/session-end.sh) | Stop時にツール数・所要時間を集計し次回SessionStartへ引き継ぐ（`/tmp/claude_kakehashi_last_session.json` に保存） | ClaudeCode（自動実行） |
@@ -151,6 +154,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0010](../adr/AI-ADR-0010-src配下README自動生成によるHITL可視性確保.md) | src配下README自動生成によるHITL可視性確保 | Accepted |
 | [AI-ADR-0011](../adr/AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md) | doc-maintainerの構造チェックと内容チェックへの分割 | Accepted |
 | [AI-ADR-0012](../adr/AI-ADR-0012-エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う.md) | エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う | Accepted |
+| [AI-ADR-0013](../adr/AI-ADR-0013-LLMとスクリプトの役割分離とglobルール採用とtest-reviewer順次分離.md) | LLMとスクリプトの役割分離・globルール採用・test-reviewer順次分離 | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 
@@ -161,4 +165,4 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 Step1実装サポート用マルチエージェント構成（db-designer / api-designer / kotlin-implementer / code-reviewer）は構築済み。
 詳細・ワークフローは [exec-plans/active/0001-requirements-definition-multiagent.md](../exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
 
-次のステップ: Step1の実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始する。
+Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）は完了済み（2026-06-22）。次のステップは deactivated 自動遷移バッチ・カバレッジ設定・Controller 統合テスト戦略（詳細は [docs/TODO.md](../../docs/TODO.md) 参照）。

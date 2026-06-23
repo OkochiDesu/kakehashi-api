@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.OffsetDateTime
 
 /**
  * AssignRolesUseCase 単体テスト
@@ -36,26 +37,27 @@ class AssignRolesUseCaseTest {
     }
 
     private fun buildInput(
-        isAdmin: Boolean = true,
-        admin: Boolean = true,
-        viewPersonalInfo: Boolean = false,
+        operatorIsAdmin: Boolean = true,
+        grantAdminRole: Boolean = true,
+        grantViewPersonalInfoRole: Boolean = false,
         version: Int = 0,
     ) = AssignRolesUseCase.Input(
         targetAccountId = targetAccountId,
         operatorAccountId = operatorAccountId,
-        isAdmin = isAdmin,
-        admin = admin,
-        viewPersonalInfo = viewPersonalInfo,
+        operatorIsAdmin = operatorIsAdmin,
+        grantAdminRole = grantAdminRole,
+        grantViewPersonalInfoRole = grantViewPersonalInfoRole,
         version = version,
     )
 
     @Nested
     inner class NormalCases {
         @Test
-        fun `正常系： admin=true viewPersonalInfo=false で admin ロールが付与される`() {
+        fun `正常系： grantAdminRole=true grantViewPersonalInfoRole=false で admin ロールが付与される`() {
+            val before = OffsetDateTime.now().minusSeconds(1)
             fakeRepository.accounts["AZ0001"] = buildAccount(version = 0)
 
-            val output = useCase.execute(buildInput(admin = true, viewPersonalInfo = false))
+            val output = useCase.execute(buildInput(grantAdminRole = true, grantViewPersonalInfoRole = false))
 
             assertEquals("AZ0001", output.accountId)
             assertEquals(1, output.roles.size)
@@ -65,22 +67,26 @@ class AssignRolesUseCaseTest {
                 listOf(AssignRolesUseCase.ADMIN_ROLE_ID),
                 fakeRepository.assignRolesAndBumpVersionCalls.first().second,
             )
+            // 監査カラム: updatedAt・updatedBy が更新されていることを確認
+            val saved = fakeRepository.accounts["AZ0001"]!!
+            assertTrue(saved.updatedAt.isAfter(before)) { "updatedAt が更新されていません: ${saved.updatedAt}" }
+            assertEquals(operatorAccountId, saved.updatedBy)
         }
 
         @Test
-        fun `正常系： admin=true viewPersonalInfo=true で 2 ロールが付与される`() {
+        fun `正常系： grantAdminRole=true grantViewPersonalInfoRole=true で 2 ロールが付与される`() {
             fakeRepository.accounts["AZ0001"] = buildAccount(version = 0)
 
-            val output = useCase.execute(buildInput(admin = true, viewPersonalInfo = true))
+            val output = useCase.execute(buildInput(grantAdminRole = true, grantViewPersonalInfoRole = true))
 
             assertEquals(2, output.roles.size)
         }
 
         @Test
-        fun `正常系： admin=false viewPersonalInfo=false でロールが全剥奪される`() {
+        fun `正常系： grantAdminRole=false grantViewPersonalInfoRole=false でロールが全剥奪される`() {
             fakeRepository.accounts["AZ0001"] = buildAccount(version = 0)
 
-            val output = useCase.execute(buildInput(admin = false, viewPersonalInfo = false))
+            val output = useCase.execute(buildInput(grantAdminRole = false, grantViewPersonalInfoRole = false))
 
             assertTrue(output.roles.isEmpty())
             assertTrue(
@@ -95,9 +101,9 @@ class AssignRolesUseCaseTest {
     @Nested
     inner class ErrorCases {
         @Test
-        fun `異常系： isAdmin=false は ForbiddenOperationException`() {
+        fun `異常系： operatorIsAdmin=false は ForbiddenOperationException`() {
             assertThrows<ForbiddenOperationException> {
-                useCase.execute(buildInput(isAdmin = false))
+                useCase.execute(buildInput(operatorIsAdmin = false))
             }
         }
 

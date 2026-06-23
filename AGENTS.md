@@ -51,13 +51,23 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 | [src-doc-maintainer](.claude/agents/src-doc-maintainer.md) | class-diagram-updater完了後に `src/` 内README.mdとコードの整合性をチェック |
 | [design-impl-checker](.claude/agents/design-impl-checker.md) | API設計書（`docs/design/api/*.md`）とController実装のパス・リクエスト/レスポンス整合性をチェック |
 | [code-reviewer](.claude/agents/code-reviewer.md) | 実装コードのレビュー。APPROVED/REQUIRES_CHANGESを明示し人間の最終確認を支援 |
+| [test-reviewer](.claude/agents/test-reviewer.md) | テストコードのレビュー。code-reviewer APPROVED後に呼び出し、テスト品質・カバレッジ・監査カラム検証・楽観ロック競合テストを確認 |
+
+## 利用可能な glob ルール（.claude/rules/）
+
+ファイルパターンに一致するときのみ自動適用されるルール集。エージェント定義からも参照する。
+
+| ルールファイル | 適用対象 | 内容 |
+|------|------|------|
+| [test-rules.md](.claude/rules/test-rules.md) | `**/*Test.kt` | TDD・アサーション種別・updatedAt検証・楽観ロック競合テスト・テスト命名 |
+| [mybatis-rules.md](.claude/rules/mybatis-rules.md) | `**/*Mapper.xml`, `**/*Mapper.kt` | `<id>`タグ・`notNullColumn`・`#{}`使用・`@param`必須 |
 
 ## 利用可能なスキル（.claude/skills/）
 
 | スキル | 用途 |
 |------|------|
 | [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） |
-| [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。kotlin-implementer→code-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
+| [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
 
 ## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）
 

@@ -44,6 +44,7 @@
 - `.githooks/` 配下のフックファイルおよび `.github/workflows/` 配下のワークフローファイルを変更する場合は、**変更内容の分析・分類結果をユーザーに提示し、確認を得てから実装すること**
 - 理由: CIの制限はチーム全体に影響し、除外パターンの妥当性はユーザーが判断すべき意思決定であるため
 - **シェルスクリプト内のコメントは `# shellcheck` で始めてはならない**（shellcheck がディレクティブとして誤パースし SC1072/SC1073 エラーが発生するため）。`# shellcheck disable=SCXXXX` など正規のディレクティブ以外は別の書き出しにすること
+- **シェルスクリプトで文字クラス・範囲を使う場合は `LC_ALL=C` を前置すること**（例: `LC_ALL=C grep -v '[^ -~]'`）。ロケール設定によって `\x80-\xFF` や `[A-Za-z]` の挙動が変わるため、C ロケールで ASCII 範囲を明示することで環境依存を回避する
 
 ### 推奨事項
 - ファイルを変更する前に、必ず現在の内容を読み取ること
@@ -56,6 +57,7 @@
   - プロジェクト固有の行動ルール違反 → `CLAUDE.md` にルール追記
   - 特定エージェントの設計ミス → `.claude/agents/` を更新
   - 設計判断レベルの問題 → AI-ADR として記録
+  - **上記に加え、grep/正規表現で確実に検出できるパターンかを判断すること**（YES → `.githooks/pre-commit` にも追加。上記分類と組み合わせ可。判断基準は [harness-and-guardrails.md](docs/design-docs/harness-and-guardrails.md) 参照）
 - ADR（`{PREFIX}-ADR-XXXX-`、PREFIX: `APP` / `CICD` / `DOC`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
 - **ADR の `影響` 欄に実装方針（認可ロジック・楽観ロック・パス形式等）が記載されている場合、`.claude/agents/` 配下の関連エージェント定義（特に `kotlin-implementer.md` / `code-reviewer.md` / `api-designer.md`）が陳腐化していないか合わせて確認し、必要なら更新すること**
 

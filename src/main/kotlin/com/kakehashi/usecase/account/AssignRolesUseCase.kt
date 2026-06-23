@@ -6,6 +6,7 @@ import com.kakehashi.domain.account.RoleCode
 import com.kakehashi.usecase.account.exception.AccountNotFoundException
 import com.kakehashi.usecase.account.exception.ForbiddenOperationException
 import com.kakehashi.usecase.account.exception.OptimisticLockException
+import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
@@ -35,9 +36,9 @@ class AssignRolesUseCase(
     data class Input(
         val targetAccountId: AccountId,
         val operatorAccountId: String,
-        val isAdmin: Boolean,
-        val admin: Boolean,
-        val viewPersonalInfo: Boolean,
+        val operatorIsAdmin: Boolean,
+        val grantAdminRole: Boolean,
+        val grantViewPersonalInfoRole: Boolean,
         val version: Int,
     )
 
@@ -60,13 +61,13 @@ class AssignRolesUseCase(
      * ADRNo：APP-ADR-0005, APP-ADR-0007, APP-ADR-0008
      *
      * @param input 対象アカウントID・操作者ID・ロールフラグ・version を含む入力値
-     * @throws ForbiddenOperationException isAdmin=false の場合
+     * @throws ForbiddenOperationException operatorIsAdmin=false の場合
      * @throws AccountNotFoundException 対象アカウントが存在しない場合
      * @throws OptimisticLockException version 不一致または DB 更新 0件の場合
      */
     fun execute(input: Input): Output {
         // admin 権限チェック（UC-A6: 管理者のみ実行可能）
-        if (!input.isAdmin) {
+        if (!input.operatorIsAdmin) {
             throw ForbiddenOperationException("ロールの付与・変更は管理者権限が必要です")
         }
 
@@ -82,8 +83,8 @@ class AssignRolesUseCase(
         // 付与するロール ID リストを構築
         val newRoleIds =
             buildList<UUID> {
-                if (input.admin) add(ADMIN_ROLE_ID)
-                if (input.viewPersonalInfo) add(VIEW_PERSONAL_INFO_ROLE_ID)
+                if (input.grantAdminRole) add(ADMIN_ROLE_ID)
+                if (input.grantViewPersonalInfoRole) add(VIEW_PERSONAL_INFO_ROLE_ID)
             }
 
         // version をインクリメントした Account（トランザクション内で update する）
@@ -91,6 +92,7 @@ class AssignRolesUseCase(
             account.copy(
                 version = account.version + 1,
                 updatedBy = input.operatorAccountId,
+                updatedAt = OffsetDateTime.now(),
             )
 
         // account_roles 全置換 + accounts.version インクリメントを1トランザクションで実行（修正4）
@@ -109,7 +111,7 @@ class AssignRolesUseCase(
         // レスポンス用 roles リストを組み立て
         val roles =
             buildList {
-                if (input.admin) {
+                if (input.grantAdminRole) {
                     add(
                         RoleOutput(
                             roleId = ADMIN_ROLE_ID.toString(),
@@ -118,7 +120,7 @@ class AssignRolesUseCase(
                         ),
                     )
                 }
-                if (input.viewPersonalInfo) {
+                if (input.grantViewPersonalInfoRole) {
                     add(
                         RoleOutput(
                             roleId = VIEW_PERSONAL_INFO_ROLE_ID.toString(),
