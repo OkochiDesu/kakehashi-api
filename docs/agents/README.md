@@ -19,7 +19,7 @@
 
 | ファイル | 役割 | 誰が読むか |
 |------|------|------|
-| [`.claude/settings.json`](../../.claude/settings.json) | ClaudeCodeの権限設定。`git push`、`rm`、`find -delete`、`rsync --delete`、`curl`/`wget` 等を禁止。`git commit` はdenyリストに含めず、CLAUDE.mdの「commit運用」に従い都度確認のうえ実行可 | ClaudeCode（自動適用） |
+| [`.claude/settings.json`](../../.claude/settings.json) | ClaudeCodeの権限設定。`gh pr merge`・`git reset --hard`・`git clean`・`rm`・`find -delete`・`rsync --delete`・`curl`/`wget` 等を禁止。`git commit`/`push`/`merge` はdenyリストに含めず、CLAUDE.mdの「commit運用」に従い確認のうえ実行可 | ClaudeCode（自動適用） |
 | [`CLAUDE.md`](../../CLAUDE.md) | ClaudeCodeの行動指針（禁止事項・推奨事項） | ClaudeCode（自動で読み込まれる） |
 | [`AGENTS.md`](../../AGENTS.md) | リポジトリ全体の「目次」。docsの構成・サブエージェント一覧へのリンク集 | AIエージェント全般（自動で読み込まれる） |
 | [`.claude/agents/doc-maintainer-structure.md`](../../.claude/agents/doc-maintainer-structure.md) | 索引・リンク整合性・`.claude/`構成・ToCチェック（コミット前軽量チェック用） | ClaudeCode（呼び出すと動く） |
@@ -34,15 +34,17 @@
 | [`.claude/agents/class-diagram-updater.md`](../../.claude/agents/class-diagram-updater.md) | `src/` 配下の Kotlin コードからクラス図・関連図を生成し、各パッケージの README.md を更新する（kotlin-implementer完了後に自動呼び出し） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/src-doc-maintainer.md`](../../.claude/agents/src-doc-maintainer.md) | `src/` 内 README.md とソースコードの整合性チェック（読み取り専用、class-diagram-updater完了後に呼び出し） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/design-impl-checker.md`](../../.claude/agents/design-impl-checker.md) | API設計書とController実装の整合性チェック（読み取り専用）。パス・HTTPメソッド・リクエスト/レスポンス一致を検証し、不整合があれば対応方針をユーザーに確認する | ClaudeCode（呼び出すと動く） |
+| [`.claude/agents/test-scenario-planner.md`](../../.claude/agents/test-scenario-planner.md) | テストシナリオ設計エージェント（API設計書承認後・kotlin-implementer呼び出し前に実行し、人間が承認するゲートを設ける） | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/code-reviewer.md`](../../.claude/agents/code-reviewer.md) | 実装コードレビューエージェント | ClaudeCode（呼び出すと動く） |
 | [`.claude/agents/test-reviewer.md`](../../.claude/agents/test-reviewer.md) | テストコードレビューエージェント（code-reviewer APPROVED後に呼び出し） | ClaudeCode（呼び出すと動く） |
 | [`.claude/rules/test-rules.md`](../../.claude/rules/test-rules.md) | `*Test.kt` 編集時に自動適用されるテストコード規約（globs: `**/*Test.kt`） | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/rules/mybatis-rules.md`](../../.claude/rules/mybatis-rules.md) | `*Mapper.xml`/`*Mapper.kt` 編集時に自動適用されるMyBatis規約 | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/skills/adr-governance/SKILL.md`](../../.claude/skills/adr-governance/SKILL.md) | `/adr-governance` スキル。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） | ClaudeCode（`/adr-governance` で起動） |
-| [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
+| [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。test-scenario-planner→kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
 | [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時にセッション計測を開始し、前回サマリー注入・閾値チェック・鮮度チェックを実行 | ClaudeCode（自動実行） |
 | [`.claude/hooks/tool-counter.sh`](../../.claude/hooks/tool-counter.sh) | PostToolUse時にツール呼び出し回数をカウント（`/tmp/claude_kakehashi_tool_count` に記録） | ClaudeCode（自動実行） |
 | [`.claude/hooks/session-end.sh`](../../.claude/hooks/session-end.sh) | Stop時にツール数・所要時間を集計し次回SessionStartへ引き継ぐ（`/tmp/claude_kakehashi_last_session.json` に保存） | ClaudeCode（自動実行） |
+| [`.claude/hooks/docs-change-check.sh`](../../.claude/hooks/docs-change-check.sh) | PostToolUse時に `docs/` 配下ファイルを変更したセッションで doc-maintainer チェックリマインダーを一度だけ表示 | ClaudeCode（自動実行） |
 | [`docs/exec-plans/`](../exec-plans/README.md) | 実行計画（進行中/完了/技術的負債）の運用ルールと実体 | 人間（あなた）・Claude |
 | [`docs/design-docs/core-beliefs.md`](../design-docs/core-beliefs.md) | このリポジトリの運用原則・思想 | 人間（あなた）・Claude |
 | [`references/harness-engineering/`](../references/harness-engineering/openai-harness-engineering.md) | 参考にした元記事の転記（Harness Engineering） | 人間（あなた）・Claude |
@@ -55,12 +57,13 @@
 
 ClaudeCodeに何を依頼しても、以下は実行されない（`.claude/settings.json` で拒否）。
 
-- `git push`
+- `gh pr merge`（GitHub PR のマージ）
+- `git reset --hard` / `git clean`
 - `rm` / `rmdir` / `find -delete` / `rsync --delete`
 - `curl` / `wget` などインターネットからのダウンロード
 
 → **特別な操作は不要**。普段通り依頼するだけで、これらは自動的に弾かれる。
-`git add` は常に許可されている。`git commit` はdenyリストでは禁止せず、コミットメッセージと `git diff --cached` をClaudeCodeが提示し、ユーザーの確認を得てから実行する（[CLAUDE.md](../../CLAUDE.md) の「commit運用」参照）。`git push` は人間が行う。
+`git add` は常に許可されている。`git commit` / `git push` / `git merge` はdenyリストでは禁止せず、対象コミット・プッシュ先・マージ元をClaudeCodeが提示し、ユーザーの明示的な確認を得てから実行する（[CLAUDE.md](../../CLAUDE.md) の「commit運用」参照）。
 
 ### 2. リポジトリの「地図」が常に読み込まれる
 
@@ -120,11 +123,11 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 ### 7. 実装・レビューループスキル（implement-review-loop）
 
 `/implement-review-loop <UC名 or ドメイン名>` で起動するユーザー明示型スキル。
-kotlin-implementer と code-reviewer を APPROVED が出るまで最大3回ループする**救済措置**。
+test-scenario-planner → kotlin-implementer → code-reviewer → test-reviewer を APPROVED が出るまで最大3回ループする**救済措置**。
 通常は同一セッション内でメイン AI がこのフローを自動実行するが、
 AI 側の理由でうまくループできない場合や改めてスキルとして実行したい場合に使う。
 
-前提条件: db-designer / api-designer の設計書が作成済みで、人間が設計を承認済みであること。
+前提条件: db-designer / api-designer の設計書が作成済みで、人間が設計を承認済みであること。test-scenario-planner によるシナリオ承認ゲートもループ内に含まれる。
 
 → **使い方**:
 ```
@@ -155,6 +158,8 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0011](../adr/AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md) | doc-maintainerの構造チェックと内容チェックへの分割 | Accepted |
 | [AI-ADR-0012](../adr/AI-ADR-0012-エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う.md) | エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う | Accepted |
 | [AI-ADR-0013](../adr/AI-ADR-0013-LLMとスクリプトの役割分離とglobルール採用とtest-reviewer順次分離.md) | LLMとスクリプトの役割分離・globルール採用・test-reviewer順次分離 | Accepted |
+| [AI-ADR-0014](../adr/AI-ADR-0014-AIのgit-gh操作権限を3層モデルで整理.md) | AIのgit/gh操作権限を3層モデル（自動・確認・ブロック）に整理 | Accepted |
+| [AI-ADR-0015](../adr/AI-ADR-0015-タスク開始時にTodoWriteでプランを作成し見える範囲と見えない範囲を明示する.md) | タスク開始時にTodoWriteでプランを作成し見える範囲・見えない範囲を明示する | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 

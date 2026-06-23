@@ -68,7 +68,11 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 3. 関連 ADR を確認する（特に APP-ADR-0001・0008）
 4. 既存の実装ファイルを `src/` 配下で確認し、命名規則・パッケージ構成を踏襲する
 5. Entity → Repository → Service → Controller の順で実装する
-6. テストコードを作成する。テストコードの規約は [test-rules.md](../../.claude/rules/test-rules.md) を参照すること（`updatedAt`/`updatedBy` 検証・アサーション種別・TDD 原則等）
+6. テストコードを作成する:
+   - `test-scenario-planner` が生成したシナリオ一覧が渡されている場合は、それを網羅するテストを書く
+   - シナリオ一覧がない場合は [test-rules.md](../../.claude/rules/test-rules.md) の観点から独自に設計する
+   - テストコードを先に書き、`./gradlew test` で失敗（赤）することを確認してから実装を進める（TDD）
+   - 実装完了後に `./gradlew test` で全テストが通る（緑）ことを確認する
 7. `./gradlew build` でビルドエラーがないことを確認する
 
 ## 出力

@@ -16,8 +16,8 @@
 | `.claude/agents/` | サブエージェント定義（役割・呼び出し条件・出力形式） |
 | `.claude/rules/` | glob ルール（ファイルタイプ限定で自動適用されるコンテキスト） |
 | `.claude/skills/` | 救済スキル（セッション切れ・迷子時の再起動手順） |
-| `.claude/settings.json` | 禁止操作のブロック設定（`git push` / `rm` 系等）― ガードレール的な側面を持つが、ClaudeCode セッション設定として一体管理するためハーネスに分類 |
-| `.claude/hooks/` | セッション計測・ナビゲーション指標収集（SessionStart / PostToolUse / Stop） |
+| `.claude/settings.json` | 禁止操作のブロック設定（`gh pr merge` / `git reset --hard` / `rm` 系等）― ガードレール的な側面を持つが、ClaudeCode セッション設定として一体管理するためハーネスに分類 |
+| `.claude/hooks/` | セッション計測・ナビゲーション指標収集・doc-maintainer チェックリマインダー（SessionStart / PostToolUse / Stop） |
 | `docs/design-docs/core-beliefs.md` | 運用原則・設計思想（ハーネスの設計根拠） |
 | `docs/adr/` | アーキテクチャ決定記録（ADR / AI-ADR） |
 | `docs/exec-plans/` | 実行計画（フルプランでの進捗・意思決定ログ） |

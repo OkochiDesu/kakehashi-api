@@ -46,6 +46,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 | [adr-validator](.claude/agents/adr-validator.md) | ADR・AI-ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
 | [db-designer](.claude/agents/db-designer.md) | Flywayマイグレーションスクリプトの設計・作成 |
 | [api-designer](.claude/agents/api-designer.md) | REST APIエンドポイントの設計（kotlin-implementerへの入力） |
+| [test-scenario-planner](.claude/agents/test-scenario-planner.md) | API設計書承認後、実装前にテストシナリオ一覧を生成し人間の承認ゲートを設ける（kotlin-implementer への入力） |
 | [kotlin-implementer](.claude/agents/kotlin-implementer.md) | Spring Boot (Kotlin) 実装（Entity/Repository/Service/Controller） |
 | [class-diagram-updater](.claude/agents/class-diagram-updater.md) | kotlin-implementer完了後に `src/` 配下のREADME.md（クラス図・関連図）を自動生成・更新 |
 | [src-doc-maintainer](.claude/agents/src-doc-maintainer.md) | class-diagram-updater完了後に `src/` 内README.mdとコードの整合性をチェック |
@@ -67,7 +68,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 | スキル | 用途 |
 |------|------|
 | [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） |
-| [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
+| [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。test-scenario-planner→kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
 
 ## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）
 
@@ -94,4 +95,4 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ## 禁止事項・安全設定
 
-破壊的操作（`git push`、`rm`、`find -delete`、`rsync --delete`、外部ダウンロード等）の制限と、`git commit` の運用ルール（コミットメッセージと差分を提示し確認後にAIが実行可、`git push` は人間のみ）は [CLAUDE.md](CLAUDE.md) および [.claude/settings.json](.claude/settings.json) を参照。
+破壊的操作（`rm`、`find -delete`、`rsync --delete`、外部ダウンロード等）の制限と、`git commit` / `git push` の運用ルール（対象コミット・プッシュ先を提示し明示的な確認後にAIが実行）は [CLAUDE.md](CLAUDE.md) および [.claude/settings.json](.claude/settings.json) を参照。

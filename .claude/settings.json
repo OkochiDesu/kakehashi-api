@@ -11,8 +11,8 @@
       "Bash(gh api repos/*/pulls/*/comments/*/replies --method POST*)"
     ],
     "deny": [
-      "Bash(git push*)",
       "Bash(git reset --hard*)",
+      "Bash(gh pr merge*)",
       "Bash(git clean*)",
       "Bash(rm *)",
       "Bash(rm)",
@@ -41,6 +41,10 @@
           {
             "type": "command",
             "command": "bash /kakehashi-api/.claude/hooks/tool-counter.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/docs-change-check.sh"
           }
         ]
       }
