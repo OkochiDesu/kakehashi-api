@@ -19,7 +19,7 @@ fi
 
 # Edit または Write ツールで docs/ 配下のファイルを変更した場合
 if [[ "$tool_name" == "Edit" || "$tool_name" == "Write" ]]; then
-  if [[ "$file_path" == *"/docs/"* ]]; then
+  if [[ "$file_path" == *"/docs/"* || "$file_path" == "docs/"* ]]; then
     if [ ! -f "$REMINDED_FILE" ]; then
       touch "$REMINDED_FILE"
       msg="📋 [Doc-Maintainer Reminder] docs/ 配下のファイルを変更しました。コミット前に doc-maintainer-structure サブエージェントで索引・リンク整合性をチェックしてください（新規ファイル追加を含む場合は doc-maintainer-content も並列で実行）。"

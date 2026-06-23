@@ -39,7 +39,7 @@ model: sonnet
 - **楽観ロック競合**: `update()` が 0件 → `OptimisticLockException`。`currentVersion` が DB の現在バージョンと一致することまで検証ポイントに含める（根拠: APP-ADR-0005）
 - **権限エラー**: `isAdmin = false` / `operatorIsAdmin = false` → `ForbiddenOperationException`
 - **ステータス遷移不正**: `canTransitionTo()` が false → `InvalidStatusTransitionException`
-- **Not Found**: 対象が存在しない → `AccountNotFoundException`
+- **Not Found**: 対象が存在しない → 対象ドメインの `XxxNotFoundException`（例: `AccountNotFoundException`）。例外名は実装対象の UseCase に合わせること
 - **不正な入力値**: 未定義の `roleCode` など → `IllegalArgumentException`
 
 ## 出力フォーマット
