@@ -54,6 +54,7 @@ AIがミスを犯したとき、「次は気をつける」という口約束で
   - **設計判断レベルの問題** → AI-ADR として記録
 - 仕組み化の提案はAIが自動で行い、ユーザーが確認・承認する（ヒューマンインザループを維持）
 - 参考: [Harness Engineering](../references/harness-engineering/openai-harness-engineering.md)
+- 参照: [harness-and-guardrails.md](harness-and-guardrails.md)（ファイル・ツールのハーネス/ガードレール2層分類）
 
 ## 8. ADRとexec-plan意思決定ログの使い分け
 

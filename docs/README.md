@@ -56,6 +56,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [exec-plans運用ルール](exec-plans/README.md) - 実行計画（進行中/完了/技術的負債）
 - [design-docs/index.md](design-docs/index.md) - design-docs索引
 - [design-docs/core-beliefs.md](design-docs/core-beliefs.md) - 運用原則・思想
+- [design-docs/harness-and-guardrails.md](design-docs/harness-and-guardrails.md) - ハーネス（事前設計層）とガードレール（事後検証層）の構成
 
 ## Requirements（要件定義）
 
