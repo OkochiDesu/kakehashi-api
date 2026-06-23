@@ -3,13 +3,13 @@
 ## 目次
 
 - [Platform / DevEx](#platform--devex)
-  - [コーディング規約](#コーディング規約) / [カバレッジ](#カバレッジ) / [CI 設計課題](#ci-設計課題) / [CI パフォーマンス](#ci-パフォーマンス) / [Copilot 活用](#copilot-活用) / [AI駆動ドキュメンテーション](#ai駆動ドキュメンテーションナレッジ管理)
+  - [コーディング規約](#コーディング規約) / [カバレッジ](#カバレッジ) / [ArchUnit](#archunit-によるアーキテクチャ依存方向チェック) / [CI 設計課題](#ci-設計課題) / [CI パフォーマンス](#ci-パフォーマンス) / [Copilot 活用](#copilot-活用) / [AI駆動ドキュメンテーション](#ai駆動ドキュメンテーションナレッジ管理)
 - [Frontend](#frontend)
   - [フロントエンド連携](#フロントエンド連携) / [フロントエンド実装・UI開発](#フロントエンド実装ui開発)
 - [Backend](#backend)
-  - [認証・セキュリティ](#認証セキュリティ) / [認証・認可](#認証認可) / [帳票出力](#経歴書の帳票出力excelpdf) / [キャリアシート基盤](#キャリアシートダイナミックフォーム基盤) / [利用状況分析](#利用状況分析step2-aiレコメンド連携) / [コンタクト経路](#コンタクト経路の見直しstep2) / [クラウド選定](#クラウド事業者ホスティング選定)
+  - [CI統合テスト環境](#ci統合テスト環境マイグレーション実行) / [認証・セキュリティ](#認証セキュリティ) / [認証・認可](#認証認可) / [deactivated バッチ](#deactivated-自動遷移バッチscheduled) / [テスト戦略](#テスト戦略step1-実装後に確定) / [帳票出力](#経歴書の帳票出力excelpdf) / [キャリアシート基盤](#キャリアシートダイナミックフォーム基盤) / [利用状況分析](#利用状況分析step2-aiレコメンド連携) / [コンタクト経路](#コンタクト経路の見直しstep2) / [クラウド選定](#クラウド事業者ホスティング選定)
 - [Cross-cutting](#cross-cutting)
-  - [クリーンアーキテクチャの依存方向維持](#クリーンアーキテクチャの依存方向維持) / [冪等性キーチェック基盤](#冪等性キーチェック基盤)
+  - [冪等性キーチェック基盤](#冪等性キーチェック基盤)
 - [Done（履歴）](#done履歴)
 
 ## Platform / DevEx
@@ -31,6 +31,15 @@
   - 例: インフラ層（MyBatis Mapper・設定クラス）はカバレッジ計測から除外
 - `jacocoCoverageVerification` タスクに除外パターンと閾値を設定する
   - MyBatis導入後にパッケージ構成が固まってから対応する
+
+### ArchUnit によるアーキテクチャ依存方向チェック
+
+- `com.tngtech.archunit:archunit-junit5` を `testImplementation` に追加する
+- `domain` → `usecase` → `presentation` / `infrastructure` の依存方向をテストコードで宣言的に検証する
+  - 例: usecase 層が presentation 層のクラスを参照していれば `./gradlew test` で即検出
+  - 例: domain 層が infrastructure 層に依存していれば検出
+- CI の `verify` ジョブでそのまま検出される（追加設定不要）
+- 分類: [harness-and-guardrails.md](design-docs/harness-and-guardrails.md) のガードレール層（ビルド時自動検証）
 
 ### CI 設計課題
 
@@ -229,6 +238,7 @@
 
 - **JWT / 認証トークン設計**: Google の `id_token` をそのまま Bearer として使うか、UC-A1 コールバック後に自前 JWT を発行するかを決定し、Spring Security の `oauth2ResourceServer` / カスタムフィルターを実装する。`SecurityContextHolder` から accountId を取得する方法（`@AuthenticationPrincipal` 等）もここで確定する。
 - **`provisional` 状態のアクセス制御**: `POST /api/accounts/me/registration` は `provisional` のアカウントのみ実行可。他エンドポイントへの `provisional` アクセスをどのレイヤー（Spring Security フィルター / `@PreAuthorize`）で弾くかを決定する。
+- **Controller の依存方向維持**: 各メソッドに認証・DB検索ロジックを書かず、`HandlerMethodArgumentResolver` 等で共通化する。Controller 引数はドメインモデル（例: `@LoginEngineerId engineerId: EngineerId`）のみとし、UseCase / Domain 層に JWT・HTTP ヘッダーなど Web 概念を持ち込まない。
 
 ### deactivated 自動遷移バッチ（`@Scheduled`）
 
@@ -267,6 +277,11 @@
 #### 日本語フォントの管理
 
 - コンテナ環境およびPDF出力時の文字化けを防ぐため、`fonts-noto-cjk` をインストールし、Excelテンプレート内のフォント指定と整合性を保つ。
+
+#### アーキテクチャ分離（実装時の注意）
+
+- UseCase 層は `SkillSheetExporter` インターフェースのみに依存させる。
+- Excel 操作・LibreOffice 呼び出しの具体的知識はすべて Infrastructure 層に閉じ込め、将来的なライブラリ変更に備える。
 
 ### キャリアシート・ダイナミックフォーム基盤
 
@@ -313,19 +328,6 @@
 - デプロイ先・構成が決まった段階でADRに記録する
 
 ## Cross-cutting
-
-### クリーンアーキテクチャの依存方向維持
-
-#### 認証処理の共通化とクリーンアーキテクチャの維持
-
-- Controllerの各メソッドに認証やDB検索のロジックを書かず、`HandlerMethodArgumentResolver` 等を利用して処理を共通化する。
-- Controller層で認証・変換を完結させ、引数としてドメインモデル（例: `@LoginEngineerId engineerId: EngineerId`）だけを受け取るようにする。
-- ユースケース層やドメイン層には、JWTやHTTPヘッダーなどWeb特有の概念を一切持ち込ませない。
-
-#### 帳票出力でのアーキテクチャ分離
-
-- ユースケース層は `SkillSheetExporter` インターフェースのみに依存させる。
-- Excel操作や外部コマンド発行（LibreOffice）の具体的知識はすべてインフラ層に閉じ込め、将来的なライブラリ変更に備える。
 
 ### 冪等性キーチェック基盤
 

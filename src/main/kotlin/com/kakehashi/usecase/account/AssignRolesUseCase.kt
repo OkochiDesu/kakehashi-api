@@ -23,8 +23,8 @@ class AssignRolesUseCase(
 ) {
     // roles テーブルの初期データ UUID（V1 migration で固定値を投入）
     companion object {
-        val ADMIN_ROLE_ID: UUID = UUID.fromString("01970000-0000-7000-8000-000000000001")
-        val VIEW_PERSONAL_INFO_ROLE_ID: UUID = UUID.fromString("01970000-0000-7000-8000-000000000002")
+        private val ADMIN_ROLE_ID: UUID = UUID.fromString("01970000-0000-7000-8000-000000000001")
+        private val VIEW_PERSONAL_INFO_ROLE_ID: UUID = UUID.fromString("01970000-0000-7000-8000-000000000002")
 
         fun roleIdFor(roleCode: RoleCode): UUID =
             when (roleCode) {

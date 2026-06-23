@@ -25,6 +25,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - Controller: リクエスト受付・バリデーション・レスポンス変換のみ。ビジネスロジックを持たない
   - Service: ビジネスロジック・トランザクション管理
   - Repository: DB アクセスのみ（MyBatis または Spring Data JPA）
+- **APP-ADR-0010 の UseCase Input/Output 設計**: UseCase の `Input` / `Output` はそのクラス内にネストした `data class` で定義する。Builder パターン・ファクトリメソッドは使わない（Kotlin の名前付き引数で十分）。`companion object` 等の内部実装詳細（UUID 定数等）は `private` にして呼び出し側に漏らさない
 - **APP-ADR-0007 の認可チェック**: アクセス制御は `account_roles` の permission（`admin` / `view_personal_info`）に基づく。`visibility_rules` は廃止済みのため参照しない
 - **APP-ADR-0005 の楽観ロック**: `accounts` 等の対象テーブルには `version` チェックを実装する。楽観ロック競合（UPDATE 0件）は `OptimisticLockException` をスローし、再取得した currentVersion を渡す
 - セキュリティ: SQL インジェクション・XSS・認可バイパスが発生しないコードを書く。ユーザー入力は API バウンダリでのみバリデートし、内部では信頼する

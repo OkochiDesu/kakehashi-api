@@ -38,7 +38,13 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.ninja-squad:springmockk:4.0.2")
-    // CI環境でのDB統合テストが必要になった時点でTestcontainersを追加予定
+    // ArchUnit: レイヤー間依存方向をビルド時に自動検証（ガードレール）
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
+    // Testcontainers: PostgreSQL を使ったリポジトリ統合テスト・Flyway マイグレーション検証
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

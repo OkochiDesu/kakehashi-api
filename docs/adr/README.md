@@ -48,6 +48,7 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 | [APP-ADR-0004](APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) | 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL） | コーディング | Accepted |
 | [APP-ADR-0008](APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) | DDD + CQRS アーキテクチャ原則の採用 | コーディング | Accepted |
 | [APP-ADR-0009](APP-ADR-0009-APIパスにバージョンプレフィックスを含めない.md) | API パスにバージョンプレフィックスを含めない | コーディング | Accepted |
+| [APP-ADR-0010](APP-ADR-0010-UseCaseのInputOutputをネストしたdataclassで定義しBuilderを使わない.md) | UseCase の Input/Output 設計パターン（ネスト data class） | コーディング | Accepted |
 | [APP-ADR-0001](APP-ADR-0001-テーブル設計共通方針.md) | テーブル設計共通方針 | 業務仕様 | Accepted |
 | [APP-ADR-0002](APP-ADR-0002-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
 | [APP-ADR-0003](APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted（決定4のみAPP-ADR-0007で置換） |
