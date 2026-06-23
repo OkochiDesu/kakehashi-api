@@ -32,10 +32,10 @@
 
 | ファイル / ツール | 役割 |
 |---|---|
-| `.githooks/pre-commit` | 英語エラーメッセージ・`assert()` 誤使用・シークレット等の静的パターン検出（commit をブロック） |
+| `.githooks/pre-commit` | 英語エラーメッセージ・`assert()` 誤使用・`@Container` に `@JvmStatic` 欠落・シークレット等の静的パターン検出（commit をブロック） |
 | `shellcheck`（pre-commit 内） | シェルスクリプトの静的解析 |
 | `./gradlew build`（型チェック・コンパイル） | Kotlin の型エラー・コンパイルエラーを検出 |
-| `./gradlew test`（テストスイート） | ビジネスロジックの正確性・回帰を検出 |
+| `./gradlew test`（テストスイート） | ビジネスロジックの正確性・回帰を検出。**ArchUnit**（`ArchitectureTest.kt`）でクリーンアーキテクチャの依存方向（domain / usecase / infrastructure / presentation）を自動検証 |
 | `./gradlew spotlessCheck`（フォーマット） | コードスタイルの統一を強制 |
 
 **設計原則**: ガードレールは人間の確認なしに動作する自動検証であり、判断を伴わない確実な検出に絞る。判断が必要なものはハーネス（LLM エージェント）が担う。
@@ -52,6 +52,17 @@
 | ADR 準拠・アーキテクチャ整合 | ハーネス（code-reviewer 等） | 仕様・経緯の理解が必要 |
 
 この分離は [AI-ADR-0013](../adr/AI-ADR-0013-LLMとスクリプトの役割分離とglobルール採用とtest-reviewer順次分離.md) で決定した。
+
+---
+
+## ArchUnit ルールの例外設計
+
+`ArchitectureTest.kt` の usecase レイヤールールには APP-ADR-0008 に基づく例外がある：
+
+- **非 Query クラス**（UseCase 系）: `infrastructure` / `presentation` への依存を禁止
+- **Query クラス**（`*Query` 命名）: MyBatis Mapper（`infrastructure`）への依存を許容。ただし `presentation` への依存は禁止
+
+この例外は意図的な設計であり、ルールを削除・緩和するのではなく「非 Query / Query に分割」することで設計書と整合させている。
 
 ---
 

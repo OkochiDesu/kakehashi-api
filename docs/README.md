@@ -39,6 +39,7 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [Gradle Wrapper Lock Contention](troubleshooting/gradle-wrapper-lock-contention.md)
 - [GitHub PR マージ状態 UNKNOWN](troubleshooting/github-merge-status-unknown.md)
 - [Dev Container shellcheck nanolayer GLIBC エラー](troubleshooting/devcontainer-shellcheck-nanolayer-glibc.md)
+- [Testcontainers: Kotlin companion object で @JvmStatic が必要](troubleshooting/testcontainers-jvmstatic-kotlin.md)
 
 ---
 

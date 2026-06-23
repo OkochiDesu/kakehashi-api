@@ -119,4 +119,28 @@ if [[ -n "$staged_test_kt" ]]; then
     fi
 fi
 
+# src/test/kotlin 配下の staged *Test.kt ファイルで @Container を使っているのに
+# @JvmStatic がない場合はコミットをブロックする
+# Kotlin の companion object は @JvmStatic なしでは JVM 上で static でないため
+# @ServiceConnection が Spring コンテキスト起動前に登録できず NoSuchBeanDefinitionException が連鎖する
+# 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md
+if [[ -n "$staged_test_kt" ]]; then
+    missing_jvmstatic=$(
+        echo "$staged_test_kt" | while IFS= read -r f; do
+            if git show ":${f}" | grep -q '@Container' && ! git show ":${f}" | grep -q '@JvmStatic'; then
+                echo "  ${f}"
+            fi
+        done
+    )
+    if [[ -n "$missing_jvmstatic" ]]; then
+        echo "[pre-commit] @Container を持つ companion object には @JvmStatic が必要です（@ServiceConnection が正しく動作しない）:"
+        echo "$missing_jvmstatic"
+        echo "  詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md"
+        echo ""
+        echo "誤検知の場合は --no-verify でスキップできます:"
+        echo "  git commit --no-verify"
+        exit 1
+    fi
+fi
+
 exit 0

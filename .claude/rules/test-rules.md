@@ -37,6 +37,24 @@ globs:
 
 バリデーション挙動を変更した diff（`runCatching.getOrNull()` 廃止・例外スロー追加・型変換ロジック変更等）がある場合は、**同じ diff 内**にエラーパステストを追加・更新すること。
 
+## Testcontainers 統合テスト
+
+Testcontainers を使う `@SpringBootTest` 統合テストでは以下を遵守すること：
+
+- **`companion object` の `@Container` には必ず `@JvmStatic` を付与する**: Kotlin の companion object プロパティは `@JvmStatic` なしでは JVM 上で static フィールドにならない。JUnit 5 の `@Container` 拡張はクラスレベルライフサイクルのために static を要求するため、`@JvmStatic` がないと `@ServiceConnection` が Spring コンテキスト起動前にコンテナを登録できず `NoSuchBeanDefinitionException` が連鎖する（pre-commit でも検出する）
+- `@ActiveProfiles("integration-test")` を付与し devcontainer の DB に接続しないようにすること
+- `@Transactional` を付与してテスト間のデータ汚染を防ぐこと
+
+```kotlin
+// 良い例
+companion object {
+    @Container
+    @ServiceConnection
+    @JvmStatic
+    val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+}
+```
+
 ## テスト命名
 
 テスト名は「`正常系/異常系： 条件 → 期待結果`」の形式で書く。

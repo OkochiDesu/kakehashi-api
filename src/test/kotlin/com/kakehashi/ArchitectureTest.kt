@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test
  *   presentation → usecase → domain ← infrastructure
  *   config → すべてのレイヤー（DI 配線のため）
  *
+ * Query UseCase（APP-ADR-0008）: MyBatis Mapper（infrastructure）をドメインバイパスで直接参照するため
+ * infrastructure への依存を例外として許容する。ただし presentation への依存は禁止。
+ *
  * 参照: harness-and-guardrails.md（ガードレール層）、APP-ADR-0010
  */
 class ArchitectureTest {
@@ -31,16 +34,31 @@ class ArchitectureTest {
     }
 
     @Test
-    fun `usecase層はinfrastructure・presentation層に依存しない`() {
+    fun `usecase非Query層はinfrastructure・presentation層に依存しない`() {
         noClasses()
             .that()
             .resideInAPackage("..usecase..")
+            .and()
+            .haveSimpleNameNotEndingWith("Query")
             .should()
             .dependOnClassesThat()
             .resideInAnyPackage(
                 "..infrastructure..",
                 "..presentation..",
             ).check(classes)
+    }
+
+    @Test
+    fun `usecaseQuery層はpresentation層に依存しない（APP-ADR-0008）`() {
+        noClasses()
+            .that()
+            .resideInAPackage("..usecase..")
+            .and()
+            .haveSimpleNameEndingWith("Query")
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage("..presentation..")
+            .check(classes)
     }
 
     @Test

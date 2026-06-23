@@ -36,6 +36,7 @@ class AccountRepositoryImplIntegrationTest {
     companion object {
         @Container
         @ServiceConnection
+        @JvmStatic
         val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
     }
 
