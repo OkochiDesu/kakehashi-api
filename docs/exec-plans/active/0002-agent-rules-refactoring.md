@@ -49,4 +49,3 @@
 ## 残課題・引き継ぎ事項
 
 - Controller 専用の glob ルール（`controller-rules.md`）は、Controller 観点のルールが十分蓄積してから追加を検討（現時点では `code-reviewer.md` に残す）
-- `implement-review-loop` スキルの test-reviewer 組み込みは Phase 3 完了後にスキル側を更新する

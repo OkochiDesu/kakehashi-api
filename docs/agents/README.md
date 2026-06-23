@@ -165,4 +165,4 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 Step1実装サポート用マルチエージェント構成（db-designer / api-designer / kotlin-implementer / code-reviewer）は構築済み。
 詳細・ワークフローは [exec-plans/active/0001-requirements-definition-multiagent.md](../exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
 
-次のステップ: Step1の実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始する。
+Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）は完了済み（2026-06-22）。次のステップは deactivated 自動遷移バッチ・カバレッジ設定・Controller 統合テスト戦略（詳細は [docs/TODO.md](../../docs/TODO.md) 参照）。
