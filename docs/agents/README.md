@@ -19,7 +19,7 @@
 
 | ファイル | 役割 | 誰が読むか |
 |------|------|------|
-| [`.claude/settings.json`](../../.claude/settings.json) | ClaudeCodeの権限設定。`git push`、`rm`、`find -delete`、`rsync --delete`、`curl`/`wget` 等を禁止。`git commit` はdenyリストに含めず、CLAUDE.mdの「commit運用」に従い都度確認のうえ実行可 | ClaudeCode（自動適用） |
+| [`.claude/settings.json`](../../.claude/settings.json) | ClaudeCodeの権限設定。`gh pr merge`・`git reset --hard`・`rm`・`find -delete`・`rsync --delete`・`curl`/`wget` 等を禁止。`git commit`/`push`/`merge` はdenyリストに含めず、CLAUDE.mdの「commit運用」に従い確認のうえ実行可 | ClaudeCode（自動適用） |
 | [`CLAUDE.md`](../../CLAUDE.md) | ClaudeCodeの行動指針（禁止事項・推奨事項） | ClaudeCode（自動で読み込まれる） |
 | [`AGENTS.md`](../../AGENTS.md) | リポジトリ全体の「目次」。docsの構成・サブエージェント一覧へのリンク集 | AIエージェント全般（自動で読み込まれる） |
 | [`.claude/agents/doc-maintainer-structure.md`](../../.claude/agents/doc-maintainer-structure.md) | 索引・リンク整合性・`.claude/`構成・ToCチェック（コミット前軽量チェック用） | ClaudeCode（呼び出すと動く） |
@@ -57,12 +57,13 @@
 
 ClaudeCodeに何を依頼しても、以下は実行されない（`.claude/settings.json` で拒否）。
 
-- `git push`
+- `gh pr merge`（GitHub PR のマージ）
+- `git reset --hard` / `git clean`
 - `rm` / `rmdir` / `find -delete` / `rsync --delete`
 - `curl` / `wget` などインターネットからのダウンロード
 
 → **特別な操作は不要**。普段通り依頼するだけで、これらは自動的に弾かれる。
-`git add` は常に許可されている。`git commit` はdenyリストでは禁止せず、コミットメッセージと `git diff --cached` をClaudeCodeが提示し、ユーザーの確認を得てから実行する（[CLAUDE.md](../../CLAUDE.md) の「commit運用」参照）。`git push` は人間が行う。
+`git add` は常に許可されている。`git commit` / `git push` / `git merge` はdenyリストでは禁止せず、対象コミット・プッシュ先・マージ元をClaudeCodeが提示し、ユーザーの明示的な確認を得てから実行する（[CLAUDE.md](../../CLAUDE.md) の「commit運用」参照）。
 
 ### 2. リポジトリの「地図」が常に読み込まれる
 
@@ -157,6 +158,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0011](../adr/AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md) | doc-maintainerの構造チェックと内容チェックへの分割 | Accepted |
 | [AI-ADR-0012](../adr/AI-ADR-0012-エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う.md) | エラーメッセージ日本語化の横展開チェックをcode-reviewerエージェント内grepで行う | Accepted |
 | [AI-ADR-0013](../adr/AI-ADR-0013-LLMとスクリプトの役割分離とglobルール採用とtest-reviewer順次分離.md) | LLMとスクリプトの役割分離・globルール採用・test-reviewer順次分離 | Accepted |
+| [AI-ADR-0014](../adr/AI-ADR-0014-AIのgit-gh操作権限を3層モデルで整理.md) | AIのgit/gh操作権限を3層モデル（自動・確認・ブロック）に整理 | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 
