@@ -34,7 +34,7 @@
 - [x] `AGENTS.md` に `test-reviewer` と `.claude/rules/` を追記
 - [x] `docs/agents/README.md` に `test-reviewer`・glob ルールを追記
 - [x] `docs/exec-plans/README.md` の「次に使用できる番号」を 0003 に更新
-- [ ] `docs/README.md` 更新（必要に応じて確認済み → 不要）
+- [x] `docs/README.md` 更新（harness-and-guardrails.md のリンクを追記済み）
 
 ### Phase 7: 旧重複コンテンツのクリーンアップ（ユーザー確認後）
 - [x] `code-reviewer.md` から APP-ADR-0005 のテスト検証記述を削除（test-reviewer に委譲済みのため）

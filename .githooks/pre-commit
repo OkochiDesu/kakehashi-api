@@ -82,8 +82,8 @@ if [[ -n "$staged_main_kt" ]]; then
             git diff --cached -U0 -- "$f" \
               | grep '^+' | grep -v '^+++' \
               | grep -E 'require\(|check\(|checkNotNull\(|requireNotNull\(|Exception\(' \
-              | grep -E '\{ "[A-Za-z]' \
-              | grep -vE '[^\x00-\x7F]' \
+              | grep -E '\{ "' \
+              | LC_ALL=C grep -v '[^ -~]' \
               | sed "s|^|  ${f}: |"
         done
     )

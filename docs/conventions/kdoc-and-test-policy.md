@@ -87,7 +87,7 @@
 
 - 正常系: 期待通りの状態遷移・戻り値。**状態を変更する UseCase では、`updatedAt` が更新されていること・`updatedBy` が操作者 ID になっていることを同じテストケース内で検証すること**（別テストに分離しない）
 - 楽観ロック競合: `update()` が 0件 → `OptimisticLockException`
-- 権限エラー: `isAdmin = false` → `ForbiddenOperationException`
+- 権限エラー: `isAdmin = false` / `operatorIsAdmin = false` → `ForbiddenOperationException`（フィールド名は UseCase ごとに異なる場合がある）
 - ステータス遷移不正: `canTransitionTo()` が false → `InvalidStatusTransitionException`
 - Not Found: 対象アカウントが存在しない → `AccountNotFoundException`
 - 不正な入力値: 未定義の `roleCode` など → `IllegalArgumentException` → `GlobalExceptionHandler` で 400 変換
