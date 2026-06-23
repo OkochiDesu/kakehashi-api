@@ -16,6 +16,7 @@ json_escape() { local s="${1//\\/\\\\}"; s="${s//\"/\\\"}"; printf '%s' "$s"; }
 # --- 1. セッション計測開始 ---
 date +%s > "$SESSION_START_FILE"
 echo "0" > "$TOOL_COUNT_FILE"
+rm -f /tmp/claude_kakehashi_docs_reminded
 
 # --- 2. 前回セッションサマリー読み込み ---
 prev_msg=""

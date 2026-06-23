@@ -41,6 +41,10 @@
           {
             "type": "command",
             "command": "bash /kakehashi-api/.claude/hooks/tool-counter.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /kakehashi-api/.claude/hooks/docs-change-check.sh"
           }
         ]
       }
