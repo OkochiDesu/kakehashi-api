@@ -123,23 +123,30 @@ fi
 # @JvmStatic がない場合はコミットをブロックする
 # companion object の @Container は @JvmStatic なしでは JVM 上で static にならず正常動作しない
 # インスタンスフィールドの @Container（テストごとに起動）は companion object 不要のため対象外
+# アノテーションブロック（@で始まる連続行）全体を対象に @JvmStatic の有無を判定する
+# （@JvmStatic と @Container の順序は問わない）
 # 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md
 if [[ -n "$staged_test_kt" ]]; then
     missing_jvmstatic=$(
         echo "$staged_test_kt" | while IFS= read -r f; do
             if git show ":${f}" | awk '
-                /companion[[:space:]]+object/ { in_co=1; depth=0 }
-                in_co && /@Container/ && prev !~ /@JvmStatic/ { bad=1 }
+                BEGIN { in_co=0; depth=0; ann=""; bad=0 }
+                /companion[[:space:]]+object/ { in_co=1; depth=0; ann="" }
                 in_co {
+                    if ($0 ~ /^[[:space:]]*@/) {
+                        ann = ann " " $0
+                    } else if ($0 !~ /^[[:space:]]*$/) {
+                        if (ann ~ /@Container/ && ann !~ /@JvmStatic/) bad=1
+                        ann=""
+                    }
                     line=$0
                     while(length(line)>0){
                         c=substr(line,1,1)
                         if(c=="{") depth++
-                        else if(c=="}"){depth--; if(depth<=0){in_co=0; break}}
+                        else if(c=="}"){depth--; if(depth<=0){in_co=0; ann=""; break}}
                         line=substr(line,2)
                     }
                 }
-                {prev=$0}
                 END{exit(bad?0:1)}
             '; then
                 echo "  ${f}"

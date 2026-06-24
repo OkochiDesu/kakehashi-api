@@ -77,6 +77,7 @@
   - **上記に加え、grep/正規表現で確実に検出できるパターンかを判断すること**（YES → `.githooks/pre-commit` にも追加。上記分類と組み合わせ可。判断基準は [harness-and-guardrails.md](docs/design-docs/harness-and-guardrails.md) 参照）
 - ADR（`{PREFIX}-ADR-XXXX-`、PREFIX: `APP` / `CICD` / `DOC`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
 - **ADR の `影響` 欄に実装方針（認可ロジック・楽観ロック・パス形式等）が記載されている場合、`.claude/agents/` 配下の関連エージェント定義（特に `kotlin-implementer.md` / `code-reviewer.md` / `api-designer.md`）が陳腐化していないか合わせて確認し、必要なら更新すること**
+- **バージョン文字列（Dockerイメージタグ・ライブラリバージョン等）をコード・設定で変更した場合は、`grep -r` で `docs/` および `.claude/rules/` の同一文字列を検索し、陳腐化した参照を一括更新すること**（例: テストコンテナのイメージタグを変更したら troubleshooting ドキュメントやテスト規約サンプルも更新）
 
 ## 関連ドキュメント
 - 全体マップ: [AGENTS.md](AGENTS.md)
