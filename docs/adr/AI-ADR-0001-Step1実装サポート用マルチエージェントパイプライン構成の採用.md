@@ -22,7 +22,7 @@
 Step1の要件定義（A〜E確定・ADR化）が概ね完了し、実装フェーズへ移行する段階に入った。
 実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を効率化し、かつ品質を担保するためのエージェント構成が必要になった。
 
-当初のexec-plan（[0001-requirements-definition-multiagent.md](../exec-plans/active/0001-requirements-definition-multiagent.md)）では、Phase 2のサブエージェントを「要件定義用」（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）として計画していたが、要件定義が概ね完了したため、実装サポートの優先度が高くなった。
+当初のexec-plan（[0001-requirements-definition-multiagent.md](../exec-plans/completed/0001-requirements-definition-multiagent.md)）では、Phase 2のサブエージェントを「要件定義用」（コンテキスト収集・ドメイン分析・要件ドラフト・レビュー）として計画していたが、要件定義が概ね完了したため、実装サポートの優先度が高くなった。
 
 ## 決定
 

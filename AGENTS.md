@@ -83,11 +83,11 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ### タスク開始時（exec-plan判定）
 1. タスクが複数PR/複数セッションに渡るか判定する。
-2. フルexec-plan（`docs/exec-plans/active/`）が必要か、軽量プラン（TodoWriteのみ）で十分かを人間に提案し、確認を取る。
+2. フルexec-plan（`docs/exec-plans/pending/` に作成 → 着手時に `active/` へ移動）が必要か、軽量プラン（TodoWriteのみ）で十分かを人間に提案し、確認を取る。
 3. 判定基準・更新タイミングは [docs/exec-plans/README.md](docs/exec-plans/README.md) を参照。
 
 ### 要件定義（準備中）
-マルチエージェント構成の詳細は [docs/exec-plans/active/0001-requirements-definition-multiagent.md](docs/exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
+マルチエージェント構成の詳細は [docs/exec-plans/completed/0001-requirements-definition-multiagent.md](docs/exec-plans/completed/0001-requirements-definition-multiagent.md) を参照。
 
 ### セッション終了時（ナビゲーション指標記録）
 ユーザーから明確な区切りがあったら、[docs/agents/navigation-metrics.md](docs/agents/navigation-metrics.md) に

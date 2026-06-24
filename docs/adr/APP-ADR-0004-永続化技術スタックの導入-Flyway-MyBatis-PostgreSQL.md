@@ -25,7 +25,7 @@
 
 要件定義フェーズでデータベース・マイグレーション・O/Rマッパーの方針は「導入予定」として記述されていたが、ビルド依存・接続設定・マイグレーション配置といった実際のセットアップは未着手だった（[docs/requirements/README.md 技術スタック表](../requirements/README.md)）。
 
-Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始するにあたり（[exec-plan 0001](../exec-plans/active/0001-requirements-definition-multiagent.md)）、db-designerがFlywayマイグレーションSQL（`V*.sql`）を生成できる土台が必要になった。これに伴い、`build.gradle.kts` に永続化関連の依存を追加し、`application.properties` にデータソース・Flyway・MyBatisの設定を追加した。
+Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始するにあたり（[exec-plan 0001](../exec-plans/completed/0001-requirements-definition-multiagent.md)）、db-designerがFlywayマイグレーションSQL（`V*.sql`）を生成できる土台が必要になった。これに伴い、`build.gradle.kts` に永続化関連の依存を追加し、`application.properties` にデータソース・Flyway・MyBatisの設定を追加した。
 
 技術選定自体は要件定義で既に方針として明示されている。
 

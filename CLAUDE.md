@@ -86,5 +86,5 @@
 - 全体マップ: [AGENTS.md](AGENTS.md)
 - 運用原則: [docs/design-docs/core-beliefs.md](docs/design-docs/core-beliefs.md)
 - 実行計画（exec-plans）の運用ルール: [docs/exec-plans/README.md](docs/exec-plans/README.md)
-- マルチエージェント構成の詳細: [docs/exec-plans/active/0001-requirements-definition-multiagent.md](docs/exec-plans/active/0001-requirements-definition-multiagent.md)
+- マルチエージェント構成の詳細: [docs/exec-plans/completed/0001-requirements-definition-multiagent.md](docs/exec-plans/completed/0001-requirements-definition-multiagent.md)
 - ドキュメント整備サブエージェント（分割型）: [doc-maintainer-structure](.claude/agents/doc-maintainer-structure.md) / [doc-maintainer-content](.claude/agents/doc-maintainer-content.md)

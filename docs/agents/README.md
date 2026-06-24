@@ -87,7 +87,7 @@ doc-maintainerサブエージェントでdocs/の整合性をチェックして
 
 ### 4. 実行計画（exec-plans）と運用原則（design-docs）
 
-- 複数PR・複数セッションに渡る作業は [docs/exec-plans/active/](../exec-plans/README.md) に記録され、進捗・意思決定ログが追記されていく。
+- 複数PR・複数セッションに渡る作業は [docs/exec-plans/](../exec-plans/README.md)（pending/ → active/ → completed/）に記録され、進捗・意思決定ログが追記されていく。
 - このリポジトリで大事にしている考え方は [docs/design-docs/core-beliefs.md](../design-docs/core-beliefs.md) にまとまっている。
 - 1PR・1セッションで完結する小さな作業はexec-planファイルを作らず、TodoWriteのみで管理する。どちらにするかはClaudeCodeが提案し、人間が確認する。
 
@@ -168,6 +168,6 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 ## 今後の流れ（Phase 2）
 
 Step1実装サポート用マルチエージェント構成（db-designer / api-designer / kotlin-implementer / code-reviewer）は構築済み。
-詳細・ワークフローは [exec-plans/active/0001-requirements-definition-multiagent.md](../exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
+詳細・ワークフローは [exec-plans/completed/0001-requirements-definition-multiagent.md](../exec-plans/completed/0001-requirements-definition-multiagent.md) を参照。
 
 Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）は完了済み（2026-06-22）。次のステップは deactivated 自動遷移バッチ・カバレッジ設定・Controller 統合テスト戦略（詳細は [docs/TODO.md](../../docs/TODO.md) 参照）。

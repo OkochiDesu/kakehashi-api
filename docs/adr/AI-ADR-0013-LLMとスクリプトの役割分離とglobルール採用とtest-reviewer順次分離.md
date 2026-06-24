@@ -32,7 +32,7 @@
 - 関連: [AI-ADR-0001](AI-ADR-0001-Step1実装サポート用マルチエージェントパイプライン構成の採用.md)（マルチエージェントパイプライン構成）
 - 関連: [AI-ADR-0005](AI-ADR-0005-スキルの救済措置パターンと設計原則.md)（スキルの救済措置パターン）
 - 関連: [AI-ADR-0011](AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md)（doc-maintainer分割、同様の「役割に応じてエージェントを分割する」方針）
-- exec-plan: [0002-agent-rules-refactoring](../../docs/exec-plans/active/0002-agent-rules-refactoring.md)
+- exec-plan: [0002-agent-rules-refactoring](../../docs/exec-plans/completed/0002-agent-rules-refactoring.md)
 
 ## 背景
 

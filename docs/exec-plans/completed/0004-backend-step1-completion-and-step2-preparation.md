@@ -1,4 +1,9 @@
-# 0004: バックエンド Step1 完了 〜 Step2 準備ロードマップ
+# 0004: バックエンド Step1 完了 〜 Step2 準備ロードマップ（解体済み）
+
+> **このexec-planは解体済みです。**
+> PR単位の個別exec-planに分割しました:
+> Step1: [0005](../pending/0005-ci-integration-test-environment.md) / [0006](../pending/0006-authentication-google-sso-jwt.md) / [0007](../pending/0007-authorization-access-control.md) / [0008](../pending/0008-deactivated-auto-transition-batch.md) / [0009](../pending/0009-skill-matrix-crud.md) / [0010](../pending/0010-resume-crud.md) / [0011](../pending/0011-resume-export-excel-pdf.md) / [0012](../pending/0012-test-strategy-step1-gate.md)
+> Step2: [0013](../pending/0013-career-sheet-dynamic-form.md) / [0014](../pending/0014-usage-analytics.md) / [0015](../pending/0015-contact-route-revision.md)
 
 ## 目次
 
@@ -60,9 +65,9 @@
 
 **完了条件**: GitHub Actions の CI で PostgreSQL コンテナを起動し Flyway マイグレーションが自動検証される
 
-- [ ] `ci.yml` に PostgreSQL サービスコンテナ追加（`postgres:16`）
-- [ ] Flyway マイグレーション実行ステップを CI に追加（`./gradlew flywayMigrate` or 統合テストで代替）
-- [ ] Testcontainers 統合テスト（`AccountRepositoryImplIntegrationTest`）を CI で実行できることを確認
+- [x] `ci.yml` に PostgreSQL サービスコンテナ追加（`postgres:16`）
+- [x] Flyway マイグレーション実行ステップを CI に追加（`./gradlew flywayMigrate` or 統合テストで代替）
+- [x] Testcontainers 統合テスト（`AccountRepositoryImplIntegrationTest`）を CI で実行できることを確認
 
 > **注意**: devcontainer の DoD（Docker-outside-of-Docker）環境と CI の native Docker 環境は構成が異なる。
 > `TESTCONTAINERS_RYUK_DISABLED` / `TESTCONTAINERS_HOST_OVERRIDE` は devcontainer 専用設定であり CI では不要。[APP-ADR-0012](../adr/APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md) 参照。
@@ -73,12 +78,12 @@
 
 **完了条件**: `/api/auth/google/callback`（UC-A1）が実装され、Google ID トークンの検証と accountId の発行が動作する
 
-- [ ] ADR 作成: JWT 戦略（自前発行 vs Google id_token Bearer）の決定（`adr-governance` 経由）
-- [ ] `spring-boot-starter-oauth2-resource-server` or カスタムフィルタの設計
-- [ ] `GoogleSsoCallbackUseCase` の認証フロー実装（JIT プロビジョニング含む）
-- [ ] `SecurityContextHolder` から `accountId` を取得する仕組みの確定（`@AuthenticationPrincipal` 等）
-- [ ] API 設計書: `POST /api/auth/google/callback`（`api-designer` → `test-scenario-planner` → `kotlin-implementer`）
-- [ ] テスト: 正常系（新規ユーザー自動登録）・異常系（無効トークン・無効アカウント）
+- [x] ADR 作成: JWT 戦略（自前発行 vs Google id_token Bearer）の決定（`adr-governance` 経由）
+- [x] `spring-boot-starter-oauth2-resource-server` or カスタムフィルタの設計
+- [x] `GoogleSsoCallbackUseCase` の認証フロー実装（JIT プロビジョニング含む）
+- [x] `SecurityContextHolder` から `accountId` を取得する仕組みの確定（`@AuthenticationPrincipal` 等）
+- [x] API 設計書: `POST /api/auth/google/callback`（`api-designer` → `test-scenario-planner` → `kotlin-implementer`）
+- [x] テスト: 正常系（新規ユーザー自動登録）・異常系（無効トークン・無効アカウント）
 
 ---
 
@@ -86,10 +91,10 @@
 
 **完了条件**: `provisional` アカウントが保護エンドポイントに到達できず、`admin` ロールが必要なエンドポイントが認可エラーを返す
 
-- [ ] ADR 作成: `provisional` 状態アクセス制御の実装レイヤー決定（Spring Security フィルタ vs `@PreAuthorize`）
-- [ ] `HandlerMethodArgumentResolver` で `@AuthenticatedAccountId` 等のアノテーション実装
-- [ ] Controller 引数をドメインモデルのみに保つ（UseCase 層に Web 概念を持ち込まない）
-- [ ] テスト: `provisional` → 403、`active` → 200、`admin` ロール不足 → 403
+- [x] ADR 作成: `provisional` 状態アクセス制御の実装レイヤー決定（Spring Security フィルタ vs `@PreAuthorize`）
+- [x] `HandlerMethodArgumentResolver` で `@AuthenticatedAccountId` 等のアノテーション実装
+- [x] Controller 引数をドメインモデルのみに保つ（UseCase 層に Web 概念を持ち込まない）
+- [x] テスト: `provisional` → 403、`active` → 200、`admin` ロール不足 → 403
 
 > 根拠: [APP-ADR-0008](../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md)（Controller 引数をドメインモデルのみにする依存方向維持）
 
@@ -99,9 +104,9 @@
 
 **完了条件**: `suspended_at` から1年経過したアカウントが日次で `deactivated` に更新される
 
-- [ ] `@Scheduled` バッチの実装（`AccountDeactivationBatch.kt`）
-- [ ] `@ConditionalOnProperty` でテスト時無効化
-- [ ] テスト: 1年経過アカウントが `deactivated` に変わること（`@TestPropertySource` で有効化して検証）
+- [x] `@Scheduled` バッチの実装（`AccountDeactivationBatch.kt`）
+- [x] `@ConditionalOnProperty` でテスト時無効化
+- [x] テスト: 1年経過アカウントが `deactivated` に変わること（`@TestPropertySource` で有効化して検証）
 
 > 根拠: [APP-ADR-0006](../adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md)
 
@@ -111,10 +116,10 @@
 
 **完了条件**: カバレッジ閾値が CI で強制されており、Step1 の全ドメイン・ユースケースが閾値を満たす
 
-- [ ] レイヤー別カバレッジ閾値を決定（ドメイン層 80% / インフラ層除外 等）
-- [ ] `jacocoCoverageVerification` に閾値・除外パターンを設定
-- [ ] CI で `jacocoTestCoverageVerification` タスクを実行
-- [ ] Controller 統合テストの要否を決定（MockMvc vs Testcontainers）
+- [x] レイヤー別カバレッジ閾値を決定（ドメイン層 80% / インフラ層除外 等）
+- [x] `jacocoCoverageVerification` に閾値・除外パターンを設定
+- [x] CI で `jacocoTestCoverageVerification` タスクを実行
+- [x] Controller 統合テストの要否を決定（MockMvc vs Testcontainers）
 
 ---
 
@@ -122,13 +127,13 @@
 
 **完了条件**: エンジニアの経歴書を Excel ダウンロード・PDF ダウンロードできる
 
-- [ ] DB 設計: `skill_sheets`（経歴書）テーブル設計（`db-designer` 経由）
-- [ ] Flyway マイグレーション作成
-- [ ] API 設計: `GET /api/engineers/{id}/skill-sheet/excel`、`GET /api/engineers/{id}/skill-sheet/pdf`（`api-designer`）
-- [ ] `Jxls-poi` 導入・Excel テンプレート実装（`infrastructure/report/JxlsSkillSheetExporter.kt`）
-- [ ] LibreOffice headless 導入（devcontainer Dockerfile に `fonts-noto-cjk` + `libreoffice` 追加）
-- [ ] `SkillSheetExporter` インターフェース定義（UseCase 層はインターフェースのみ依存）
-- [ ] テスト・実装（`kotlin-implementer` → `code-reviewer` → `test-reviewer`）
+- [x] DB 設計: `skill_sheets`（経歴書）テーブル設計（`db-designer` 経由）
+- [x] Flyway マイグレーション作成
+- [x] API 設計: `GET /api/engineers/{id}/skill-sheet/excel`、`GET /api/engineers/{id}/skill-sheet/pdf`（`api-designer`）
+- [x] `Jxls-poi` 導入・Excel テンプレート実装（`infrastructure/report/JxlsSkillSheetExporter.kt`）
+- [x] LibreOffice headless 導入（devcontainer Dockerfile に `fonts-noto-cjk` + `libreoffice` 追加）
+- [x] `SkillSheetExporter` インターフェース定義（UseCase 層はインターフェースのみ依存）
+- [x] テスト・実装（`kotlin-implementer` → `code-reviewer` → `test-reviewer`）
 
 ---
 
@@ -136,10 +141,10 @@
 
 **完了条件**: キャリアシートのレイアウト定義（JSON マスタ）と入力データ（JSONB）が CRUD できる
 
-- [ ] DB 設計: `career_sheet_formats`（レイアウト定義）・`career_sheets`（入力データ JSONB）テーブル
-- [ ] API 設計: フォーマット管理・キャリアシート CRUD（`api-designer`）
-- [ ] バージョン移行ポリシーの ADR 作成
-- [ ] テスト・実装（`kotlin-implementer` → `code-reviewer` → `test-reviewer`）
+- [x] DB 設計: `career_sheet_formats`（レイアウト定義）・`career_sheets`（入力データ JSONB）テーブル
+- [x] API 設計: フォーマット管理・キャリアシート CRUD（`api-designer`）
+- [x] バージョン移行ポリシーの ADR 作成
+- [x] テスト・実装（`kotlin-implementer` → `code-reviewer` → `test-reviewer`）
 
 ---
 
@@ -147,9 +152,9 @@
 
 **完了条件**: 主要 API のアクセスログが収集・集計可能な状態になっている
 
-- [ ] ログ設計 ADR: ログ粒度・保存先・個人情報方針の決定
-- [ ] アクセスログ収集の実装（Spring AOP / フィルタ）
-- [ ] 分析クエリ基盤の整備
+- [x] ログ設計 ADR: ログ粒度・保存先・個人情報方針の決定
+- [x] アクセスログ収集の実装（Spring AOP / フィルタ）
+- [x] 分析クエリ基盤の整備
 
 ---
 
