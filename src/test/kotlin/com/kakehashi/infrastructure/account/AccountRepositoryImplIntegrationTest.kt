@@ -107,7 +107,7 @@ class AccountRepositoryImplIntegrationTest {
 
     @Test
     fun `正常系： 存在しない ID で findById は null を返す`() {
-        assertNull(repository.findById(AccountId("ZZ9999")))
+        assertNull(repository.findById(AccountId("AZ9999")))
     }
 
     @Test
@@ -147,8 +147,13 @@ class AccountRepositoryImplIntegrationTest {
         val account = buildAccount("AZ0004", version = 0)
         repository.save(account)
 
-        val withWrongVersion = account.copy(version = 1)
-        val rows = repository.update(withWrongVersion)
+        // DB を version=1 に進める（別ユーザーが先に更新した状態を再現）
+        val firstUpdate = account.copy(version = 1, name = "先行更新", updatedAt = OffsetDateTime.now())
+        assertEquals(1, repository.update(firstUpdate), "前提: 1件更新されること")
+
+        // stale な version=1 で再度更新を試みる → prevVersion=0 だが DB は 1 → 0件更新
+        val staleUpdate = account.copy(version = 1, name = "古い更新", updatedAt = OffsetDateTime.now())
+        val rows = repository.update(staleUpdate)
 
         assertEquals(0, rows, "version 不一致なら 0件更新")
     }

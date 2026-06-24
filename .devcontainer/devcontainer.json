@@ -18,8 +18,12 @@
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
     // リビルド後もワークスペース内に Gradle キャッシュを保持する
+    // Testcontainers: Docker-outside-of-Docker 環境では Ryuk がコンテナ側に戻れないため無効化し、
+    // PostgreSQL 等のポートアクセスは host.docker.internal (Docker Desktop の host IP) 経由にする
     "remoteEnv": {
-        "GRADLE_USER_HOME": "/kakehashi-api/.gradle-user-home"
+        "GRADLE_USER_HOME": "/kakehashi-api/.gradle-user-home",
+        "TESTCONTAINERS_RYUK_DISABLED": "true",
+        "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal"
     },
     // VS Code の設定（拡張機能など）
     "customizations": {

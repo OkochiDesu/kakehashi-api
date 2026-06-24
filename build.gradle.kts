@@ -20,25 +20,24 @@ repositories {
     mavenCentral()
 }
 
-// Spring Boot 4.x の BOM は testcontainers:2.x を管理するが、postgresql/jdbc モジュールは
-// 1.20.4 API 依存のため非互換。dependencyManagement で 1.20.4 に固定する。
-dependencyManagement {
-    dependencies {
-        dependency("org.testcontainers:testcontainers:1.20.4")
-    }
-}
+// Testcontainers は Spring Boot 4.x の BOM 管理（2.x 系）に任せる。
+// 1.20.4 を固定していたのは ContainerDatabaseDriver (JDBC URL 方式) 利用時の互換問題だったが、
+// @TestConfiguration で PostgreSQLContainer を直接使う方式に変更したため制約がなくなった。
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("tools.jackson.module:jackson-module-kotlin")
     // JDBC / Flyway / PostgreSQL
+    // Spring Boot 4.x でモジュール化により Flyway 自動設定は spring-boot-starter-flyway が必須
+    // (flyway-core のみでは FlywayAutoConfiguration が登録されない)
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
-    // MyBatis
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4")
+    // MyBatis（4.x 系は Spring Boot 4.x 対応。3.0.4 は PropertyMapper.alwaysApplyingWhenNonNull() 非互換）
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1")
     // Bean Validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // Test
@@ -48,13 +47,10 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     // ArchUnit: レイヤー間依存方向をビルド時に自動検証（ガードレール）
     testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
-    // Testcontainers: PostgreSQL を使ったリポジトリ統合テスト・Flyway マイグレーション検証
-    // spring-boot-testcontainers は含めない: Spring Boot 4.x が管理する testcontainers:2.x が
-    // 引き込まれ postgresql/jdbc モジュール（1.20.4）との API 非互換が発生するため。
-    // testcontainers コアは上記 dependencyManagement ブロックで 1.20.4 に固定している。
-    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
+    // Testcontainers 2.x: アーティファクト名が 2.x で変更（junit-jupiter→testcontainers-junit-jupiter等）
+    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
