@@ -20,6 +20,14 @@ repositories {
     mavenCentral()
 }
 
+// Spring Boot 4.x の BOM は testcontainers:2.x を管理するが、postgresql/jdbc モジュールは
+// 1.20.4 API 依存のため非互換。dependencyManagement で 1.20.4 に固定する。
+dependencyManagement {
+    dependencies {
+        dependency("org.testcontainers:testcontainers:1.20.4")
+    }
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -41,7 +49,9 @@ dependencies {
     // ArchUnit: レイヤー間依存方向をビルド時に自動検証（ガードレール）
     testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
     // Testcontainers: PostgreSQL を使ったリポジトリ統合テスト・Flyway マイグレーション検証
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    // spring-boot-testcontainers は含めない: Spring Boot 4.x が管理する testcontainers:2.x が
+    // 引き込まれ postgresql/jdbc モジュール（1.20.4）との API 非互換が発生するため。
+    // testcontainers コアは上記 dependencyManagement ブロックで 1.20.4 に固定している。
     testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
@@ -68,6 +78,16 @@ spotless {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // CI ログに全スタックトレースを出力（Bean 名・原因特定のため）
+    testLogging {
+        events(
+            org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+        )
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
     finalizedBy("jacocoTestReport")
 }
 
