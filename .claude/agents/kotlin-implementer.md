@@ -34,6 +34,10 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 - **Output DTO のプロパティ**に `Nothing?` を使わない。意味のある具体的な型（`OffsetDateTime?` 等）を使う
 - `git push` / `rm` 等の禁止操作は実行しない
 - テストコードも合わせて作成する（単体テスト: Service 層、結合テスト: Controller 層）
+- **依存バージョン選定時の互換確認（必須）**:
+  - サードパーティの Spring Boot スターター（MyBatis 等）はメジャーバージョンを Spring Boot に合わせる（例: Spring Boot 4.x → `mybatis-spring-boot-starter:4.x`）。バージョン表は各ライブラリの公式ドキュメントで確認する
+  - Spring Boot 4.x ではオートコンフィグがモジュール化されており、`flyway-core` のみ追加しても `FlywayAutoConfiguration` は動かない。機能スターター（`spring-boot-starter-flyway` 等）の追加が必要かどうかを確認すること
+  - Testcontainers 等のバージョンは Spring Boot の BOM 管理に任せる（`platform()` 指定）。個別バージョン固定が必要な場合は理由を `build.gradle.kts` にコメントで残す
 
 ## KDoc・コメントルール
 
