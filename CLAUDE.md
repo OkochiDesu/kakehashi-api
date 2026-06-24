@@ -28,6 +28,7 @@
 - CLAUDE.md / AGENTS.md にスキル・コマンド・ファイルパスを記述する前に、対象が実在するかを確認すること（実在しないリソースへの参照は実行不能なルールになる）
 
 ### commit運用
+- **`main` ブランチへの直接 commit は禁止**。chore・metrics 記録・typo 修正など小さな変更も例外なく `feature/` ブランチを作成してから commit すること
 - `git commit` の前に、現在のブランチに対応するPRの状態を `gh pr view --json state,number` で確認する
   - PRがマージ済み（`state: MERGED`）の場合、現在のブランチでの作業は完了済みとみなし、新しい作業ブランチを作成・切り替え（`git checkout -b feature/<内容> origin/main`）してからcommitを進める
   - 新しいブランチ名は、作業内容をユーザーに確認したうえで決定する（[Git Prefixes](docs/conventions/git-prefixes.md)のブランチ名規約に従い `feature/` プレフィックスを付ける）

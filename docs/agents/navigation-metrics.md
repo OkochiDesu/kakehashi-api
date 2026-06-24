@@ -69,3 +69,4 @@
 | 2026-06-15 | 要件定義の進行確認＋本ナビゲーション指標ログの設計・新設 | 3 | 0 | `memory`の要約から会話を継続でき、本タスクもAGENTS.md/docs/READMEのリンクから直接doc-maintainer定義等に到達できた |
 | 2026-06-19 | AI-ADR-0006作成・CLAUDE.mdにdoc-maintainer必須ルール＋ADR自動提案ルール追加・docs/references/整理 | 4 | 1 | AGENTS.md/docs/READMEから必要なファイルにほぼ直接到達できた。doc-maintainerチェックをコミット後に実行するミスを2回。feedbackメモリに記録済み |
 | 2026-06-23 | AssignRolesUseCase bugfix・エージェント/ルール構成リファクタリング（exec-plan 0002 Phase 1-7完了）・AI-ADR-0013・ハーネス/ガードレールドキュメント化・全体陳腐化チェック | 5 | 1 | AGENTS.md/.claude/agents/の索引から必要なファイルに直接到達できた。adr-governanceサブエージェントがセッション間でコンテキストを引き継げず3回再試行が必要だった（エージェント間の文脈共有の限界） |
+| 2026-06-24 | Spring Boot 4.x CI連鎖障害修正・Testcontainers 2.0.5移行・APP-ADR-0012作成・Copilot Rv対応8件（pre-commit awk改善・postgres版統一・横展開ルール追記）・PR #13マージ | 4 | 1 | AGENTS.md/docs/READMEから必要ファイルに直接到達できた。Copilot指摘への返信漏れが1回発生しCLAUDE.mdにルール追記。pre-commitのawk判定が3ラウンド（偽陰性→偽陽性→アノテーション順序）かかった点が探索コストを押し上げた |
