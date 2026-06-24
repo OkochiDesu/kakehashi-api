@@ -3,6 +3,8 @@ package com.kakehashi.infrastructure.account
 import com.kakehashi.domain.account.Account
 import com.kakehashi.domain.account.AccountId
 import com.kakehashi.domain.account.AccountStatus
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -10,28 +12,54 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
+import org.testcontainers.containers.PostgreSQLContainer
 import java.time.OffsetDateTime
 import java.util.UUID
+import javax.sql.DataSource
 
 /**
  * AccountRepositoryImpl 統合テスト
  *
- * - Testcontainers JDBC URL（jdbc:tc:postgresql:...）で PostgreSQL を自動起動し
- *   Flyway マイグレーション（V1, V2）を実行して検証する
+ * - TestConfiguration で PostgreSQLContainer を直接起動し DataSource を提供する
+ * - DataSourceAutoConfiguration を除外して「devcontainer の db:5432」への接続試行を防ぐ
+ * - Flyway マイグレーション（V1, V2）は DataSource を通じて自動実行される
  * - JdbcClient を使った実際の SQL が正しく動くことを保証する
  * - 楽観ロックの version カラム動作もここで検証する
  *
- * datasource は application-integration-test.properties で設定する。
- * @SpringBootTest + @ServiceConnection / @DynamicPropertySource は Spring Boot 4.x
- * で動作不安定なため、ContainerDatabaseDriver を使う方式を採用。
- * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0005
+ * 試行済みパターン（Spring Boot 4.x で機能しないことを確認）:
+ * - @ServiceConnection: コンテナ検出タイミング問題
+ * - @DynamicPropertySource: 全コンテキストロードと Bean 初期化順序問題
+ * - ContainerDatabaseDriver (JDBC URL): DataSource が作成されない
+ * - @JdbcTest / @AutoConfigureTestDatabase: Spring Boot 4.x で削除済み
+ * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0011
  */
-@SpringBootTest
+@SpringBootTest(
+    properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"],
+)
 @ActiveProfiles("integration-test")
 @Transactional
 class AccountRepositoryImplIntegrationTest {
+    @TestConfiguration
+    class TestDatasourceConfig {
+        @Bean(destroyMethod = "stop")
+        fun postgresContainer(): PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine").also { it.start() }
+
+        @Bean
+        fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
+            HikariDataSource(
+                HikariConfig().apply {
+                    jdbcUrl = postgres.jdbcUrl
+                    username = postgres.username
+                    password = postgres.password
+                    driverClassName = "org.postgresql.Driver"
+                },
+            )
+    }
+
     @Autowired
     lateinit var repository: AccountRepositoryImpl
 

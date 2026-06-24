@@ -39,32 +39,49 @@ globs:
 
 ## Testcontainers 統合テスト
 
-Testcontainers を使う `@SpringBootTest` 統合テストでは **Testcontainers JDBC URL** を使うこと。
+Testcontainers を使う `@SpringBootTest` 統合テストでは **`@TestConfiguration` で `PostgreSQLContainer` を直接起動し `DataSource` Bean を提供する**こと。
 
-**理由**: Spring Boot 4.x では `@JdbcTest` / `@AutoConfigureTestDatabase` / `@DynamicPropertySource` / `@ServiceConnection` のいずれも正常に動作しない。
-Testcontainers の `ContainerDatabaseDriver` に JDBC URL を委譲する方法が唯一の確定パターン。
-
-### 設定ファイル（`application-integration-test.properties`）
-
-```properties
-spring.datasource.url=jdbc:tc:postgresql:16-alpine:///testdb
-spring.datasource.username=test
-spring.datasource.password=test
-spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver
-spring.flyway.enabled=true
-```
+**理由**: Spring Boot 4.x では `@JdbcTest` / `@AutoConfigureTestDatabase` / `@DynamicPropertySource` / `@ServiceConnection` / `ContainerDatabaseDriver`（JDBC URL 方式）のいずれも正常に動作しない。
+`DataSourceAutoConfiguration` を除外し `@TestConfiguration` で DataSource を提供する方法が唯一の確定パターン。
 
 ### テストクラス
 
 ```kotlin
-@SpringBootTest
+@SpringBootTest(
+    properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"]
+)
 @ActiveProfiles("integration-test")
 @Transactional
 class MyIntegrationTest {
+    @TestConfiguration
+    class TestDatasourceConfig {
+        @Bean(destroyMethod = "stop")
+        fun postgresContainer(): PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:16-alpine").also { it.start() }
+
+        @Bean
+        fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
+            HikariDataSource(
+                HikariConfig().apply {
+                    jdbcUrl = postgres.jdbcUrl
+                    username = postgres.username
+                    password = postgres.password
+                    driverClassName = "org.postgresql.Driver"
+                }
+            )
+    }
+
     @Autowired
     lateinit var repository: MyRepositoryImpl
-    // @Container / companion object / @DynamicPropertySource は不要
+    // tests...
 }
+```
+
+### 設定ファイル（`application-integration-test.properties`）
+
+```properties
+# DataSource は @TestConfiguration で直接提供するため設定不要
+spring.flyway.enabled=true
 ```
 
 - `@ActiveProfiles("integration-test")` を付与し devcontainer の DB に接続しないようにすること
