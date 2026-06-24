@@ -1,5 +1,22 @@
 # 0004: バックエンド Step1 完了 〜 Step2 準備ロードマップ
 
+## 目次
+
+- [完了条件（Definition of Done）](#完了条件definition-of-done)
+- [目的・スコープ](#目的スコープ)
+- [フェーズ構成と依存関係](#フェーズ構成と依存関係)
+- [進捗状況](#進捗状況)
+  - [Phase 1: CI 統合テスト環境（マイグレーション実行）](#phase-1-ci-統合テスト環境マイグレーション実行)
+  - [Phase 2: 認証基盤（Google SSO + JWT）](#phase-2-認証基盤google-sso--jwt)
+  - [Phase 3: 認可・アクセス制御](#phase-3-認可アクセス制御)
+  - [Phase 4: deactivated 自動遷移バッチ](#phase-4-deactivated-自動遷移バッチ)
+  - [Phase 5: テスト戦略確定・カバレッジルール整備（Step1 完了ゲート）](#phase-5-テスト戦略確定カバレッジルール整備step1-完了ゲート)
+  - [Phase 6: 経歴書帳票出力（Excel/PDF）【Step2 開始】](#phase-6-経歴書帳票出力excelpdfstep2-開始)
+  - [Phase 7: キャリアシート・ダイナミックフォーム基盤](#phase-7-キャリアシートダイナミックフォーム基盤)
+  - [Phase 8: 利用状況分析基盤（Step2 後半）](#phase-8-利用状況分析基盤step2-後半)
+- [意思決定ログ](#意思決定ログ)
+- [残課題・引き継ぎ事項](#残課題引き継ぎ事項)
+
 ## 完了条件（Definition of Done）
 
 このexec-planが完了したとき、以下の状態になっている:
@@ -21,7 +38,7 @@
 
 ```
 [Phase 1] CI 統合テスト環境
-         ↓（独立して先行可能）
+         ↓（他フェーズと並列実施可能）
 [Phase 2] 認証基盤（Google SSO + JWT）
          ↓
 [Phase 3] 認可・アクセス制御
@@ -73,6 +90,8 @@
 - [ ] `HandlerMethodArgumentResolver` で `@AuthenticatedAccountId` 等のアノテーション実装
 - [ ] Controller 引数をドメインモデルのみに保つ（UseCase 層に Web 概念を持ち込まない）
 - [ ] テスト: `provisional` → 403、`active` → 200、`admin` ロール不足 → 403
+
+> 根拠: [APP-ADR-0008](../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md)（Controller 引数をドメインモデルのみにする依存方向維持）
 
 ---
 
@@ -143,3 +162,4 @@
 - フロントエンド（Nuxt 3）の開発タイミングと Phase 2〜3 の API 完成スケジュールの調整が必要
 - Phase 6 以降は別 exec-plan として分割することを検討する（規模が大きい場合）
 - CI 統合テスト環境（Phase 1）は `.github/workflows/` 変更を含むため、着手前にユーザー確認必須（CLAUDE.md 参照）
+- コンタクト経路の見直し（Step2）は `docs/TODO.md` に残存しており、Phase 6〜8 と並列して検討が必要

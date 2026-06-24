@@ -60,7 +60,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 
 | ルールファイル | 適用対象 | 内容 |
 |------|------|------|
-| [test-rules.md](.claude/rules/test-rules.md) | `**/*Test.kt` | TDD・アサーション種別・updatedAt検証・楽観ロック競合テスト・テスト命名 |
+| [test-rules.md](.claude/rules/test-rules.md) | `**/*Test.kt` | TDD・アサーション種別・updatedAt検証・楽観ロック競合テスト・KDoc テストケース目次・テスト命名 |
 | [mybatis-rules.md](.claude/rules/mybatis-rules.md) | `**/*Mapper.xml`, `**/*Mapper.kt` | `<id>`タグ・`notNullColumn`・`#{}`使用・`@param`必須 |
 
 ## 利用可能なスキル（.claude/skills/）

@@ -17,7 +17,7 @@ model: sonnet
 ## 厳守ルール
 
 - ファイルの作成・編集は行わない。レビューコメントのみを返す
-- 推測で指摘しない。根拠（[test-rules.md](../../.claude/rules/test-rules.md)・[kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）を必ず明記する
+- 推測で指摘しない。根拠（[test-rules.md](../../.claude/rules/test-rules.md)）を必ず明記する（KDoc テストケース目次フォーマットは test-rules.md が権威ソース）
 - `rm` 等の削除コマンドは使用しない
 
 ## レビューチェックリスト
@@ -87,7 +87,7 @@ model: sonnet
 ### 指摘事項（REQUIRES_CHANGES の場合）
 1. [重要度: 高/中/低] ファイルパス:行番号
    - 問題: ...
-   - 根拠: test-rules.md / kdoc-and-test-policy.md / APP-ADR-0005 等
+   - 根拠: test-rules.md / APP-ADR-0005 等
    - 修正案: ...
 
 ### 人間へのコメント（APPROVED 時）
