@@ -59,7 +59,7 @@ class AccountRepositoryImplIntegrationTest {
     class TestDatasourceConfig {
         @Bean(destroyMethod = "stop")
         fun postgresContainer(): PostgreSQLContainer<*> =
-            PostgreSQLContainer("postgres:16-alpine").also { it.start() }
+            PostgreSQLContainer("postgres:15-alpine").also { it.start() }
 
         @Bean
         fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
@@ -89,7 +89,7 @@ spring.flyway.enabled=true
 ### なぜこれが機能するか
 
 1. `DataSourceAutoConfiguration` を除外 → `db:5432`（devcontainer）への接続試行なし
-2. `@TestConfiguration.postgresContainer()` → PostgreSQL 16 Alpine コンテナを起動
+2. `@TestConfiguration.postgresContainer()` → PostgreSQL 15 Alpine コンテナを起動
 3. `@TestConfiguration.dataSource()` → コンテナの JDBC URL で HikariCP 接続プールを作成
 4. MyBatis が `DataSource` Bean を検出 → `SqlSessionFactory` → `AccountMapper` 登録
 5. JdbcClient が `DataSource` Bean から自動設定 → `AccountRepositoryImpl` 作成
