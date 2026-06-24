@@ -39,27 +39,36 @@ globs:
 
 ## Testcontainers 統合テスト
 
-Testcontainers を使う `@SpringBootTest` 統合テストでは以下を遵守すること：
+Testcontainers を使う `@SpringBootTest` 統合テストでは **Testcontainers JDBC URL** を使うこと。
 
-- **`@ServiceConnection` は使わず `@DynamicPropertySource` で明示的に datasource を上書きする**: Spring Boot 4.x では `@ServiceConnection` によるコンテナ検出タイミングが不安定。コンテナを `companion object` の `init {}` または `.also { it.start() }` で明示的に起動してから `@DynamicPropertySource` でプロパティを登録する（pre-commit で `@Container` あり `@JvmStatic` なしも検出する）
-- `@ActiveProfiles("integration-test")` を付与し devcontainer の DB に接続しないようにすること
-- `@Transactional` を付与してテスト間のデータ汚染を防ぐこと
+**理由**: Spring Boot 4.x では `@JdbcTest` / `@AutoConfigureTestDatabase` / `@DynamicPropertySource` / `@ServiceConnection` のいずれも正常に動作しない。
+Testcontainers の `ContainerDatabaseDriver` に JDBC URL を委譲する方法が唯一の確定パターン。
+
+### 設定ファイル（`application-integration-test.properties`）
+
+```properties
+spring.datasource.url=jdbc:tc:postgresql:16-alpine:///testdb
+spring.datasource.username=test
+spring.datasource.password=test
+spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver
+spring.flyway.enabled=true
+```
+
+### テストクラス
 
 ```kotlin
-// 推奨パターン
-companion object {
-    private val postgres: PostgreSQLContainer<*> =
-        PostgreSQLContainer("postgres:16-alpine").also { it.start() }
-
-    @JvmStatic
-    @DynamicPropertySource
-    fun postgresProperties(registry: DynamicPropertyRegistry) {
-        registry.add("spring.datasource.url") { postgres.jdbcUrl }
-        registry.add("spring.datasource.username") { postgres.username }
-        registry.add("spring.datasource.password") { postgres.password }
-    }
+@SpringBootTest
+@ActiveProfiles("integration-test")
+@Transactional
+class MyIntegrationTest {
+    @Autowired
+    lateinit var repository: MyRepositoryImpl
+    // @Container / companion object / @DynamicPropertySource は不要
 }
 ```
+
+- `@ActiveProfiles("integration-test")` を付与し devcontainer の DB に接続しないようにすること
+- `@Transactional` を付与してテスト間のデータ汚染を防ぐこと
 
 詳細: [testcontainers-jvmstatic-kotlin.md](../../docs/troubleshooting/testcontainers-jvmstatic-kotlin.md)
 

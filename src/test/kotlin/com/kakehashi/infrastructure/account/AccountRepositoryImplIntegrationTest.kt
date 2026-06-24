@@ -11,41 +11,27 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.transaction.annotation.Transactional
-import org.testcontainers.containers.PostgreSQLContainer
 import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
  * AccountRepositoryImpl 統合テスト
  *
- * - Testcontainers で PostgreSQL を起動し Flyway マイグレーション（V1, V2）を実行して検証する
+ * - Testcontainers JDBC URL（jdbc:tc:postgresql:...）で PostgreSQL を自動起動し
+ *   Flyway マイグレーション（V1, V2）を実行して検証する
  * - JdbcClient を使った実際の SQL が正しく動くことを保証する
  * - 楽観ロックの version カラム動作もここで検証する
  *
- * @DynamicPropertySource: Spring Boot 4.x での @ServiceConnection 動作不安定のため
- * 明示的に datasource プロパティを上書きする方式を採用
- * 参照: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0005
+ * datasource は application-integration-test.properties で設定する。
+ * @SpringBootTest + @ServiceConnection / @DynamicPropertySource は Spring Boot 4.x
+ * で動作不安定なため、ContainerDatabaseDriver を使う方式を採用。
+ * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0005
  */
 @SpringBootTest
 @ActiveProfiles("integration-test")
 @Transactional
 class AccountRepositoryImplIntegrationTest {
-    companion object {
-        private val postgres: PostgreSQLContainer<*> =
-            PostgreSQLContainer("postgres:16-alpine").also { it.start() }
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun postgresProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url") { postgres.jdbcUrl }
-            registry.add("spring.datasource.username") { postgres.username }
-            registry.add("spring.datasource.password") { postgres.password }
-        }
-    }
-
     @Autowired
     lateinit var repository: AccountRepositoryImpl
 
