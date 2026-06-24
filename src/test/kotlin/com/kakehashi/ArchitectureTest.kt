@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
  *
  * 参照: harness-and-guardrails.md（ガードレール層）、APP-ADR-0010
  *
- * ★観点
+ * ★★全体観点★★
  * クリーンアーキテクチャの依存方向をビルド時に自動検証するガードレール。
  * 開発者が気づく前にレイヤー越境・ドメイン汚染を検出し、設計崩壊を防ぐ。
  * （参照: APP-ADR-0010、harness-and-guardrails.md）

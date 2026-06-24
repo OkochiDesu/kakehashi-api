@@ -23,7 +23,7 @@ import java.time.OffsetDateTime
  * MockK の @JvmInline value class (AccountId) のシグネチャ生成に問題があるため
  * FakeAccountRepository を使用する。
  *
- * ★観点
+ * ★★全体観点★★
  * ロール付与はシステム権限の根幹となる操作であり、ロールの全組み合わせ・操作権限チェック・
  * 楽観ロック整合性を網羅することで権限昇格バグや競合状態を防ぐ。
  *

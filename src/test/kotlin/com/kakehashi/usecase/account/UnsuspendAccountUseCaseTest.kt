@@ -24,7 +24,7 @@ import java.time.OffsetDateTime
  * 設計書No：UC-A7
  * ADRNo：APP-ADR-0005, APP-ADR-0008
  *
- * ★観点
+ * ★★全体観点★★
  * 管理者によるアカウント停止解除操作（SUSPENDED → ACTIVE）を検証する。
  * 権限チェック・状態遷移・suspendedAt のクリア・楽観ロックが一貫して機能することを確認する。
  *

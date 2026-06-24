@@ -10,7 +10,7 @@ import org.junit.jupiter.api.assertThrows
  * 設計書No：-
  * ADRNo：APP-ADR-0001
  *
- * ★観点
+ * ★★全体観点★★
  * AccountId 値オブジェクトのフォーマットバリデーションを検証する。
  * フォーマット不正な ID が生成・流入すると DB 整合性が崩れるため、
  * 値オブジェクト生成時点で弾くことを保証する。

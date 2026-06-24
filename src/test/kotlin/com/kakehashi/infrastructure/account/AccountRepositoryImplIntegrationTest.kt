@@ -37,7 +37,7 @@ import javax.sql.DataSource
  * - @JdbcTest / @AutoConfigureTestDatabase: Spring Boot 4.x で削除済み
  * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0012（APP-ADR-0011 を Supersede）
  *
- * ★観点
+ * ★★全体観点★★
  * 実際の PostgreSQL 16 コンテナを使い、MyBatis SQL・Flyway マイグレーション・楽観ロックが
  * 本番相当の環境で正しく動作することを保証する。
  * モックでは検出できない SQL 不整合・DDL 齟齬・トランザクション競合を排除するための統合テスト。

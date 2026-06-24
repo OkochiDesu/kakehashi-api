@@ -38,7 +38,7 @@ import java.time.OffsetDateTime
  * @WebMvcTest と @Nested inner class の組み合わせでは @MockkBean が内部クラスに届かないため
  * フラットな構造で記述する。
  *
- * ★観点
+ * ★★全体観点★★
  * HTTP レイヤー（ステータスコード・レスポンスフォーマット）と UseCase 呼び出しの橋渡しを検証する。
  * UseCase のビジネスロジックはここでは検証しない。
  * GlobalExceptionHandler による例外 → HTTP ステータスコードのマッピングも合わせて確認する。

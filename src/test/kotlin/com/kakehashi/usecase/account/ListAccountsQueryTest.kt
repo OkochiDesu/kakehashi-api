@@ -17,7 +17,7 @@ import org.junit.jupiter.api.assertThrows
  * 設計書No：UC-A5
  * ADRNo：APP-ADR-0006, APP-ADR-0008
  *
- * ★観点
+ * ★★全体観点★★
  * 検索 Query の 3 つの責務を独立して検証する。
  * ①権限による検索フィルタ強制（非 admin は active のみ）、
  * ②deactivated の個人情報マスキング（APP-ADR-0006）、

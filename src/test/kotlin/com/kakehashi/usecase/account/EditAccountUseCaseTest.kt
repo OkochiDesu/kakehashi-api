@@ -20,7 +20,7 @@ import org.junit.jupiter.api.assertThrows
  * 設計書No：UC-A4
  * ADRNo：APP-ADR-0005, APP-ADR-0008
  *
- * ★観点
+ * ★★全体観点★★
  * 本人による表示名の自己編集操作を検証する。
  * 監査カラム（updatedAt / updatedBy）の正確性と、楽観ロックによる同時編集競合検出の
  * 2 段階（事前チェック・DB 更新件数チェック）を確認することが重要。

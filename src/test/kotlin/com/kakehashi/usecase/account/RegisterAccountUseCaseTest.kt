@@ -21,7 +21,7 @@ import org.junit.jupiter.api.assertThrows
  * 設計書No：UC-A3
  * ADRNo：APP-ADR-0005, APP-ADR-0008
  *
- * ★観点
+ * ★★全体観点★★
  * アカウント登録完了（PROVISIONAL → ACTIVE）は一方向の操作であり、
  * 重複登録・不正ステータスからの遷移・楽観ロック競合を全て防御する必要がある。
  *

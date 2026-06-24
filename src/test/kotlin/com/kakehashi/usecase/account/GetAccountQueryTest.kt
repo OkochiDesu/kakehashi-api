@@ -19,7 +19,7 @@ import org.junit.jupiter.api.assertThrows
  * 設計書No：-
  * ADRNo：APP-ADR-0006, APP-ADR-0008
  *
- * ★観点
+ * ★★全体観点★★
  * CQRS Query 側のアクセス制御（admin vs 本人のみ）と個人情報マスキング（APP-ADR-0006）が
  * 正しく機能することを保証する。UI 直結データのため誤表示はセキュリティ問題に直結する。
  *

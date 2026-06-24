@@ -13,7 +13,7 @@ import java.time.OffsetDateTime
  * 設計書No：-
  * ADRNo：APP-ADR-0001, APP-ADR-0006
  *
- * ★観点
+ * ★★全体観点★★
  * Account 集約の各ビジネスメソッド（register / editName / suspend / unsuspend）が、
  * 状態遷移・バリデーション・version インクリメント・タイムスタンプ更新を
  * 集約単位で一貫して実行することを保証する。

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.assertThrows
  * 設計書No：UC-A7
  * ADRNo：APP-ADR-0005, APP-ADR-0008
  *
- * ★観点
+ * ★★全体観点★★
  * 管理者によるアカウント停止操作（ACTIVE → SUSPENDED）を検証する。
  * 権限チェック・状態遷移・監査カラム・楽観ロックが一貫して機能することを確認する。
  *

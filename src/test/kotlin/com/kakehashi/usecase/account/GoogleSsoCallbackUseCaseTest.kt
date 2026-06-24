@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
  * 設計書No：UC-A1
  * ADRNo：APP-ADR-0008
  *
- * ★観点
+ * ★★全体観点★★
  * Google SSO コールバックの責務は「アカウントの存在確認と JIT 作成のみ」であり、
  * アクセス制御（SUSPENDED 拒否等）は Controller 層が担う。
  * この責務分離が正しいことを保証する（異常系ケースが存在しないのはこの理由による）。
