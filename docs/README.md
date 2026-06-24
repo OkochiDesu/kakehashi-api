@@ -39,6 +39,8 @@ Copilotでは `@ADR Governance` を呼び出してください。
 - [Gradle Wrapper Lock Contention](troubleshooting/gradle-wrapper-lock-contention.md)
 - [GitHub PR マージ状態 UNKNOWN](troubleshooting/github-merge-status-unknown.md)
 - [Dev Container shellcheck nanolayer GLIBC エラー](troubleshooting/devcontainer-shellcheck-nanolayer-glibc.md)
+- [Spring Boot 4.x + Testcontainers 統合テスト確定パターン](troubleshooting/testcontainers-jvmstatic-kotlin.md)
+- [Spring Boot 4.x 移行に伴う CI 連鎖障害の調査記録](troubleshooting/spring-boot-4x-ci-failure-chain.md)
 
 ---
 

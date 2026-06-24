@@ -37,6 +37,58 @@ globs:
 
 バリデーション挙動を変更した diff（`runCatching.getOrNull()` 廃止・例外スロー追加・型変換ロジック変更等）がある場合は、**同じ diff 内**にエラーパステストを追加・更新すること。
 
+## Testcontainers 統合テスト
+
+Testcontainers を使う `@SpringBootTest` 統合テストでは **`@TestConfiguration` で `PostgreSQLContainer` を直接起動し `DataSource` Bean を提供する**こと。
+
+**理由**: Spring Boot 4.x では `@JdbcTest` / `@AutoConfigureTestDatabase` / `@DynamicPropertySource` / `@ServiceConnection` / `ContainerDatabaseDriver`（JDBC URL 方式）のいずれも正常に動作しない。
+`DataSourceAutoConfiguration` を除外し `@TestConfiguration` で DataSource を提供する方法が唯一の確定パターン。
+
+### テストクラス
+
+```kotlin
+@SpringBootTest(
+    properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"]
+)
+@ActiveProfiles("integration-test")
+@Transactional
+class MyIntegrationTest {
+    @TestConfiguration
+    class TestDatasourceConfig {
+        @Bean(destroyMethod = "stop")
+        fun postgresContainer(): PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:15-alpine").also { it.start() }
+
+        @Bean
+        fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
+            HikariDataSource(
+                HikariConfig().apply {
+                    jdbcUrl = postgres.jdbcUrl
+                    username = postgres.username
+                    password = postgres.password
+                    driverClassName = "org.postgresql.Driver"
+                }
+            )
+    }
+
+    @Autowired
+    lateinit var repository: MyRepositoryImpl
+    // tests...
+}
+```
+
+### 設定ファイル（`application-integration-test.properties`）
+
+```properties
+# DataSource は @TestConfiguration で直接提供するため設定不要
+spring.flyway.enabled=true
+```
+
+- `@ActiveProfiles("integration-test")` を付与し devcontainer の DB に接続しないようにすること
+- `@Transactional` を付与してテスト間のデータ汚染を防ぐこと
+
+詳細: [testcontainers-jvmstatic-kotlin.md](../../docs/troubleshooting/testcontainers-jvmstatic-kotlin.md)
+
 ## テスト命名
 
 テスト名は「`正常系/異常系： 条件 → 期待結果`」の形式で書く。

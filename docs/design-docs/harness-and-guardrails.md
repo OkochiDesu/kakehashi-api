@@ -1,5 +1,13 @@
 # ハーネスとガードレール
 
+## 目次
+
+- [ハーネス（馬具）― 事前設計層](#ハーネス馬具-事前設計層)
+- [ガードレール（柵）― 事後検証層](#ガードレール柵-事後検証層)
+- [2層の役割分担の根拠](#2層の役割分担の根拠)
+- [ArchUnit ルールの例外設計](#archunit-ルールの例外設計)
+- [新しいチェックを追加するときの判断フロー](#新しいチェックを追加するときの判断フロー)
+
 このリポジトリの AI 協働システムを「**ハーネス（事前設計層）**」と「**ガードレール（事後検証層）**」の2層に分類する。
 
 この分類により、あるファイルや仕組みが「AI を導くために存在するのか」「問題を防ぐために存在するのか」が一目でわかる。新しいファイルを追加するときの配置判断基準としても使う。
@@ -32,10 +40,10 @@
 
 | ファイル / ツール | 役割 |
 |---|---|
-| `.githooks/pre-commit` | 英語エラーメッセージ・`assert()` 誤使用・シークレット等の静的パターン検出（commit をブロック） |
+| `.githooks/pre-commit` | 英語エラーメッセージ・`assert()` 誤使用・`companion object` 内の `@Container` に `@JvmStatic` 欠落（インスタンスフィールドは対象外）・シークレット等の静的パターン検出（commit をブロック） |
 | `shellcheck`（pre-commit 内） | シェルスクリプトの静的解析 |
 | `./gradlew build`（型チェック・コンパイル） | Kotlin の型エラー・コンパイルエラーを検出 |
-| `./gradlew test`（テストスイート） | ビジネスロジックの正確性・回帰を検出 |
+| `./gradlew test`（テストスイート） | ビジネスロジックの正確性・回帰を検出。**ArchUnit**（`ArchitectureTest.kt`）でクリーンアーキテクチャの依存方向（domain / usecase / infrastructure / presentation）を自動検証 |
 | `./gradlew spotlessCheck`（フォーマット） | コードスタイルの統一を強制 |
 
 **設計原則**: ガードレールは人間の確認なしに動作する自動検証であり、判断を伴わない確実な検出に絞る。判断が必要なものはハーネス（LLM エージェント）が担う。
@@ -52,6 +60,19 @@
 | ADR 準拠・アーキテクチャ整合 | ハーネス（code-reviewer 等） | 仕様・経緯の理解が必要 |
 
 この分離は [AI-ADR-0013](../adr/AI-ADR-0013-LLMとスクリプトの役割分離とglobルール採用とtest-reviewer順次分離.md) で決定した。
+
+---
+
+## ArchUnit ルールの例外設計
+
+`ArchitectureTest.kt` の usecase レイヤールールには APP-ADR-0008 に基づく例外がある：
+
+- **非 Query クラス**（UseCase 系）: `infrastructure` / `presentation` への依存を禁止
+- **Query クラス**（`*Query` 命名）: MyBatis Mapper（`infrastructure`）への依存を許容。ただし `presentation` への依存は禁止
+
+この例外は意図的な設計であり、ルールを削除・緩和するのではなく「非 Query / Query に分割」することで設計書と整合させている。
+
+また `ClassFileImporter().withImportOption(ImportOption.DoNotIncludeTests())` を必ず指定すること。テストクラスが本番パッケージ（例: `com.kakehashi.usecase.account`）に置かれている場合、テスト用 Mapper モックが infrastructure をインポートするため本番クラスと同一スキャン対象になると誤検知が発生する。
 
 ---
 

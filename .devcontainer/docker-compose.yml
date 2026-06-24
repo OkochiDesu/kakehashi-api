@@ -6,6 +6,9 @@ services:
     volumes:
       # リポジトリルート（..）をコンテナ内の /kakehashi-api にマウント（cachedでI/O高速化）
       - ..:/kakehashi-api:cached
+      # ホストの Docker デーモンソケットをマウント（Testcontainers をローカルで実行するために必要）
+      # WSL2 + Docker Desktop 環境では /var/run/docker.sock が自動的に提供される
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       db:
         # db サービスのヘルスチェックが成功してから app を起動する

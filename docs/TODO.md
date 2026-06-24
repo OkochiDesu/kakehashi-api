@@ -7,9 +7,9 @@
 - [Frontend](#frontend)
   - [フロントエンド連携](#フロントエンド連携) / [フロントエンド実装・UI開発](#フロントエンド実装ui開発)
 - [Backend](#backend)
-  - [認証・セキュリティ](#認証セキュリティ) / [認証・認可](#認証認可) / [帳票出力](#経歴書の帳票出力excelpdf) / [キャリアシート基盤](#キャリアシートダイナミックフォーム基盤) / [利用状況分析](#利用状況分析step2-aiレコメンド連携) / [コンタクト経路](#コンタクト経路の見直しstep2) / [クラウド選定](#クラウド事業者ホスティング選定)
+  - [CI統合テスト環境](#ci統合テスト環境マイグレーション実行) / [認証・セキュリティ](#認証セキュリティ) / [認証・認可](#認証認可) / [deactivated バッチ](#deactivated-自動遷移バッチscheduled) / [テスト戦略](#テスト戦略step1-実装後に確定) / [帳票出力](#経歴書の帳票出力excelpdf) / [キャリアシート基盤](#キャリアシートダイナミックフォーム基盤) / [利用状況分析](#利用状況分析step2-aiレコメンド連携) / [コンタクト経路](#コンタクト経路の見直しstep2) / [クラウド選定](#クラウド事業者ホスティング選定)
 - [Cross-cutting](#cross-cutting)
-  - [クリーンアーキテクチャの依存方向維持](#クリーンアーキテクチャの依存方向維持) / [冪等性キーチェック基盤](#冪等性キーチェック基盤)
+  - [冪等性キーチェック基盤](#冪等性キーチェック基盤)
 - [Done（履歴）](#done履歴)
 
 ## Platform / DevEx
@@ -31,6 +31,7 @@
   - 例: インフラ層（MyBatis Mapper・設定クラス）はカバレッジ計測から除外
 - `jacocoCoverageVerification` タスクに除外パターンと閾値を設定する
   - MyBatis導入後にパッケージ構成が固まってから対応する
+
 
 ### CI 設計課題
 
@@ -229,6 +230,7 @@
 
 - **JWT / 認証トークン設計**: Google の `id_token` をそのまま Bearer として使うか、UC-A1 コールバック後に自前 JWT を発行するかを決定し、Spring Security の `oauth2ResourceServer` / カスタムフィルターを実装する。`SecurityContextHolder` から accountId を取得する方法（`@AuthenticationPrincipal` 等）もここで確定する。
 - **`provisional` 状態のアクセス制御**: `POST /api/accounts/me/registration` は `provisional` のアカウントのみ実行可。他エンドポイントへの `provisional` アクセスをどのレイヤー（Spring Security フィルター / `@PreAuthorize`）で弾くかを決定する。
+- **Controller の依存方向維持**: 各メソッドに認証・DB検索ロジックを書かず、`HandlerMethodArgumentResolver` 等で共通化する。Controller 引数はドメインモデル（例: `@LoginEngineerId engineerId: EngineerId`）のみとし、UseCase / Domain 層に JWT・HTTP ヘッダーなど Web 概念を持ち込まない。
 
 ### deactivated 自動遷移バッチ（`@Scheduled`）
 
@@ -239,7 +241,6 @@
 ### テスト戦略（Step1 実装後に確定）
 
 - どのレイヤーまでテストカバレッジを設けるか（UseCase 単体テストのみ / Controller 統合テストも含むか）を実装フェーズで確定する。
-- DB テストは Testcontainers（PostgreSQL）を利用する方向で検討する。
 
 ### 経歴書の帳票出力（Excel・PDF）
 
@@ -267,6 +268,11 @@
 #### 日本語フォントの管理
 
 - コンテナ環境およびPDF出力時の文字化けを防ぐため、`fonts-noto-cjk` をインストールし、Excelテンプレート内のフォント指定と整合性を保つ。
+
+#### アーキテクチャ分離（実装時の注意）
+
+- UseCase 層は `SkillSheetExporter` インターフェースのみに依存させる。
+- Excel 操作・LibreOffice 呼び出しの具体的知識はすべて Infrastructure 層に閉じ込め、将来的なライブラリ変更に備える。
 
 ### キャリアシート・ダイナミックフォーム基盤
 
@@ -314,19 +320,6 @@
 
 ## Cross-cutting
 
-### クリーンアーキテクチャの依存方向維持
-
-#### 認証処理の共通化とクリーンアーキテクチャの維持
-
-- Controllerの各メソッドに認証やDB検索のロジックを書かず、`HandlerMethodArgumentResolver` 等を利用して処理を共通化する。
-- Controller層で認証・変換を完結させ、引数としてドメインモデル（例: `@LoginEngineerId engineerId: EngineerId`）だけを受け取るようにする。
-- ユースケース層やドメイン層には、JWTやHTTPヘッダーなどWeb特有の概念を一切持ち込ませない。
-
-#### 帳票出力でのアーキテクチャ分離
-
-- ユースケース層は `SkillSheetExporter` インターフェースのみに依存させる。
-- Excel操作や外部コマンド発行（LibreOffice）の具体的知識はすべてインフラ層に閉じ込め、将来的なライブラリ変更に備える。
-
 ### 冪等性キーチェック基盤
 
 #### Spring Interceptor + AOP + Redis による冪等性キーチェック
@@ -357,3 +350,5 @@ UseCase層でのチェックも検討したが、以下の理由で Interceptor 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - push時のGitHub Actionsで複雑度レポートを作成: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - データベース・マイグレーション基盤の導入（Flyway / MyBatis / PostgreSQL）: [APP-ADR-0004](adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)
+- DB テストに Testcontainers（PostgreSQL）を採用し統合テストを整備: [APP-ADR-0012](adr/APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md)
+- ArchUnit によるアーキテクチャ依存方向チェック（domain / usecase / infrastructure / presentation）: [PR #13](https://github.com/OkochiDesu/kakehashi-api/pull/13)

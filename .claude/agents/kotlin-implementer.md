@@ -25,6 +25,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - Controller: リクエスト受付・バリデーション・レスポンス変換のみ。ビジネスロジックを持たない
   - Service: ビジネスロジック・トランザクション管理
   - Repository: DB アクセスのみ（MyBatis または Spring Data JPA）
+- **APP-ADR-0010 の UseCase Input/Output 設計**: UseCase の `Input` / `Output` はそのクラス内にネストした `data class` で定義する。Builder パターン・ファクトリメソッドは使わない（Kotlin の名前付き引数で十分）。`companion object` 等の内部実装詳細（UUID 定数等）は `private` にして呼び出し側に漏らさない
 - **APP-ADR-0007 の認可チェック**: アクセス制御は `account_roles` の permission（`admin` / `view_personal_info`）に基づく。`visibility_rules` は廃止済みのため参照しない
 - **APP-ADR-0005 の楽観ロック**: `accounts` 等の対象テーブルには `version` チェックを実装する。楽観ロック競合（UPDATE 0件）は `OptimisticLockException` をスローし、再取得した currentVersion を渡す
 - セキュリティ: SQL インジェクション・XSS・認可バイパスが発生しないコードを書く。ユーザー入力は API バウンダリでのみバリデートし、内部では信頼する
@@ -33,6 +34,10 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 - **Output DTO のプロパティ**に `Nothing?` を使わない。意味のある具体的な型（`OffsetDateTime?` 等）を使う
 - `git push` / `rm` 等の禁止操作は実行しない
 - テストコードも合わせて作成する（単体テスト: Service 層、結合テスト: Controller 層）
+- **依存バージョン選定時の互換確認（必須）**:
+  - サードパーティの Spring Boot スターター（MyBatis 等）はメジャーバージョンを Spring Boot に合わせる（例: Spring Boot 4.x → `mybatis-spring-boot-starter:4.x`）。バージョン表は各ライブラリの公式ドキュメントで確認する
+  - Spring Boot 4.x ではオートコンフィグがモジュール化されており、`flyway-core` のみ追加しても `FlywayAutoConfiguration` は動かない。機能スターター（`spring-boot-starter-flyway` 等）の追加が必要かどうかを確認すること
+  - Testcontainers 等のバージョンは Spring Boot の BOM 管理に任せる（`platform()` 指定）。個別バージョン固定が必要な場合は理由を `build.gradle.kts` にコメントで残す
 
 ## KDoc・コメントルール
 
