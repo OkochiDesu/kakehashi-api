@@ -29,7 +29,7 @@ Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotli
 
 技術選定自体は要件定義で既に方針として明示されている。
 
-- データベース: PostgreSQL 15（JSONBを積極利用）。DB製品の置き換えは想定しない（[quality-standards.md 6章](../requirements/quality-standards.md)）。
+- データベース: PostgreSQL 16（JSONBを積極利用）。DB製品の置き換えは想定しない（[quality-standards.md 6章](../requirements/quality-standards.md)）。
 - マイグレーション: Flyway（[requirements/README.md 技術スタック表](../requirements/README.md)）。
 - O/Rマッパー: MyBatis。MyBatis以外のO/Rマッパーへの変更等、将来の技術選定変更はADRで判断する（[quality-standards.md 6章](../requirements/quality-standards.md)）。
 - アーキテクチャ: CQRSにより更新系（ドメインモデル経由）と参照系（MyBatis直結でJSONB/JOIN結果をDTOに直接マッピング）を分離する（[data-models.md 1章](../requirements/data-models.md)、[requirements/README.md 4章](../requirements/README.md)）。

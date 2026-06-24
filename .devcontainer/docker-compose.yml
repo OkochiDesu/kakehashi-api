@@ -20,8 +20,8 @@ services:
 
   # PostgreSQL データベースコンテナ
   db:
-    # PostgreSQL 15 の公式イメージ
-    image: postgres:15
+    # PostgreSQL 16 の公式イメージ
+    image: postgres:16
     # コンテナが停止・クラッシュした場合に自動再起動
     restart: always
     # .env ファイルから環境変数を読み込む（.env は .gitignore で除外済み）

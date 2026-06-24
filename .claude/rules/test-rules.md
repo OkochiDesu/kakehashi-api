@@ -57,7 +57,7 @@ class MyIntegrationTest {
     class TestDatasourceConfig {
         @Bean(destroyMethod = "stop")
         fun postgresContainer(): PostgreSQLContainer<*> =
-            PostgreSQLContainer("postgres:15-alpine").also { it.start() }
+            PostgreSQLContainer("postgres:16-alpine").also { it.start() }
 
         @Bean
         fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =

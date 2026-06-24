@@ -40,7 +40,7 @@
 | 言語/ランタイム | Kotlin 2.2.21 (Java 21 toolchain) | 導入済み |
 | フレームワーク | Spring Boot 4.0.6 | 導入済み |
 | Lint/Format | ktlint 1.5.0 (Spotless) | 導入済み |
-| データベース | PostgreSQL 15 (JSONBを積極利用) | **導入済み**（[APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
+| データベース | PostgreSQL 16 (JSONBを積極利用) | **導入済み**（[APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
 | マイグレーション | Flyway | **導入済み**（[APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
 | O/Rマッパー | MyBatis | **導入済み**（[APP-ADR-0004](../adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)） |
 | フロントエンド | Nuxt 3, TypeScript | 別リポジトリで管理予定（本リポジトリのスコープ外） |
