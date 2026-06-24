@@ -30,21 +30,21 @@ import java.time.OffsetDateTime
  *
  * ★★正常系★★
  * 《観　点》状態遷移・updatedAt/updatedBy・suspendedAt クリアが正しく実行されることの一括検証
- * 《テスト》SUSPENDED から ACTIVE に遷移する
+ * 《テスト》正常系： SUSPENDED から ACTIVE に遷移する
  *
  * ★★異常系★★
  * 《観　点》非管理者による停止解除操作が権限ガードで防止されることの確認
- * 《テスト》isAdmin=false は ForbiddenOperationException
+ * 《テスト》異常系： isAdmin=false は ForbiddenOperationException
  *
  * 《観　点》不在エンティティへの操作が早期失敗することの確認
- * 《テスト》アカウントが存在しない場合は AccountNotFoundException
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
  *
  * 《観　点》SUSPENDED 以外からの解除操作が禁止されることの確認（各ステータスを網羅）
- * 《テスト》ACTIVE から ACTIVE への遷移試行は InvalidStatusTransitionException
- * 《テスト》PROVISIONAL から ACTIVE への解除試行は InvalidStatusTransitionException
+ * 《テスト》異常系： ACTIVE から ACTIVE への遷移試行は InvalidStatusTransitionException
+ * 《テスト》異常系： PROVISIONAL から ACTIVE への解除試行は InvalidStatusTransitionException
  *
  * 《観　点》楽観ロック競合時の例外と currentVersion の正確な保持確認
- * 《テスト》update が 0件（楽観ロック競合）は OptimisticLockException（currentVersion を再取得）
+ * 《テスト》異常系： update が 0件（楽観ロック競合）は OptimisticLockException（currentVersion を再取得）
  */
 class UnsuspendAccountUseCaseTest {
     private val accountRepository = mockk<AccountRepository>()

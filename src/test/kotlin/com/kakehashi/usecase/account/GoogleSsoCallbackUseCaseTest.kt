@@ -23,15 +23,15 @@ import org.junit.jupiter.api.Test
  *
  * ★★正常系★★
  * 《観　点》初回 Google ログイン時に JIT プロビジョニングで自動アカウント登録が行われることの確認
- * 《テスト》未登録アカウントは JIT プロビジョニングで PROVISIONAL 作成される
+ * 《テスト》正常系： 未登録アカウントは JIT プロビジョニングで PROVISIONAL 作成される
  *
  * 《観　点》2回目以降のログインで再作成が起きず既存ステータスがそのまま返ることの確認
- * 《テスト》既存 ACTIVE アカウントはそのまま返す
- * 《テスト》既存 SUSPENDED アカウントは SUSPENDED ステータスを返す（コールバックでは弾かない）
- * 《テスト》既存 PROVISIONAL アカウントは PROVISIONAL ステータスを返す
+ * 《テスト》正常系： 既存 ACTIVE アカウントはそのまま返す
+ * 《テスト》正常系： 既存 SUSPENDED アカウントは SUSPENDED ステータスを返す（コールバックでは弾かない）
+ * 《テスト》正常系： 既存 PROVISIONAL アカウントは PROVISIONAL ステータスを返す
  *
  * 《観　点》新規アカウントの accountId が DB シーケンス経由で採番されることの確認
- * 《テスト》新規アカウントの accountId はシーケンス値から生成される
+ * 《テスト》正常系： 新規アカウントの accountId はシーケンス値から生成される
  */
 class GoogleSsoCallbackUseCaseTest {
     private val accountRepository = mockk<AccountRepository>()

@@ -25,21 +25,21 @@ import org.junit.jupiter.api.assertThrows
  *
  * ★★正常系★★
  * 《観　点》AccountSummaryRow → Output 変換マッピングの基本動作確認
- * 《テスト》AccountMapper.searchAccounts の結果が変換されて返る
+ * 《テスト》正常系： AccountMapper_searchAccounts の結果が変換されて返る
  *
  * 《観　点》権限による検索フィルタ強制の確認（非 admin は suspended/deactivated を見えないようにする）
- * 《テスト》isAdmin=false の場合 statuses が active に強制される
- * 《テスト》isAdmin=true かつ statuses 指定ありの場合は指定した statuses で検索する
+ * 《テスト》正常系： isAdmin=false の場合 statuses が active に強制される
+ * 《テスト》正常系： isAdmin=true かつ statuses 指定ありの場合は指定した statuses で検索する
  *
  * 《観　点》deactivated アカウントの個人情報が一覧 Query でも APP-ADR-0006 仕様通りにマスクされることの確認
- * 《テスト》deactivated アカウントの name は "***" にマスクされる
+ * 《テスト》正常系： deactivated アカウントの name は "***" にマスクされる
  *
  * 《観　点》端数切り上げのページ数計算が正確であることの確認
- * 《テスト》ページング計算が正しい（totalElements=21 size=20 → totalPages=2）
+ * 《テスト》正常系： ページング計算が正しい（totalElements=21 size=20 → totalPages=2）
  *
  * ★★異常系★★
  * 《観　点》未定義ロールコードの検索パラメータを早期失敗で弾くことの確認
- * 《テスト》不正な roleCode を渡すと IllegalArgumentException がスローされる
+ * 《テスト》異常系： 不正な roleCode を渡すと IllegalArgumentException がスローされる
  */
 class ListAccountsQueryTest {
     private val accountMapper = mockk<AccountMapper>()

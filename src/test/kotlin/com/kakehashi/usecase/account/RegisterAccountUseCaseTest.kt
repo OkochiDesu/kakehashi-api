@@ -27,19 +27,19 @@ import org.junit.jupiter.api.assertThrows
  *
  * ★★正常系★★
  * 《観　点》状態遷移・監査カラム（updatedAt/updatedBy）・version インクリメントの一括検証
- * 《テスト》PROVISIONAL から ACTIVE に遷移し repository.update が呼ばれる
+ * 《テスト》正常系： PROVISIONAL から ACTIVE に遷移し repository_update が呼ばれる
  *
  * ★★異常系★★
  * 《観　点》不在ユーザーへの操作を早期失敗させることの確認
- * 《テスト》アカウントが存在しない場合は AccountNotFoundException
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
  *
  * 《観　点》PROVISIONAL 以外からの登録を禁止するステータスガードの確認（各ステータスを網羅）
- * 《テスト》ACTIVE アカウントへの再登録は InvalidStatusTransitionException
- * 《テスト》SUSPENDED アカウントへの登録試行は InvalidStatusTransitionException
- * 《テスト》DEACTIVATED アカウントへの登録試行は InvalidStatusTransitionException
+ * 《テスト》異常系： ACTIVE アカウントへの再登録は InvalidStatusTransitionException
+ * 《テスト》異常系： SUSPENDED アカウントへの登録試行は InvalidStatusTransitionException
+ * 《テスト》異常系： DEACTIVATED アカウントへの登録試行は InvalidStatusTransitionException
  *
  * 《観　点》同時リクエスト競合時の例外と currentVersion 正確性の確認
- * 《テスト》update が 0件（楽観ロック競合）の場合は OptimisticLockException（currentVersion を再取得）
+ * 《テスト》異常系： update が 0件（楽観ロック競合）の場合は OptimisticLockException（currentVersion を再取得）
  */
 class RegisterAccountUseCaseTest {
     private val accountRepository = mockk<AccountRepository>()

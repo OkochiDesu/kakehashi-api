@@ -16,12 +16,12 @@ import org.junit.jupiter.api.assertThrows
  *
  * ★★正常系★★
  * 《観　点》定義済みロールコードが正しく enum に変換されることの確認
- * 《テスト》"admin" を変換すると ADMIN を返す
- * 《テスト》"view_personal_info" を変換すると VIEW_PERSONAL_INFO を返す
+ * 《テスト》fromCode - adminを変換するとADMINを返す
+ * 《テスト》fromCode - view_personal_infoを変換するとVIEW_PERSONAL_INFOを返す
  *
  * ★★異常系★★
  * 《観　点》未定義のロールコードが混入した場合に即座に検出できることの確認
- * 《テスト》未知の code は IllegalArgumentException をスローする
+ * 《テスト》fromCode - 未知のcodeはIllegalArgumentExceptionをスローする
  */
 class RoleCodeTest {
     @Test

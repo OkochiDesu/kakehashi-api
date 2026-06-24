@@ -45,49 +45,49 @@ import java.time.OffsetDateTime
  *
  * ★★正常系★★
  * 《観　点》googleCallback: SSO コールバックで PROVISIONAL・ACTIVE アカウントが受け入れられることの確認
- * 《テスト》PROVISIONAL アカウントは 200 OK を返す
- * 《テスト》ACTIVE アカウントは 200 OK を返す
+ * 《テスト》googleCallback 正常系： PROVISIONAL アカウントは 200 OK を返す
+ * 《テスト》googleCallback 正常系： ACTIVE アカウントは 200 OK を返す
  *
  * 《観　点》register: 登録完了リクエストに対して 200 OK が返ることの確認
- * 《テスト》register 正常系: 200 OK を返す
+ * 《テスト》register 正常系： 200 OK を返す
  *
  * 《観　点》editMe: 表示名更新リクエストに対して 200 OK が返ることの確認
- * 《テスト》editMe 正常系: 200 OK を返す
+ * 《テスト》editMe 正常系： 200 OK を返す
  *
  * 《観　点》assignRoles / suspend / unsuspend: 管理者操作が 200 OK を返すことの確認
- * 《テスト》assignRoles: X-Is-Admin=true で 200 OK を返す
- * 《テスト》suspend: X-Is-Admin=true で 200 OK を返す
- * 《テスト》unsuspend: X-Is-Admin=true で 200 OK を返す
+ * 《テスト》assignRoles 正常系： X-Is-Admin=true で 200 OK を返す
+ * 《テスト》suspend 正常系： X-Is-Admin=true で 200 OK を返す
+ * 《テスト》unsuspend 正常系： X-Is-Admin=true で 200 OK を返す
  *
  * 《観　点》listAccounts: 管理者・非管理者ともに 200 OK を返すことの確認
- * 《テスト》X-Is-Admin=true で 200 OK を返す
- * 《テスト》X-Is-Admin=false でも 200 OK（UseCase 内で active に強制）
+ * 《テスト》listAccounts 正常系： X-Is-Admin=true で 200 OK を返す
+ * 《テスト》listAccounts 正常系： X-Is-Admin=false でも 200 OK（UseCase 内で active に強制）
  *
  * 《観　点》getAccount: 本人参照が 200 OK を返すことの確認
- * 《テスト》本人が自分の ID で 200 OK
+ * 《テスト》getAccount 正常系： 本人が自分の ID で 200 OK
  *
  * ★★異常系★★
  * 《観　点》googleCallback: 停止・無効化アカウントのアクセスが 403 で拒否されることの確認
- * 《テスト》SUSPENDED アカウントは 403 Forbidden を返す
- * 《テスト》DEACTIVATED アカウントは 403 Forbidden を返す
+ * 《テスト》googleCallback 異常系： SUSPENDED アカウントは 403 Forbidden を返す
+ * 《テスト》googleCallback 異常系： DEACTIVATED アカウントは 403 Forbidden を返す
  *
  * 《観　点》googleCallback: 必須パラメータ欠落が 400 で拒否されることの確認
- * 《テスト》idToken がない場合は 400 Bad Request
+ * 《テスト》googleCallback 異常系： idToken がない場合は 400 Bad Request
  *
  * 《観　点》register: InvalidStatusTransitionException の HTTP マッピング確認
- * 《テスト》InvalidStatusTransitionException は 409 Conflict
+ * 《テスト》register 異常系： InvalidStatusTransitionException は 409 Conflict
  *
  * 《観　点》editMe: OptimisticLockException の HTTP マッピング確認
- * 《テスト》OptimisticLockException は 409 Conflict
+ * 《テスト》editMe 異常系： OptimisticLockException は 409 Conflict
  *
  * 《観　点》assignRoles / suspend / unsuspend: 非管理者操作が 403 で拒否されることの確認
- * 《テスト》assignRoles: X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
- * 《テスト》suspend: X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
- * 《テスト》unsuspend: X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
+ * 《テスト》assignRoles 異常系： X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
+ * 《テスト》suspend 異常系： X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
+ * 《テスト》unsuspend 異常系： X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
  *
  * 《観　点》getAccount: 他者情報アクセス・不在リソースの HTTP マッピング確認
- * 《テスト》非 admin が他人の ID でアクセスすると ForbiddenOperationException は 403 Forbidden
- * 《テスト》存在しない accountId は 404 Not Found
+ * 《テスト》getAccount 異常系： 非 admin が他人の ID でアクセスすると ForbiddenOperationException は 403 Forbidden
+ * 《テスト》getAccount 異常系： 存在しない accountId は 404 Not Found
  */
 @WebMvcTest(AccountController::class)
 @Import(GlobalExceptionHandler::class)

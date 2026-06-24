@@ -70,7 +70,7 @@
 - [x] Testcontainers 統合テスト（`AccountRepositoryImplIntegrationTest`）を CI で実行できることを確認
 
 > **注意**: devcontainer の DoD（Docker-outside-of-Docker）環境と CI の native Docker 環境は構成が異なる。
-> `TESTCONTAINERS_RYUK_DISABLED` / `TESTCONTAINERS_HOST_OVERRIDE` は devcontainer 専用設定であり CI では不要。[APP-ADR-0012](../adr/APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md) 参照。
+> `TESTCONTAINERS_RYUK_DISABLED` / `TESTCONTAINERS_HOST_OVERRIDE` は devcontainer 専用設定であり CI では不要。[APP-ADR-0012](../../adr/APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md) 参照。
 
 ---
 
@@ -96,7 +96,7 @@
 - [x] Controller 引数をドメインモデルのみに保つ（UseCase 層に Web 概念を持ち込まない）
 - [x] テスト: `provisional` → 403、`active` → 200、`admin` ロール不足 → 403
 
-> 根拠: [APP-ADR-0008](../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md)（Controller 引数をドメインモデルのみにする依存方向維持）
+> 根拠: [APP-ADR-0008](../../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md)（Controller 引数をドメインモデルのみにする依存方向維持）
 
 ---
 
@@ -108,7 +108,7 @@
 - [x] `@ConditionalOnProperty` でテスト時無効化
 - [x] テスト: 1年経過アカウントが `deactivated` に変わること（`@TestPropertySource` で有効化して検証）
 
-> 根拠: [APP-ADR-0006](../adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md)
+> 根拠: [APP-ADR-0006](../../adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md)
 
 ---
 

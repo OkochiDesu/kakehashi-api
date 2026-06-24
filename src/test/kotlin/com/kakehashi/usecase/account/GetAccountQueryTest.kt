@@ -25,23 +25,23 @@ import org.junit.jupiter.api.assertThrows
  *
  * ★★正常系★★
  * 《観　点》admin がシステム全体のアカウントを閲覧できることの確認
- * 《テスト》admin が他人のアカウントを取得できる
+ * 《テスト》正常系： admin が他人のアカウントを取得できる
  *
  * 《観　点》非 admin は管理者権限なしで自分のアカウントを参照できることの確認
- * 《テスト》非 admin が自分のアカウントを取得できる
+ * 《テスト》正常系： 非 admin が自分のアカウントを取得できる
  *
  * 《観　点》deactivated アカウントの個人情報が APP-ADR-0006 仕様通りにマスクされることの確認
- * 《テスト》deactivated アカウントの name と email が "***" にマスクされる
+ * 《テスト》正常系： deactivated アカウントの name と email が "***" にマスクされる
  *
  * 《観　点》RoleRow → RoleCode の変換マッピングが正確であることの確認
- * 《テスト》ロール情報が正しく変換されて返る
+ * 《テスト》正常系： ロール情報が正しく変換されて返る
  *
  * ★★異常系★★
  * 《観　点》非 admin が他者情報にアクセスするのを認可ガードで防ぐことの確認
- * 《テスト》非 admin が他人の ID でアクセスすると ForbiddenOperationException
+ * 《テスト》異常系： 非 admin が他人のアカウントにアクセスすると ForbiddenOperationException
  *
  * 《観　点》不在リソースへの取得が安全に失敗することの確認
- * 《テスト》アカウントが存在しない場合は AccountNotFoundException
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
  */
 class GetAccountQueryTest {
     private val accountMapper = mockk<AccountMapper>()

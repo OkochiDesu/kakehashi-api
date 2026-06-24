@@ -28,19 +28,19 @@ import org.junit.jupiter.api.Test
  *
  * ★★ルール（正常系・異常系の区別なし）★★
  * 《観　点》ドメイン層の独立性保証
- * 《テスト》domain 層は usecase・infrastructure・presentation 層に依存しない
+ * 《テスト》domain層はusecase・infrastructure・presentation層に依存しない
  *
  * 《観　点》Web 層・永続化層がユースケースを汚染しないことの確認
- * 《テスト》usecase 非 Query 層は infrastructure・presentation 層に依存しない
+ * 《テスト》usecase非Query層はinfrastructure・presentation層に依存しない
  *
  * 《観　点》CQRS 例外（APP-ADR-0008）の範囲内に収まることの確認
- * 《テスト》usecase Query 層は presentation 層に依存しない
+ * 《テスト》usecaseQuery層はpresentation層に依存しない（APP-ADR-0008）
  *
  * 《観　点》外側から内側への逆依存（違反）がないことの確認
- * 《テスト》infrastructure 層は presentation・usecase 層に依存しない
+ * 《テスト》infrastructure層はpresentation・usecase層に依存しない
  *
  * 《観　点》presentation が usecase をバイパスして DB に直接触れないことの確認
- * 《テスト》presentation 層は infrastructure 層に直接依存しない
+ * 《テスト》presentation層はinfrastructure層に直接依存しない
  */
 class ArchitectureTest {
     private val classes =

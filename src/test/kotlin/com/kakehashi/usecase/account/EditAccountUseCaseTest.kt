@@ -27,15 +27,15 @@ import org.junit.jupiter.api.assertThrows
  *
  * ★★正常系★★
  * 《観　点》name・updatedAt・updatedBy が更新後の値に変化していることの一括検証
- * 《テスト》name が更新された Output が返る
+ * 《テスト》正常系： name が更新された Output が返る
  *
  * ★★異常系★★
  * 《観　点》不在ユーザーへの変更試行を防ぐ早期失敗の確認
- * 《テスト》アカウントが存在しない場合は AccountNotFoundException
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
  *
  * 《観　点》楽観ロック競合の 2 段階検出の確認
- * 《テスト》リクエスト version と DB の version が不一致は OptimisticLockException（第1段階: 事前チェック）
- * 《テスト》update が 0件（楽観ロック競合）の場合は OptimisticLockException（第2段階: currentVersion 再取得）
+ * 《テスト》異常系： リクエスト version と DB の version が不一致は OptimisticLockException
+ * 《テスト》異常系： update が 0件（楽観ロック競合）の場合は OptimisticLockException（currentVersion を再取得）
  */
 class EditAccountUseCaseTest {
     private val accountRepository = mockk<AccountRepository>()

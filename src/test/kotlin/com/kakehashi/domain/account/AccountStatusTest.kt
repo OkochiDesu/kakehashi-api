@@ -20,34 +20,44 @@ import org.junit.jupiter.api.assertThrows
  *
  * ★★正常系（canTransitionTo: 許容される遷移）★★
  * 《観　点》ユーザー登録完了フローで PROVISIONAL → ACTIVE への遷移が可能であることの確認
- * 《テスト》PROVISIONAL → ACTIVE へ遷移できる
+ * 《テスト》正常系： PROVISIONAL から ACTIVE へ遷移できる
  *
  * 《観　点》管理者による停止・解除フローが機能することの確認
- * 《テスト》ACTIVE → SUSPENDED へ遷移できる
- * 《テスト》SUSPENDED → ACTIVE へ遷移できる
+ * 《テスト》正常系： ACTIVE から SUSPENDED へ遷移できる
+ * 《テスト》正常系： SUSPENDED から ACTIVE へ遷移できる
  *
  * 《観　点》日次バッチによる自動無効化フローが機能することの確認
- * 《テスト》SUSPENDED → DEACTIVATED へ遷移できる
+ * 《テスト》正常系： SUSPENDED から DEACTIVATED へ遷移できる（日次バッチ）
  *
  * ★★正常系（canLogin / isSearchable）★★
  * 《観　点》ACTIVE のみがログイン・検索の対象になることの境界値確認
- * 《テスト》ACTIVE のみ canLogin が true を返す
- * 《テスト》ACTIVE 以外（PROVISIONAL・SUSPENDED・DEACTIVATED）は canLogin が false を返す
- * 《テスト》ACTIVE のみ isSearchable が true を返す
- * 《テスト》ACTIVE 以外は isSearchable が false を返す
+ * 《テスト》正常系： ACTIVE のみ canLogin が true を返す
+ * 《テスト》正常系： ACTIVE のみ isSearchable が true を返す
+ *
+ * ★★正常系（fromDbValue）★★
+ * 《観　点》DB 文字列から enum への変換が正確であることの確認
+ * 《テスト》正常系： active から ACTIVE に変換できる
+ * 《テスト》正常系： suspended から SUSPENDED に変換できる
  *
  * ★★異常系（canTransitionTo: 禁止される遷移）★★
  * 《観　点》登録前のアカウントに対する停止・無効化操作が防止されることの確認
- * 《テスト》PROVISIONAL → SUSPENDED へは遷移できない
- * 《テスト》PROVISIONAL → DEACTIVATED へは遷移できない
+ * 《テスト》異常系： PROVISIONAL から SUSPENDED へは遷移できない
+ * 《テスト》異常系： PROVISIONAL から DEACTIVATED へは遷移できない
  *
  * 《観　点》ステータスの逆戻り・バッチ経由以外の無効化が防止されることの確認
- * 《テスト》ACTIVE → PROVISIONAL へは遷移できない
- * 《テスト》ACTIVE → DEACTIVATED へは遷移できない
- * 《テスト》SUSPENDED → PROVISIONAL へは遷移できない
+ * 《テスト》異常系： ACTIVE から PROVISIONAL へは遷移できない
+ * 《テスト》異常系： ACTIVE から DEACTIVATED へは遷移できない
+ * 《テスト》異常系： SUSPENDED から PROVISIONAL へは遷移できない
  *
  * 《観　点》終端ステータス（DEACTIVATED）からの遷移が全て禁止されることの確認
- * 《テスト》DEACTIVATED からはいかなるステータスへも遷移できない
+ * 《テスト》異常系： DEACTIVATED からはいかなるステータスへも遷移できない
+ *
+ * ★★異常系（canLogin / isSearchable）★★
+ * 《テスト》異常系： ACTIVE 以外は canLogin が false を返す
+ * 《テスト》異常系： ACTIVE 以外は isSearchable が false を返す
+ *
+ * ★★異常系（fromDbValue）★★
+ * 《テスト》異常系： 未知の値は IllegalArgumentException を投げる
  */
 class AccountStatusTest {
     @Nested
