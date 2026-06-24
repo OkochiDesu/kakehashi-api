@@ -19,7 +19,7 @@
 
 - Supersedes: なし
 - Superseded by: なし
-- 補完: APP-ADR-0011（Testcontainers コアを 1.20.4 に固定）— 本 ADR の見直しポイント「DB統合テスト（Testcontainers等）を導入した際は、依存・CI構成の変更を本ADRまたは実装関連の別ADRに記録する」を受け、Testcontainers の依存構成を記録した ADR。
+- 補完: APP-ADR-0011（Testcontainers コアを 1.20.4 に固定、Superseded）/ [APP-ADR-0012](APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md)（Testcontainers 2.0.5 移行・確定パターン）— 本 ADR の見直しポイント「DB統合テスト導入時の依存・CI構成変更を記録する」を受けて作成された ADR 群。最新の方針は APP-ADR-0012 を参照。
 
 ## 背景
 
@@ -80,6 +80,6 @@ Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotli
 ## 今後の見直しポイント
 
 - O/Rマッパー（MyBatis）やマイグレーションツール（Flyway）を変更する場合は、新規ADRで本ADRをSupersedeする。
-- DB統合テスト（Testcontainers等）を導入した際は、依存・CI構成の変更を本ADRまたは実装関連の別ADRに記録する（Testcontainers の依存バージョン固定方針は [APP-ADR-0011](APP-ADR-0011-Testcontainersコアを1.20.4に固定しSpringBoot4xのBOM管理2xを回避.md) に記録済み）。
+- DB統合テスト（Testcontainers等）の依存・CI構成変更は [APP-ADR-0012](APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md) に記録済み（APP-ADR-0011 を Supersede）。
 - クラウド事業者・マネージドPostgreSQL等のホスティングが確定した際は、データソース設定の運用方針をADRに記録する。
 - MyBatisのマッパーXML / SQLに対するSpotlessフォーマット設定を追加した際は、CI品質ゲート関連の方針（CICD-ADR-0001〜0003系）との整合を確認する。

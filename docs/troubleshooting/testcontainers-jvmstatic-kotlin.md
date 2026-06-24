@@ -1,5 +1,13 @@
 # Testcontainers: Kotlin + Spring Boot 4.x での統合テスト設定
 
+## 目次
+
+- [現象](#現象)
+- [根本原因](#根本原因)
+- [対処（確定パターン）](#対処確定パターン)
+- [防止策](#防止策)
+- [過去の試み（効果なし）](#過去の試み効果なし)
+
 ## 現象
 
 `@SpringBootTest` + Testcontainers を使う統合テストで、CI（ubuntu-latest）で以下のようなエラーが発生する：
@@ -22,8 +30,8 @@ Spring Boot 4.x において以下の API・機能が削除または動作不安
 | `@JdbcTest` / `@AutoConfigureTestDatabase` | **Spring Boot 4.x で削除（`spring-boot-test-autoconfigure` から除去）** |
 | `ContainerDatabaseDriver`（JDBC URL 方式） | DataSource が作成されず MyBatis 自動設定がスキップされる |
 
-また、`spring-boot-testcontainers` を依存に含めると `testcontainers:2.0.5` がコアに引き込まれ、
-`postgresql/jdbc`（1.20.4）との API 非互換が発生する（詳細は APP-ADR-0011）。
+DataSource は `@TestConfiguration` で `PostgreSQLContainer` を直接起動して提供する。
+Testcontainers は 2.0.5（Spring Boot 4.x の BOM 管理）に移行済みで、依存・接続方式の意思決定は APP-ADR-0012 に記録（APP-ADR-0011 を Supersede）。
 
 ### NoSuchBeanDefinitionException 連鎖の仕組み
 
@@ -92,7 +100,7 @@ spring.flyway.enabled=true
 
 - `AccountRepositoryImplIntegrationTest.kt` が参照実装として機能する
 - `test-rules.md` に推奨パターンを記載
-- `APP-ADR-0011` としてバージョン固定の意思決定と出口条件を記録
+- 出口条件を満たし Testcontainers 2.0.5 へ移行済み（`APP-ADR-0011` Superseded → `APP-ADR-0012`）。`@TestConfiguration` 直接起動方式の採用と devcontainer 環境変数（`TESTCONTAINERS_RYUK_DISABLED` / `TESTCONTAINERS_HOST_OVERRIDE`）を `APP-ADR-0012` に記録
 
 ## 過去の試み（効果なし）
 
@@ -103,4 +111,4 @@ spring.flyway.enabled=true
 | `@ServiceConnection` を外し `@DynamicPropertySource` を使用 | Bean 初期化順序問題で失敗 |
 | `@JdbcTest` + `@AutoConfigureTestDatabase` に変更 | Spring Boot 4.x で API 削除済みのためコンパイルエラー |
 | `ContainerDatabaseDriver`（JDBC URL 方式） | DataSource が Spring コンテキストに登録されず失敗 |
-| `spring-boot-testcontainers` 依存を除去のみ | `testcontainers:2.0.5` 問題は解消したが DataSource 問題は残存 |
+| `spring-boot-testcontainers` 依存を除去のみ | コア引き込み問題は解消したが DataSource 問題は残存（`@TestConfiguration` 直接起動で解決） |

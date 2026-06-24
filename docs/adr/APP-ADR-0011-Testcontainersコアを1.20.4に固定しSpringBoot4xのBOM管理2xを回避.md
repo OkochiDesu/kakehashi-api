@@ -7,8 +7,8 @@
 ## ステータス
 
 - [ ] Proposed
-- [x] Accepted
-- [ ] Superseded
+- [ ] Accepted
+- [x] Superseded by: [APP-ADR-0012](APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md)
 - [ ] Rejected
 
 ## 日付
@@ -18,7 +18,7 @@
 ## 関連
 
 - Supersedes: なし
-- Superseded by: なし
+- Superseded by: [APP-ADR-0012](APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md)（Testcontainers を 2.0.5 へ移行し @TestConfiguration 直接起動方式を採用）
 - 補完: APP-ADR-0004（永続化技術スタックの導入）— 同 ADR の見直しポイント「DB統合テスト（Testcontainers等）を導入した際は、依存・CI構成の変更を本ADRまたは実装関連の別ADRに記録する」を受け、本 ADR で Testcontainers の依存構成を記録する。
 
 ## 背景

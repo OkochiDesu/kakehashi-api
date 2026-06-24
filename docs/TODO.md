@@ -249,7 +249,6 @@
 ### テスト戦略（Step1 実装後に確定）
 
 - どのレイヤーまでテストカバレッジを設けるか（UseCase 単体テストのみ / Controller 統合テストも含むか）を実装フェーズで確定する。
-- DB テストは Testcontainers（PostgreSQL）を利用する方向で検討する。
 
 ### 経歴書の帳票出力（Excel・PDF）
 
@@ -359,3 +358,4 @@ UseCase層でのチェックも検討したが、以下の理由で Interceptor 
 - CI/CD（GitHub Actions）でPRにカバレッジ率を自動コメント: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - push時のGitHub Actionsで複雑度レポートを作成: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - データベース・マイグレーション基盤の導入（Flyway / MyBatis / PostgreSQL）: [APP-ADR-0004](adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)
+- DB テストに Testcontainers（PostgreSQL）を採用し統合テストを整備: [APP-ADR-0012](adr/APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md)
