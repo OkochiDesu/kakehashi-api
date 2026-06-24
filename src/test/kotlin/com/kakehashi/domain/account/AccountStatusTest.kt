@@ -12,6 +12,42 @@ import org.junit.jupiter.api.assertThrows
  *
  * 設計書No：-
  * ADRNo：APP-ADR-0006
+ *
+ * ★観点
+ * APP-ADR-0006 で定義した 4 値ステータスの遷移グラフ・ログイン可否・検索対象可否の
+ * 3 つの判定ロジックが仕様通りに動作することを保証する。
+ * 許容・禁止の全パターンを網羅し、不正遷移によるデータ不整合を防ぐ。
+ *
+ * ★★正常系（canTransitionTo: 許容される遷移）★★
+ * 《観　点》ユーザー登録完了フローで PROVISIONAL → ACTIVE への遷移が可能であることの確認
+ * 《テスト》PROVISIONAL → ACTIVE へ遷移できる
+ *
+ * 《観　点》管理者による停止・解除フローが機能することの確認
+ * 《テスト》ACTIVE → SUSPENDED へ遷移できる
+ * 《テスト》SUSPENDED → ACTIVE へ遷移できる
+ *
+ * 《観　点》日次バッチによる自動無効化フローが機能することの確認
+ * 《テスト》SUSPENDED → DEACTIVATED へ遷移できる
+ *
+ * ★★正常系（canLogin / isSearchable）★★
+ * 《観　点》ACTIVE のみがログイン・検索の対象になることの境界値確認
+ * 《テスト》ACTIVE のみ canLogin が true を返す
+ * 《テスト》ACTIVE 以外（PROVISIONAL・SUSPENDED・DEACTIVATED）は canLogin が false を返す
+ * 《テスト》ACTIVE のみ isSearchable が true を返す
+ * 《テスト》ACTIVE 以外は isSearchable が false を返す
+ *
+ * ★★異常系（canTransitionTo: 禁止される遷移）★★
+ * 《観　点》登録前のアカウントに対する停止・無効化操作が防止されることの確認
+ * 《テスト》PROVISIONAL → SUSPENDED へは遷移できない
+ * 《テスト》PROVISIONAL → DEACTIVATED へは遷移できない
+ *
+ * 《観　点》ステータスの逆戻り・バッチ経由以外の無効化が防止されることの確認
+ * 《テスト》ACTIVE → PROVISIONAL へは遷移できない
+ * 《テスト》ACTIVE → DEACTIVATED へは遷移できない
+ * 《テスト》SUSPENDED → PROVISIONAL へは遷移できない
+ *
+ * 《観　点》終端ステータス（DEACTIVATED）からの遷移が全て禁止されることの確認
+ * 《テスト》DEACTIVATED からはいかなるステータスへも遷移できない
  */
 class AccountStatusTest {
     @Nested

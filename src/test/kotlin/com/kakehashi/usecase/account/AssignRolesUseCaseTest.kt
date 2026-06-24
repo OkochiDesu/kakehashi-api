@@ -22,6 +22,31 @@ import java.time.OffsetDateTime
  *
  * MockK の @JvmInline value class (AccountId) のシグネチャ生成に問題があるため
  * FakeAccountRepository を使用する。
+ *
+ * ★観点
+ * ロール付与はシステム権限の根幹となる操作であり、ロールの全組み合わせ・操作権限チェック・
+ * 楽観ロック整合性を網羅することで権限昇格バグや競合状態を防ぐ。
+ *
+ * ★★正常系★★
+ * 《観　点》単一ロール付与と他ロールへの非影響の確認
+ * 《テスト》grantAdminRole=true / grantViewPersonalInfoRole=false で admin ロールが付与される
+ *
+ * 《観　点》複数ロール同時付与の確認
+ * 《テスト》grantAdminRole=true / grantViewPersonalInfoRole=true で 2 ロールが付与される
+ *
+ * 《観　点》ロール全剥奪（DELETE/INSERT 差し替え）の確認
+ * 《テスト》grantAdminRole=false / grantViewPersonalInfoRole=false でロールが全剥奪される
+ *
+ * ★★異常系★★
+ * 《観　点》非管理者によるロール変更を防ぐ権限ガードの確認
+ * 《テスト》operatorIsAdmin=false は ForbiddenOperationException
+ *
+ * 《観　点》不在ユーザーへのロール付与を防ぐ早期失敗の確認
+ * 《テスト》アカウントが存在しない場合は AccountNotFoundException
+ *
+ * 《観　点》楽観ロック競合の検出と currentVersion の正確な保持確認
+ * 《テスト》version 不一致は OptimisticLockException
+ * 《テスト》assignRolesAndBumpVersion が 0件（楽観ロック競合）は OptimisticLockException
  */
 class AssignRolesUseCaseTest {
     private lateinit var fakeRepository: FakeAccountRepository
