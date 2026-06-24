@@ -35,7 +35,7 @@ import javax.sql.DataSource
  * - @DynamicPropertySource: 全コンテキストロードと Bean 初期化順序問題
  * - ContainerDatabaseDriver (JDBC URL): DataSource が作成されない
  * - @JdbcTest / @AutoConfigureTestDatabase: Spring Boot 4.x で削除済み
- * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0011
+ * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0012（APP-ADR-0011 を Supersede）
  */
 @SpringBootTest(
     properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"],

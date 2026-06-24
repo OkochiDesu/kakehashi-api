@@ -119,21 +119,21 @@ if [[ -n "$staged_test_kt" ]]; then
     fi
 fi
 
-# src/test/kotlin 配下の staged *Test.kt ファイルで @Container を使っているのに
+# src/test/kotlin 配下の staged *Test.kt ファイルで companion object に @Container を使っているのに
 # @JvmStatic がない場合はコミットをブロックする
-# Kotlin の companion object は @JvmStatic なしでは JVM 上で static でないため
-# @ServiceConnection が Spring コンテキスト起動前に登録できず NoSuchBeanDefinitionException が連鎖する
+# companion object の @Container は @JvmStatic なしでは JVM 上で static にならず正常動作しない
+# インスタンスフィールドの @Container（テストごとに起動）は companion object 不要のため対象外
 # 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md
 if [[ -n "$staged_test_kt" ]]; then
     missing_jvmstatic=$(
         echo "$staged_test_kt" | while IFS= read -r f; do
-            if git show ":${f}" | grep -q '@Container' && ! git show ":${f}" | grep -q '@JvmStatic'; then
+            if git show ":${f}" | grep -q '@Container' && git show ":${f}" | grep -q 'companion object' && ! git show ":${f}" | grep -q '@JvmStatic'; then
                 echo "  ${f}"
             fi
         done
     )
     if [[ -n "$missing_jvmstatic" ]]; then
-        echo "[pre-commit] @Container を持つ companion object には @JvmStatic が必要です（@ServiceConnection が正しく動作しない）:"
+        echo "[pre-commit] companion object 内の @Container には @JvmStatic が必要です:"
         echo "$missing_jvmstatic"
         echo "  詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md"
         echo ""

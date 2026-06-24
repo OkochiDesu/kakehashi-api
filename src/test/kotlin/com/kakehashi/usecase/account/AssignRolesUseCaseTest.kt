@@ -64,11 +64,9 @@ class AssignRolesUseCaseTest {
             assertEquals(RoleCode.ADMIN.code, output.roles.first().code)
             assertEquals(1, fakeRepository.assignRolesAndBumpVersionCalls.size)
             assertEquals(
-                1,
-                fakeRepository.assignRolesAndBumpVersionCalls
-                    .first()
-                    .second.size,
-                "admin ロール 1件のみがリポジトリに渡されること",
+                listOf(AssignRolesUseCase.roleIdFor(RoleCode.ADMIN)),
+                fakeRepository.assignRolesAndBumpVersionCalls.first().second,
+                "admin ロールの UUID がリポジトリに渡されること",
             )
             // 監査カラム: updatedAt・updatedBy が更新されていることを確認
             val saved = fakeRepository.accounts["AZ0001"]!!

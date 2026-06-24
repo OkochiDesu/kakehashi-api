@@ -32,14 +32,6 @@
 - `jacocoCoverageVerification` タスクに除外パターンと閾値を設定する
   - MyBatis導入後にパッケージ構成が固まってから対応する
 
-### ArchUnit によるアーキテクチャ依存方向チェック
-
-- `com.tngtech.archunit:archunit-junit5` を `testImplementation` に追加する
-- `domain` → `usecase` → `presentation` / `infrastructure` の依存方向をテストコードで宣言的に検証する
-  - 例: usecase 層が presentation 層のクラスを参照していれば `./gradlew test` で即検出
-  - 例: domain 層が infrastructure 層に依存していれば検出
-- CI の `verify` ジョブでそのまま検出される（追加設定不要）
-- 分類: [harness-and-guardrails.md](design-docs/harness-and-guardrails.md) のガードレール層（ビルド時自動検証）
 
 ### CI 設計課題
 
@@ -359,3 +351,4 @@ UseCase層でのチェックも検討したが、以下の理由で Interceptor 
 - push時のGitHub Actionsで複雑度レポートを作成: [72badb3](https://github.com/OkochiDesu/kakehashi-api/commit/72badb3)
 - データベース・マイグレーション基盤の導入（Flyway / MyBatis / PostgreSQL）: [APP-ADR-0004](adr/APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md)
 - DB テストに Testcontainers（PostgreSQL）を採用し統合テストを整備: [APP-ADR-0012](adr/APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md)
+- ArchUnit によるアーキテクチャ依存方向チェック（domain / usecase / infrastructure / presentation）: [PR #13](https://github.com/OkochiDesu/kakehashi-api/pull/13)
