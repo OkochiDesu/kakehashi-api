@@ -9,10 +9,13 @@
     "workspaceFolder": "/kakehashi-api",
     // 追加ツール（gh CLI: commit前のPRマージ状態確認やCI設定の手元検証に使用）
     // shellcheck: .githooks/ 変更時のpre-commitチェックとCI（Workflow Lint）と同じ検証をローカルで実行するために使用
+    // docker-outside-of-docker: ホストの Docker ソケット（docker-compose.yml でマウント済み）へのアクセス権限設定と
+    //   Docker CLI インストールを行う。Testcontainers のローカル実行（./gradlew test）に必要
     // 注：Bookworm以降のGLIBC 2.36対応により、nanolayerの互換性問題が解決
     "features": {
         "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/devcontainers-extra/features/shellcheck:1": {}
+        "ghcr.io/devcontainers-extra/features/shellcheck:1": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
     // リビルド後もワークスペース内に Gradle キャッシュを保持する
     "remoteEnv": {
