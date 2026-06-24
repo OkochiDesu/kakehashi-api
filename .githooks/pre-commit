@@ -127,7 +127,7 @@ fi
 if [[ -n "$staged_test_kt" ]]; then
     missing_jvmstatic=$(
         echo "$staged_test_kt" | while IFS= read -r f; do
-            if git show ":${f}" | grep -q '@Container' && git show ":${f}" | grep -q 'companion object' && ! git show ":${f}" | grep -q '@JvmStatic'; then
+            if git show ":${f}" | grep -q '@Container' && git show ":${f}" | grep -q 'companion object' && ! git show ":${f}" | LC_ALL=C grep -B1 '@Container' | LC_ALL=C grep -q '@JvmStatic'; then
                 echo "  ${f}"
             fi
         done
