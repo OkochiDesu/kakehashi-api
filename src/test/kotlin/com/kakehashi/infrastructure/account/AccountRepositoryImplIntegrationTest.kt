@@ -46,7 +46,7 @@ class AccountRepositoryImplIntegrationTest {
     @TestConfiguration
     class TestDatasourceConfig {
         @Bean(destroyMethod = "stop")
-        fun postgresContainer(): PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine").also { it.start() }
+        fun postgresContainer(): PostgreSQLContainer<*> = PostgreSQLContainer("postgres:15-alpine").also { it.start() }
 
         @Bean
         fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
