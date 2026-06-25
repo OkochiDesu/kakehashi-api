@@ -23,9 +23,9 @@ import org.junit.jupiter.api.assertThrows
  * ②deactivated の個人情報マスキング（APP-ADR-0006）、
  * ③ページング計算の正確性。いずれも UI 直結のため誤動作がユーザー影響に直結する。
  *
- * ★★正常系★★
  * 《観　点》AccountSummaryRow → Output 変換マッピングの基本動作確認
  * 《テスト》正常系： AccountMapper_searchAccounts の結果が変換されて返る
+ * 《テスト》異常系： 不正な roleCode を渡すと IllegalArgumentException がスローされる
  *
  * 《観　点》権限による検索フィルタ強制の確認（非 admin は suspended/deactivated を見えないようにする）
  * 《テスト》正常系： isAdmin=false の場合 statuses が active に強制される
@@ -36,10 +36,6 @@ import org.junit.jupiter.api.assertThrows
  *
  * 《観　点》端数切り上げのページ数計算が正確であることの確認
  * 《テスト》正常系： ページング計算が正しい（totalElements=21 size=20 → totalPages=2）
- *
- * ★★異常系★★
- * 《観　点》未定義ロールコードの検索パラメータを早期失敗で弾くことの確認
- * 《テスト》異常系： 不正な roleCode を渡すと IllegalArgumentException がスローされる
  */
 class ListAccountsQueryTest {
     private val accountMapper = mockk<AccountMapper>()

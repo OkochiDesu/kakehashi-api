@@ -42,29 +42,21 @@ import javax.sql.DataSource
  * 本番相当の環境で正しく動作することを保証する。
  * モックでは検出できない SQL 不整合・DDL 齟齬・トランザクション競合を排除するための統合テスト。
  *
- * ★★正常系★★
  * 《観　点》Flyway DDL が正常に適用されていることの確認
  * 《テスト》Flyway マイグレーション（V1・V2）が正常に完了し accounts テーブルが存在する
  *
- * 《観　点》INSERT → SELECT の往復で同一データが復元できることの確認
+ * 《観　点》INSERT → SELECT の往復・各検索パスが SQL レベルで動作することの確認
  * 《テスト》正常系： save したアカウントを findById で取得できる
- *
- * 《観　点》SSO ログイン時の主要検索パスが SQL レベルで動作することの確認
  * 《テスト》正常系： findByGoogleSubHash でアカウントを取得できる
+ * 《テスト》正常系： 存在しない ID で findById は null を返す
  *
- * 《観　点》UPDATE 後の楽観ロック version インクリメントと監査カラム書き込みの確認
+ * 《観　点》UPDATE の楽観ロック version インクリメントと監査カラム書き込みの確認
  * 《テスト》正常系： update で version がインクリメントされ updatedBy が反映される
+ * 《テスト》異常系： version 不一致の update は 0件を返す（楽観ロック）
  *
  * 《観　点》ロール付与の DELETE/INSERT が正しく動作し version が更新されることの確認
  * 《テスト》正常系： assignRolesAndBumpVersion でロールが付与され version がインクリメントされる
  * 《テスト》正常系： assignRolesAndBumpVersion でロールを全剥奪できる
- *
- * 《観　点》不在エンティティへの取得が null で安全に返ることの確認
- * 《テスト》正常系： 存在しない ID で findById は null を返す
- *
- * ★★異常系★★
- * 《観　点》楽観ロック競合が SQL レベル（更新件数 0件）で正しく検出されることの確認
- * 《テスト》異常系： version 不一致の update は 0件を返す（楽観ロック）
  */
 @SpringBootTest(
     properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"],

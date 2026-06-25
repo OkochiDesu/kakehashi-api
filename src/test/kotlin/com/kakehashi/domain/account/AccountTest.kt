@@ -18,30 +18,20 @@ import java.time.OffsetDateTime
  * 状態遷移・バリデーション・version インクリメント・タイムスタンプ更新を
  * 集約単位で一貫して実行することを保証する。
  *
- * ★★正常系★★
  * 《観　点》register: PROVISIONAL → ACTIVE 遷移と集約状態の正確性確認
  * 《テスト》register - PROVISIONALからACTIVEへ遷移しversionが増加する
+ * 《テスト》register - PROVISIONAL以外から呼ぶと例外をスローする
  *
  * 《観　点》editName: 表示名更新と変更追跡（version インクリメント）の確認
  * 《テスト》editName - 表示名を更新しversionが増加する
+ * 《テスト》editName - 空文字列を渡すと例外をスローする
  *
  * 《観　点》suspend: ACTIVE → SUSPENDED 遷移と停止日時記録の確認
  * 《テスト》suspend - ACTIVEからSUSPENDEDへ遷移しsuspendedAtが設定される
+ * 《テスト》suspend - ACTIVE以外から呼ぶと例外をスローする
  *
  * 《観　点》unsuspend: SUSPENDED → ACTIVE 遷移と停止日時クリアの確認
  * 《テスト》unsuspend - SUSPENDEDからACTIVEへ遷移しsuspendedAtがクリアされる
- *
- * ★★異常系★★
- * 《観　点》register: PROVISIONAL 以外からの登録を禁止（重複登録・誤操作の防止）
- * 《テスト》register - PROVISIONAL以外から呼ぶと例外をスローする
- *
- * 《観　点》editName: 空文字列による表示名の空欄化を防止
- * 《テスト》editName - 空文字列を渡すと例外をスローする
- *
- * 《観　点》suspend: ACTIVE 以外からの停止操作を禁止（不正な状態変更の防止）
- * 《テスト》suspend - ACTIVE以外から呼ぶと例外をスローする
- *
- * 《観　点》unsuspend: SUSPENDED 以外からの解除操作を禁止（不正な状態変更の防止）
  * 《テスト》unsuspend - SUSPENDED以外から呼ぶと例外をスローする
  */
 class AccountTest {

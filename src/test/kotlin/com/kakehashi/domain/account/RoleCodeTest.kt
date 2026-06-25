@@ -14,13 +14,9 @@ import org.junit.jupiter.api.assertThrows
  * DB 保存文字列から RoleCode enum への変換（fromCode）が正確であることを保証する。
  * 未定義ロールコードが混入した場合に早期失敗で検出し、権限判定の不整合を防ぐ。
  *
- * ★★正常系★★
- * 《観　点》定義済みロールコードが正しく enum に変換されることの確認
+ * 《観　点》fromCode: DB 保存文字列から RoleCode enum への変換の確認
  * 《テスト》fromCode - adminを変換するとADMINを返す
  * 《テスト》fromCode - view_personal_infoを変換するとVIEW_PERSONAL_INFOを返す
- *
- * ★★異常系★★
- * 《観　点》未定義のロールコードが混入した場合に即座に検出できることの確認
  * 《テスト》fromCode - 未知のcodeはIllegalArgumentExceptionをスローする
  */
 class RoleCodeTest {

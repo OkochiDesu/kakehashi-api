@@ -27,26 +27,18 @@ import java.time.OffsetDateTime
  * ロール付与はシステム権限の根幹となる操作であり、ロールの全組み合わせ・操作権限チェック・
  * 楽観ロック整合性を網羅することで権限昇格バグや競合状態を防ぐ。
  *
- * ★★正常系★★
- * 《観　点》単一ロール付与と他ロールへの非影響の確認
+ * 《観　点》付与フラグの組み合わせでロールが増減することの確認
  * 《テスト》正常系： grantAdminRole=true grantViewPersonalInfoRole=false で admin ロールが付与される
- *
- * 《観　点》複数ロール同時付与の確認
  * 《テスト》正常系： grantAdminRole=true grantViewPersonalInfoRole=true で 2 ロールが付与される
- *
- * 《観　点》ロール全剥奪（DELETE/INSERT 差し替え）の確認
  * 《テスト》正常系： grantAdminRole=false grantViewPersonalInfoRole=false でロールが全剥奪される
+ * 《テスト》異常系： version 不一致は OptimisticLockException
+ * 《テスト》異常系： assignRolesAndBumpVersion が 0件（楽観ロック競合）は OptimisticLockException
  *
- * ★★異常系★★
  * 《観　点》非管理者によるロール変更を防ぐ権限ガードの確認
  * 《テスト》異常系： operatorIsAdmin=false は ForbiddenOperationException
  *
  * 《観　点》不在ユーザーへのロール付与を防ぐ早期失敗の確認
  * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
- *
- * 《観　点》楽観ロック競合の検出と currentVersion の正確な保持確認
- * 《テスト》異常系： version 不一致は OptimisticLockException
- * 《テスト》異常系： assignRolesAndBumpVersion が 0件（楽観ロック競合）は OptimisticLockException
  */
 class AssignRolesUseCaseTest {
     private lateinit var fakeRepository: FakeAccountRepository
