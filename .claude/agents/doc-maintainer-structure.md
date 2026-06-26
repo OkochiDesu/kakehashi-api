@@ -25,7 +25,7 @@ model: sonnet
 
 2. **リンク整合性**: Markdown内の相対リンクが実在するパスを指しているか（リンク切れ検出）。また、`#見出し-1` のような連番付きアンカーへのリンクがある場合は規約違反として報告する（[markdown-anchor-links.md](../../docs/conventions/markdown-anchor-links.md)）。同一ファイル内でも重複する見出し（`## 概要` が複数存在する等）に自動連番アンカーでリンクしている場合も同様に報告し、**見出しを一意な名前に変更するよう修正案を提示する**。
 
-3. **.claude/構成との整合性**: [docs/agents/README.md](../../docs/agents/README.md) の「追加したファイルと役割」表および hook/サブエージェントの説明が、`.claude/settings.json`・`.claude/hooks/`・`.claude/agents/`・`.claude/skills/` の実際の構成（ファイルの有無、hooks 登録内容）と一致しているか。削除済みファイルへの言及が残っていないか。
+3. **.claude/構成との整合性**: [docs/agents/README.md](../../docs/agents/README.md) の「ハーネス構成一覧」セクションに記載されたエージェント・フック・スキルの説明が、`.claude/settings.json`・`.claude/hooks/`・`.claude/agents/`・`.claude/skills/` の実際の構成（ファイルの有無、hooks 登録内容）と一致しているか。削除済みファイルへの言及が残っていないか。
 
 4. **サブディレクトリ内のファイル網羅性**: `docs/` 直下の各サブディレクトリに `README.md` が存在する場合、同ディレクトリ直下の `.md` ファイル（`README.md` 自身を除く）が README 内でリンクまたは言及されているかを確認する。未記載のファイルがある場合は「要対応」として報告する。ただし以下は除外する:
    - `docs/adr/` （ADRは索引テーブルで一覧管理しており、個別ファイルへのリンクがあれば網羅とみなす）
