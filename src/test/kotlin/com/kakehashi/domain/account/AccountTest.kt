@@ -7,6 +7,33 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.OffsetDateTime
 
+/**
+ * Account ドメインエンティティの単体テスト
+ *
+ * 設計書No：-
+ * ADRNo：APP-ADR-0001, APP-ADR-0006
+ *
+ * ★★全体観点★★
+ * Account 集約の各ビジネスメソッド（register / editName / suspend / unsuspend）が、
+ * 状態遷移・バリデーション・version インクリメント・タイムスタンプ更新を
+ * 集約単位で一貫して実行することを保証する。
+ *
+ * 《観　点》register: PROVISIONAL → ACTIVE 遷移と集約状態の正確性確認
+ * 《テスト》register - PROVISIONALからACTIVEへ遷移しversionが増加する
+ * 《テスト》register - PROVISIONAL以外から呼ぶと例外をスローする
+ *
+ * 《観　点》editName: 表示名更新と変更追跡（version インクリメント）の確認
+ * 《テスト》editName - 表示名を更新しversionが増加する
+ * 《テスト》editName - 空文字列を渡すと例外をスローする
+ *
+ * 《観　点》suspend: ACTIVE → SUSPENDED 遷移と停止日時記録の確認
+ * 《テスト》suspend - ACTIVEからSUSPENDEDへ遷移しsuspendedAtが設定される
+ * 《テスト》suspend - ACTIVE以外から呼ぶと例外をスローする
+ *
+ * 《観　点》unsuspend: SUSPENDED → ACTIVE 遷移と停止日時クリアの確認
+ * 《テスト》unsuspend - SUSPENDEDからACTIVEへ遷移しsuspendedAtがクリアされる
+ * 《テスト》unsuspend - SUSPENDED以外から呼ぶと例外をスローする
+ */
 class AccountTest {
     private fun buildAccount(status: AccountStatus = AccountStatus.PROVISIONAL): Account =
         Account(

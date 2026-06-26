@@ -23,6 +23,24 @@ import java.time.OffsetDateTime
  *
  * 設計書No：UC-A7
  * ADRNo：APP-ADR-0005, APP-ADR-0008
+ *
+ * ★★全体観点★★
+ * 管理者によるアカウント停止解除操作（SUSPENDED → ACTIVE）を検証する。
+ * 権限チェック・状態遷移・suspendedAt のクリア・楽観ロックが一貫して機能することを確認する。
+ *
+ * 《観　点》状態遷移・updatedAt/updatedBy・suspendedAt が正しく設定されることの一括検証
+ * 《テスト》正常系： SUSPENDED から ACTIVE に遷移する
+ * 《テスト》異常系： update が 0件（楽観ロック競合）は OptimisticLockException（currentVersion を再取得）
+ *
+ * 《観　点》非管理者による停止解除操作が権限ガードで防止されることの確認
+ * 《テスト》異常系： isAdmin=false は ForbiddenOperationException
+ *
+ * 《観　点》不在エンティティへの操作が早期失敗することの確認
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
+ *
+ * 《観　点》SUSPENDED 以外からの解除操作が禁止されることの確認（各ステータスを網羅）
+ * 《テスト》異常系： ACTIVE から ACTIVE への遷移試行は InvalidStatusTransitionException
+ * 《テスト》異常系： PROVISIONAL から ACTIVE への解除試行は InvalidStatusTransitionException
  */
 class UnsuspendAccountUseCaseTest {
     private val accountRepository = mockk<AccountRepository>()

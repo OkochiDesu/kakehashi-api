@@ -36,6 +36,27 @@ import javax.sql.DataSource
  * - ContainerDatabaseDriver (JDBC URL): DataSource が作成されない
  * - @JdbcTest / @AutoConfigureTestDatabase: Spring Boot 4.x で削除済み
  * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0012（APP-ADR-0011 を Supersede）
+ *
+ * ★★全体観点★★
+ * 実際の PostgreSQL 16 コンテナを使い、MyBatis SQL・Flyway マイグレーション・楽観ロックが
+ * 本番相当の環境で正しく動作することを保証する。
+ * モックでは検出できない SQL 不整合・DDL 齟齬・トランザクション競合を排除するための統合テスト。
+ *
+ * 《観　点》Flyway DDL が正常に適用されていることの確認
+ * 《テスト》Flyway マイグレーション（V1・V2）が正常に完了し accounts テーブルが存在する
+ *
+ * 《観　点》INSERT → SELECT の往復・各検索パスが SQL レベルで動作することの確認
+ * 《テスト》正常系： save したアカウントを findById で取得できる
+ * 《テスト》正常系： findByGoogleSubHash でアカウントを取得できる
+ * 《テスト》正常系： 存在しない ID で findById は null を返す
+ *
+ * 《観　点》UPDATE の楽観ロック version インクリメントと監査カラム書き込みの確認
+ * 《テスト》正常系： update で version がインクリメントされ updatedBy が反映される
+ * 《テスト》異常系： version 不一致の update は 0件を返す（楽観ロック）
+ *
+ * 《観　点》ロール付与の DELETE/INSERT が正しく動作し version が更新されることの確認
+ * 《テスト》正常系： assignRolesAndBumpVersion でロールが付与され version がインクリメントされる
+ * 《テスト》正常系： assignRolesAndBumpVersion でロールを全剥奪できる
  */
 @SpringBootTest(
     properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"],
@@ -46,7 +67,7 @@ class AccountRepositoryImplIntegrationTest {
     @TestConfiguration
     class TestDatasourceConfig {
         @Bean(destroyMethod = "stop")
-        fun postgresContainer(): PostgreSQLContainer<*> = PostgreSQLContainer("postgres:15-alpine").also { it.start() }
+        fun postgresContainer(): PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine").also { it.start() }
 
         @Bean
         fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =

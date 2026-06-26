@@ -10,12 +10,14 @@
 ### コミュニケーション
 - ユーザーへの応答は日本語で行う
 
-### タスク開始時のプラン作成
-- **3ステップ以上 または 複数ファイルにまたがるタスク**は、作業開始前に `TodoWrite` でプランを作成する
-  - **見える範囲**: 直接変更するファイル・操作
-  - **見えない範囲**: 変更によって波及する可能性のある範囲（索引更新・ADR・doc-maintainer チェック等）
+### タスク開始時のゴール定義とプラン作成
+- **3ステップ以上 または 複数ファイルにまたがるタスク**は、作業開始前に以下の順序で進める:
+  1. **ゴール定義（完了条件）**: 「このタスクが完了したとき、〇〇ができる／〇〇の状態になっている」を1〜3文で定義する。ユーザーへの提示は不要だが、自分の判断基準として明文化すること
+  2. **プラン作成**: `TodoWrite` でタスクを分解する
+     - **見える範囲**: 直接変更するファイル・操作
+     - **見えない範囲**: 変更によって波及する可能性のある範囲（索引更新・ADR・doc-maintainer チェック等）
 - プランの作成にユーザー確認は不要。作業しながら完了したものを順次チェックする
-- 単純な1〜2ステップのタスク（1ファイルの修正・質問への回答等）はプラン不要
+- 単純な1〜2ステップのタスク（1ファイルの修正・質問への回答等）はゴール定義・プラン不要
 
 ### 禁止事項
 - `gh pr merge` は実行しない（GitHub PR のマージは人間が行う）
@@ -28,6 +30,7 @@
 - CLAUDE.md / AGENTS.md にスキル・コマンド・ファイルパスを記述する前に、対象が実在するかを確認すること（実在しないリソースへの参照は実行不能なルールになる）
 
 ### commit運用
+- **`main` ブランチへの直接 commit は禁止**。chore・metrics 記録・typo 修正など小さな変更も例外なく `feature/` ブランチを作成してから commit すること
 - `git commit` の前に、現在のブランチに対応するPRの状態を `gh pr view --json state,number` で確認する
   - PRがマージ済み（`state: MERGED`）の場合、現在のブランチでの作業は完了済みとみなし、新しい作業ブランチを作成・切り替え（`git checkout -b feature/<内容> origin/main`）してからcommitを進める
   - 新しいブランチ名は、作業内容をユーザーに確認したうえで決定する（[Git Prefixes](docs/conventions/git-prefixes.md)のブランチ名規約に従い `feature/` プレフィックスを付ける）
@@ -83,5 +86,5 @@
 - 全体マップ: [AGENTS.md](AGENTS.md)
 - 運用原則: [docs/design-docs/core-beliefs.md](docs/design-docs/core-beliefs.md)
 - 実行計画（exec-plans）の運用ルール: [docs/exec-plans/README.md](docs/exec-plans/README.md)
-- マルチエージェント構成の詳細: [docs/exec-plans/active/0001-requirements-definition-multiagent.md](docs/exec-plans/active/0001-requirements-definition-multiagent.md)
+- マルチエージェント構成の詳細: [docs/exec-plans/completed/0001-requirements-definition-multiagent.md](docs/exec-plans/completed/0001-requirements-definition-multiagent.md)
 - ドキュメント整備サブエージェント（分割型）: [doc-maintainer-structure](.claude/agents/doc-maintainer-structure.md) / [doc-maintainer-content](.claude/agents/doc-maintainer-content.md)

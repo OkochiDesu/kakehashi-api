@@ -20,6 +20,22 @@ import org.junit.jupiter.api.assertThrows
  *
  * 設計書No：UC-A3
  * ADRNo：APP-ADR-0005, APP-ADR-0008
+ *
+ * ★★全体観点★★
+ * アカウント登録完了（PROVISIONAL → ACTIVE）は一方向の操作であり、
+ * 重複登録・不正ステータスからの遷移・楽観ロック競合を全て防御する必要がある。
+ *
+ * 《観　点》状態遷移・監査カラム（updatedAt/updatedBy）・version インクリメントの一括検証
+ * 《テスト》正常系： PROVISIONAL から ACTIVE に遷移し repository_update が呼ばれる
+ * 《テスト》異常系： update が 0件（楽観ロック競合）の場合は OptimisticLockException（currentVersion を再取得）
+ *
+ * 《観　点》不在ユーザーへの操作を早期失敗させることの確認
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
+ *
+ * 《観　点》PROVISIONAL 以外からの登録を禁止するステータスガードの確認（各ステータスを網羅）
+ * 《テスト》異常系： ACTIVE アカウントへの再登録は InvalidStatusTransitionException
+ * 《テスト》異常系： SUSPENDED アカウントへの登録試行は InvalidStatusTransitionException
+ * 《テスト》異常系： DEACTIVATED アカウントへの登録試行は InvalidStatusTransitionException
  */
 class RegisterAccountUseCaseTest {
     private val accountRepository = mockk<AccountRepository>()

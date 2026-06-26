@@ -37,6 +37,43 @@ import java.time.OffsetDateTime
  *
  * @WebMvcTest と @Nested inner class の組み合わせでは @MockkBean が内部クラスに届かないため
  * フラットな構造で記述する。
+ *
+ * ★★全体観点★★
+ * HTTP レイヤー（ステータスコード・レスポンスフォーマット）と UseCase 呼び出しの橋渡しを検証する。
+ * UseCase のビジネスロジックはここでは検証しない。
+ * GlobalExceptionHandler による例外 → HTTP ステータスコードのマッピングも合わせて確認する。
+ *
+ * 《観　点》googleCallback: SSO コールバックの HTTP マッピング確認
+ * 《テスト》googleCallback 正常系： PROVISIONAL アカウントは 200 OK を返す
+ * 《テスト》googleCallback 正常系： ACTIVE アカウントは 200 OK を返す
+ * 《テスト》googleCallback 異常系： SUSPENDED アカウントは 403 Forbidden を返す
+ * 《テスト》googleCallback 異常系： DEACTIVATED アカウントは 403 Forbidden を返す
+ * 《テスト》googleCallback 異常系： idToken がない場合は 400 Bad Request
+ *
+ * 《観　点》register: 登録完了リクエストの HTTP マッピング確認
+ * 《テスト》register 正常系： 200 OK を返す
+ * 《テスト》register 異常系： InvalidStatusTransitionException は 409 Conflict
+ *
+ * 《観　点》editMe: 表示名更新リクエストの HTTP マッピング確認
+ * 《テスト》editMe 正常系： 200 OK を返す
+ * 《テスト》editMe 異常系： OptimisticLockException は 409 Conflict
+ *
+ * 《観　点》assignRoles / suspend / unsuspend: 管理者操作の HTTP マッピング確認
+ * 《テスト》assignRoles 正常系： X-Is-Admin=true で 200 OK を返す
+ * 《テスト》suspend 正常系： X-Is-Admin=true で 200 OK を返す
+ * 《テスト》unsuspend 正常系： X-Is-Admin=true で 200 OK を返す
+ * 《テスト》assignRoles 異常系： X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
+ * 《テスト》suspend 異常系： X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
+ * 《テスト》unsuspend 異常系： X-Is-Admin=false で ForbiddenOperationException は 403 Forbidden
+ *
+ * 《観　点》listAccounts: 管理者・非管理者ともに 200 OK を返すことの確認
+ * 《テスト》listAccounts 正常系： X-Is-Admin=true で 200 OK を返す
+ * 《テスト》listAccounts 正常系： X-Is-Admin=false でも 200 OK（UseCase 内で active に強制）
+ *
+ * 《観　点》getAccount: 本人参照・他者参照・不在リソースの HTTP マッピング確認
+ * 《テスト》getAccount 正常系： 本人が自分の ID で 200 OK
+ * 《テスト》getAccount 異常系： 非 admin が他人の ID でアクセスすると ForbiddenOperationException は 403 Forbidden
+ * 《テスト》getAccount 異常系： 存在しない accountId は 404 Not Found
  */
 @WebMvcTest(AccountController::class)
 @Import(GlobalExceptionHandler::class)

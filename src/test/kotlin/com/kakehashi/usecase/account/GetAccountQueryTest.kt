@@ -18,6 +18,22 @@ import org.junit.jupiter.api.assertThrows
  *
  * 設計書No：-
  * ADRNo：APP-ADR-0006, APP-ADR-0008
+ *
+ * ★★全体観点★★
+ * CQRS Query 側のアクセス制御（admin vs 本人のみ）と個人情報マスキング（APP-ADR-0006）が
+ * 正しく機能することを保証する。UI 直結データのため誤表示はセキュリティ問題に直結する。
+ *
+ * 《観　点》admin・非 admin のアクセス制御と個人情報マスキングの確認
+ * 《テスト》正常系： admin が他人のアカウントを取得できる
+ * 《テスト》正常系： 非 admin が自分のアカウントを取得できる
+ * 《テスト》正常系： deactivated アカウントの name と email が "***" にマスクされる
+ * 《テスト》異常系： 非 admin が他人のアカウントにアクセスすると ForbiddenOperationException
+ *
+ * 《観　点》RoleRow → RoleCode の変換マッピングが正確であることの確認
+ * 《テスト》正常系： ロール情報が正しく変換されて返る
+ *
+ * 《観　点》不在リソースへの取得が安全に失敗することの確認
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
  */
 class GetAccountQueryTest {
     private val accountMapper = mockk<AccountMapper>()

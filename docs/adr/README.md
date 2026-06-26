@@ -134,7 +134,7 @@ AI-ADR は `docs/agents/README.md` からも索引する（他のメンバーが
 
 一方、CLAUDE.md・`.claude/`・`.githooks/`・devcontainerなど、**AIエージェントの運用設定・開発プロセス**に関する決定は
 ADR/AI-ADR ではなく対応する exec-plan の意思決定ログに記録する。
-判断軸の詳細は [core-beliefs.md 原則7](../design-docs/core-beliefs.md#7-adrとexec-plan意思決定ログの使い分け) を参照。
+判断軸の詳細は [core-beliefs.md 原則8](../design-docs/core-beliefs.md#8-adrとexec-plan意思決定ログの使い分け) を参照。
 
 ## 既存ADRを修正するか、新規ADRを追加するか
 

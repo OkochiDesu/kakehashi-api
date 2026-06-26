@@ -19,6 +19,19 @@ import org.junit.jupiter.api.assertThrows
  *
  * 設計書No：UC-A4
  * ADRNo：APP-ADR-0005, APP-ADR-0008
+ *
+ * ★★全体観点★★
+ * 本人による表示名の自己編集操作を検証する。
+ * 監査カラム（updatedAt / updatedBy）の正確性と、楽観ロックによる同時編集競合検出の
+ * 2 段階（事前チェック・DB 更新件数チェック）を確認することが重要。
+ *
+ * 《観　点》name・updatedAt・updatedBy が更新後の値に変化していることの一括検証
+ * 《テスト》正常系： name が更新された Output が返る
+ * 《テスト》異常系： リクエスト version と DB の version が不一致は OptimisticLockException
+ * 《テスト》異常系： update が 0件（楽観ロック競合）の場合は OptimisticLockException（currentVersion を再取得）
+ *
+ * 《観　点》不在ユーザーへの変更試行を防ぐ早期失敗の確認
+ * 《テスト》異常系： アカウントが存在しない場合は AccountNotFoundException
  */
 class EditAccountUseCaseTest {
     private val accountRepository = mockk<AccountRepository>()

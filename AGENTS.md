@@ -60,7 +60,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 
 | ルールファイル | 適用対象 | 内容 |
 |------|------|------|
-| [test-rules.md](.claude/rules/test-rules.md) | `**/*Test.kt` | TDD・アサーション種別・updatedAt検証・楽観ロック競合テスト・テスト命名 |
+| [test-rules.md](.claude/rules/test-rules.md) | `**/*Test.kt` | TDD・アサーション種別・updatedAt検証・楽観ロック競合テスト・KDoc テストケース目次・テスト命名 |
 | [mybatis-rules.md](.claude/rules/mybatis-rules.md) | `**/*Mapper.xml`, `**/*Mapper.kt` | `<id>`タグ・`notNullColumn`・`#{}`使用・`@param`必須 |
 
 ## 利用可能なスキル（.claude/skills/）
@@ -83,11 +83,11 @@ ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージ
 
 ### タスク開始時（exec-plan判定）
 1. タスクが複数PR/複数セッションに渡るか判定する。
-2. フルexec-plan（`docs/exec-plans/active/`）が必要か、軽量プラン（TodoWriteのみ）で十分かを人間に提案し、確認を取る。
+2. フルexec-plan（`docs/exec-plans/pending/` に作成 → 着手時に `active/` へ移動）が必要か、軽量プラン（TodoWriteのみ）で十分かを人間に提案し、確認を取る。
 3. 判定基準・更新タイミングは [docs/exec-plans/README.md](docs/exec-plans/README.md) を参照。
 
 ### 要件定義（準備中）
-マルチエージェント構成の詳細は [docs/exec-plans/active/0001-requirements-definition-multiagent.md](docs/exec-plans/active/0001-requirements-definition-multiagent.md) を参照。
+マルチエージェント構成の詳細は [docs/exec-plans/completed/0001-requirements-definition-multiagent.md](docs/exec-plans/completed/0001-requirements-definition-multiagent.md) を参照。
 
 ### セッション終了時（ナビゲーション指標記録）
 ユーザーから明確な区切りがあったら、[docs/agents/navigation-metrics.md](docs/agents/navigation-metrics.md) に

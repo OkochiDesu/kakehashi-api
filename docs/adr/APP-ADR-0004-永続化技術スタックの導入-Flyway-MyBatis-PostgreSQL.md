@@ -25,11 +25,11 @@
 
 要件定義フェーズでデータベース・マイグレーション・O/Rマッパーの方針は「導入予定」として記述されていたが、ビルド依存・接続設定・マイグレーション配置といった実際のセットアップは未着手だった（[docs/requirements/README.md 技術スタック表](../requirements/README.md)）。
 
-Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始するにあたり（[exec-plan 0001](../exec-plans/active/0001-requirements-definition-multiagent.md)）、db-designerがFlywayマイグレーションSQL（`V*.sql`）を生成できる土台が必要になった。これに伴い、`build.gradle.kts` に永続化関連の依存を追加し、`application.properties` にデータソース・Flyway・MyBatisの設定を追加した。
+Step1実装フェーズ（Flywayマイグレーション → API設計 → Kotlin実装 → レビュー）を開始するにあたり（[exec-plan 0001](../exec-plans/completed/0001-requirements-definition-multiagent.md)）、db-designerがFlywayマイグレーションSQL（`V*.sql`）を生成できる土台が必要になった。これに伴い、`build.gradle.kts` に永続化関連の依存を追加し、`application.properties` にデータソース・Flyway・MyBatisの設定を追加した。
 
 技術選定自体は要件定義で既に方針として明示されている。
 
-- データベース: PostgreSQL 15（JSONBを積極利用）。DB製品の置き換えは想定しない（[quality-standards.md 6章](../requirements/quality-standards.md)）。
+- データベース: PostgreSQL 16（JSONBを積極利用）。DB製品の置き換えは想定しない（[quality-standards.md 6章](../requirements/quality-standards.md)）。
 - マイグレーション: Flyway（[requirements/README.md 技術スタック表](../requirements/README.md)）。
 - O/Rマッパー: MyBatis。MyBatis以外のO/Rマッパーへの変更等、将来の技術選定変更はADRで判断する（[quality-standards.md 6章](../requirements/quality-standards.md)）。
 - アーキテクチャ: CQRSにより更新系（ドメインモデル経由）と参照系（MyBatis直結でJSONB/JOIN結果をDTOに直接マッピング）を分離する（[data-models.md 1章](../requirements/data-models.md)、[requirements/README.md 4章](../requirements/README.md)）。

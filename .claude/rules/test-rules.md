@@ -57,7 +57,7 @@ class MyIntegrationTest {
     class TestDatasourceConfig {
         @Bean(destroyMethod = "stop")
         fun postgresContainer(): PostgreSQLContainer<*> =
-            PostgreSQLContainer("postgres:15-alpine").also { it.start() }
+            PostgreSQLContainer("postgres:16-alpine").also { it.start() }
 
         @Bean
         fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
@@ -88,6 +88,42 @@ spring.flyway.enabled=true
 - `@Transactional` を付与してテスト間のデータ汚染を防ぐこと
 
 詳細: [testcontainers-jvmstatic-kotlin.md](../../docs/troubleshooting/testcontainers-jvmstatic-kotlin.md)
+
+## テストクラス KDoc（テストケース目次）
+
+**新規テストクラス作成時・既存テストクラスへのテスト追加時**、クラスの KDoc に以下のフォーマットで
+テストケース一覧を記載・更新すること。**テスト追加と同一コミットで KDoc を更新すること**（drift 防止）。
+
+### フォーマット
+
+```
+/**
+ * XxxUseCase 単体テスト
+ *
+ * 設計書No：UC-XX
+ * ADRNo：APP-ADR-XXXX
+ *
+ * ★★全体観点★★
+ * このテストクラスが何を保証するか・なぜ存在するかを1〜3文で説明する。
+ * UI直結・権限の根幹・楽観ロック等、重要度が伝わるように書く。
+ *
+ * 《観　点》[何の動作・仕様を確認するか]
+ * 《テスト》正常系： [正常ケースのテストケース名]
+ * 《テスト》異常系： [同じ観点の異常ケース（あれば）]
+ *
+ * 《観　点》[別の観点（異常系のみでもよい）]
+ * 《テスト》異常系： [テストケース名]
+ */
+```
+
+### ルール
+- `★★正常系★★` / `★★異常系★★` のセクション分割は**使わない**。`《観　点》` 単位でグループ化し、同一観点内は正常系を先に、異常系を後に並べる
+- 1つの `《観　点》` に複数の `《テスト》` をまとめてよい（同一観点の複数ケース）
+- **`《テスト》` の記述はテストメソッド名（backtick 内）と完全一致させること**。`正常系：` / `異常系：` プレフィックスを含む場合はそのまま含める
+  - 良い例: `《テスト》正常系： grantAdminRole=true で admin ロールが付与される`
+  - 悪い例: `《テスト》grantAdminRole=true で admin ロールが付与される`（プレフィックス抜け）
+  - 悪い例: `《テスト》正常系: grantAdminRole=true で admin ロールが付与される`（コロン種別違い）
+- 正常系・異常系の区別がない場合（ArchUnit 等）は `★★ルール★★` 等の適切なヘッダーを使う
 
 ## テスト命名
 

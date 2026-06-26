@@ -59,6 +59,6 @@ AIがミスを犯したとき、「次は気をつける」という口約束で
 ## 8. ADRとexec-plan意思決定ログの使い分け
 
 - **ADR（[docs/adr/](../adr/README.md)）**: kakehashi-api という**製品・システムそのもの**に関する恒久的な決定。アーキテクチャ・業務仕様・データモデル・CI/CDポリシー・セキュリティポリシーなど（ADR一覧のカテゴリ表を参照）。将来このシステムに触る誰もが「なぜこの仕組みか」を索引表から探せる前提で書く。
-- **exec-plan意思決定ログ（[docs/exec-plans/active/](../exec-plans/README.md)）**: その実行計画を進める**過程**での意思決定。特にCLAUDE.md・`.claude/`・`.githooks/`・devcontainerなど、**AIエージェントとの協働方法・開発プロセス**に関する決定はここに記録する。
+- **exec-plan意思決定ログ（[docs/exec-plans/](../exec-plans/README.md)）**: その実行計画を進める**過程**での意思決定。特にCLAUDE.md・`.claude/`・`.githooks/`・devcontainerなど、**AIエージェントとの協働方法・開発プロセス**に関する決定はここに記録する。
 - 迷ったときの軸: 「この決定はkakehashi-api（製品）の振る舞い・仕様に関するものか」→ ADR。「この決定はこのリポジトリでの開発・AIエージェント運用の進め方に関するものか」→ exec-plan意思決定ログ。
 - ADRの対象はCI/CDだけでなく、今後アーキテクチャ・業務仕様の決定も含める予定（[docs/adr/README.md](../adr/README.md)のカテゴリ表に既に列挙済み）。

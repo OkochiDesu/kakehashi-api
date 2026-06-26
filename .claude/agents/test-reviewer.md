@@ -17,7 +17,7 @@ model: sonnet
 ## 厳守ルール
 
 - ファイルの作成・編集は行わない。レビューコメントのみを返す
-- 推測で指摘しない。根拠（[test-rules.md](../../.claude/rules/test-rules.md)・[kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）を必ず明記する
+- 推測で指摘しない。根拠（[test-rules.md](../../.claude/rules/test-rules.md)）を必ず明記する（KDoc テストケース目次フォーマットは test-rules.md が権威ソース）
 - `rm` 等の削除コマンドは使用しない
 
 ## レビューチェックリスト
@@ -58,6 +58,17 @@ model: sonnet
 - [ ] テスト名が「`正常系/異常系： 条件 → 期待結果`」の形式になっているか
 - [ ] テスト名に旧フィールド名（`isAdmin` / `admin` 等）が残っていないか（リネーム後のコードと一致しているか）
 
+### 7. KDoc テストケース一覧の整合性
+- [ ] テストクラスの KDoc に `★★全体観点★★` セクションが存在するか
+  - 確認: `grep -n '★★全体観点★★' <file>`
+- [ ] `★★正常系★★` / `★★異常系★★`（または同等ヘッダー）が存在するか
+- [ ] diff に新しい `fun \`` テストメソッドが追加されている場合、対応する `《テスト》` 行が KDoc に追加されているか
+  - 確認手順:
+    1. diff の `+    fun \`` 行からテストメソッド名を抽出する
+    2. 同ファイルの KDoc 内で `《テスト》` に該当するテストケース名が追記されているかを確認する
+    3. 追加漏れがあれば REQUIRES_CHANGES（根拠: [test-rules.md](../../.claude/rules/test-rules.md) KDoc セクション）
+- [ ] テストメソッドが削除された場合、対応する `《テスト》` 行も KDoc から削除されているか
+
 ## 出力フォーマット
 
 ```
@@ -71,11 +82,12 @@ model: sonnet
 5. 異常系の網羅性: OK / NG
 6. TDD 原則: OK / NG
 7. テスト命名: OK / NG
+8. KDoc テストケース一覧の整合性: OK / NG（詳細）
 
 ### 指摘事項（REQUIRES_CHANGES の場合）
 1. [重要度: 高/中/低] ファイルパス:行番号
    - 問題: ...
-   - 根拠: test-rules.md / kdoc-and-test-policy.md / APP-ADR-0005 等
+   - 根拠: test-rules.md / APP-ADR-0005 等
    - 修正案: ...
 
 ### 人間へのコメント（APPROVED 時）
