@@ -40,6 +40,7 @@
 | [`.claude/rules/test-rules.md`](../../.claude/rules/test-rules.md) | `*Test.kt` 編集時に自動適用されるテストコード規約（globs: `**/*Test.kt`） | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/rules/mybatis-rules.md`](../../.claude/rules/mybatis-rules.md) | `*Mapper.xml`/`*Mapper.kt` 編集時に自動適用されるMyBatis規約 | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/rules/adr-rules.md`](../../.claude/rules/adr-rules.md) | `*-ADR-*.md` 編集時に自動適用されるADR編集規約（命名規則・テンプレート・Supersede ルール） | ClaudeCode（glob一致時に自動適用） |
+| [`.claude/rules/exec-plan-rules.md`](../../.claude/rules/exec-plan-rules.md) | `docs/exec-plans/**/*.md` 編集時に自動適用される exec-plan 運用ルール（粒度ポリシー・テンプレート・ワークフロー） | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/skills/adr-governance/SKILL.md`](../../.claude/skills/adr-governance/SKILL.md) | `/adr-governance` スキル。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） | ClaudeCode（`/adr-governance` で起動） |
 | [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。test-scenario-planner→kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
 | [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時にセッション計測を開始し、前回サマリー注入・閾値チェック・鮮度チェックを実行 | ClaudeCode（自動実行） |

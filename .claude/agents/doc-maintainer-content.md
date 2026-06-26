@@ -24,8 +24,8 @@ model: sonnet
 
 2. **鮮度**: 内容が明らかにコードや設定と矛盾しているドキュメントがないか（例: 存在しないファイルパスへの言及、削除済み設定への参照）。
 
-3. **exec-plans整合性**: `docs/exec-plans/` の各ディレクトリについて以下を確認する。
-   - `pending/` / `active/` / `completed/` のディレクトリ構成が [README](../../docs/exec-plans/README.md) の定義と一致しているか
+3. **exec-plans整合性**: `docs/exec-plans/` の各ディレクトリについて以下を確認する。運用ルールの詳細は [.claude/rules/exec-plan-rules.md](../rules/exec-plan-rules.md) を参照。
+   - `pending/` / `active/` / `completed/` のディレクトリ構成が定義と一致しているか
    - 命名規則（4桁連番）に従っているか
    - **`active/` 内のファイルで「進捗状況」セクションの全 `- [ ]` が `- [x]` になっているものがないか**（あれば「完了済みのため `completed/` への移動が必要」と報告する）
    - 確認手順: `grep -c '\- \[ \]' <file>` でゼロ件かつ `grep -c '\- \[x\]' <file>` で1件以上ならば完了と判定する

@@ -11,7 +11,7 @@
 - ユーザーへの応答は日本語で行う
 
 ### 次の作業が決まったときの exec-plan 作成
-- ユーザーが「次は〇〇をやりたい」「〇〇を差し込みたい」など次の作業への意思を示した場合、その場で [exec-plan の3条件](docs/exec-plans/README.md#todo--exec-plan-昇格基準)（DoD が書ける・主要タスク3件以上・PR目的が明確）を満たすか判定し、満たせばすぐ exec-plan を作成する
+- ユーザーが「次は〇〇をやりたい」「〇〇を差し込みたい」など次の作業への意思を示した場合、その場で [exec-plan の3条件](.claude/rules/exec-plan-rules.md#todo--exec-plan-昇格基準)（DoD が書ける・主要タスク3件以上・PR目的が明確）を満たすか判定し、満たせばすぐ exec-plan を作成する
   - **TODO.md への追記だけで終わらない**。TODO.md はアイデア・未具体化の段階。着手意思がある = exec-plan が必要
   - セッションをまたいでも迷子にならないよう、「今から何をするか」を exec-plan に記録してから着手する
 
@@ -30,6 +30,7 @@
 - `rm`, `rmdir` など削除コマンドは使用しない
 - `find -delete` や `rsync --delete` など再帰的な削除操作は使用しない
 - `curl`, `wget` などでインターネットからファイルをダウンロードしない
+- 外部URLへのアクセス（内容の読み取り）は、人間の許可を得てから行うこと
 - `.claude/settings.json` を編集した後は必ず `jq . .claude/settings.json` で JSON 構文を確認すること（フォーマット不正によるパースエラー防止のため）
 - `.claude/settings.json` の deny リストを変更した場合は、`docs/agents/README.md`・`docs/design-docs/core-beliefs.md`・`harness-and-guardrails.md` の説明も同一コミットで更新すること
 - CLAUDE.md / AGENTS.md にスキル・コマンド・ファイルパスを記述する前に、対象が実在するかを確認すること（実在しないリソースへの参照は実行不能なルールになる）

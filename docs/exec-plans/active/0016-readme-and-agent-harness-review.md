@@ -21,18 +21,18 @@ README は学習を兼ねてユーザーと会話しながら進める（削除�
 - [x] `docs/README.md` — ドキュメント索引
 - [x] `docs/adr/README.md` — ADR 索引・運用ルール
 - [x] `docs/agents/README.md` — マルチエージェント構成
-- [ ] `docs/architecture/README.md` — モジュール構成・パッケージ設計
-- [ ] `docs/database/README.md` — テーブルカタログ
-- [ ] `docs/exec-plans/README.md` — exec-plans 運用ルール
-- [ ] `docs/exec-plans/completed/README.md` — 完了済み exec-plans 索引
-- [ ] `docs/references/README.md` — 外部参考資料索引
-- [ ] `docs/requirements/README.md` — 要件定義索引
-- [ ] `docs/requirements/inputs/miro/README.md` — Miro インポート素材
+- [x] `docs/architecture/README.md` — モジュール構成・パッケージ設計
+- [x] `docs/database/README.md` — テーブルカタログ
+- [x] `docs/exec-plans/README.md` — exec-plans 運用ルール
+- [x] `docs/exec-plans/completed/README.md` — 完了済み exec-plans 索引（削除：ディレクトリ名で自明、exec-plan-rules.md に集約済み）
+- [x] `docs/references/README.md` — 外部参考資料索引
+- [x] `docs/requirements/README.md` — 要件定義索引
+- [x] `docs/requirements/inputs/miro/README.md` — Miro インポート素材
 
 #### src/ 系（クラス図）
 
-- [ ] `src/main/kotlin/com/kakehashi/domain/account/README.md`
-- [ ] `src/main/kotlin/com/kakehashi/usecase/account/README.md`
+- [x] `src/main/kotlin/com/kakehashi/domain/account/README.md`
+- [x] `src/main/kotlin/com/kakehashi/usecase/account/README.md`
 
 ### エージェント・ハーネス整理
 

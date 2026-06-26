@@ -27,7 +27,11 @@ model: sonnet
 
 3. **.claude/構成との整合性**: [docs/agents/README.md](../../docs/agents/README.md) の「追加したファイルと役割」表および hook/サブエージェントの説明が、`.claude/settings.json`・`.claude/hooks/`・`.claude/agents/`・`.claude/skills/` の実際の構成（ファイルの有無、hooks 登録内容）と一致しているか。削除済みファイルへの言及が残っていないか。
 
-4. **目次（ToC）の有無チェック**: `docs/` 配下の Markdown ファイルのうち、80行を超えるものに `## 目次` セクションが存在するかを確認する。存在しない場合は「要対応」として報告し、追加すべき見出しリンクの案を提示する。ただし以下のパスは除外する:
+4. **サブディレクトリ内のファイル網羅性**: `docs/` 直下の各サブディレクトリに `README.md` が存在する場合、同ディレクトリ直下の `.md` ファイル（`README.md` 自身を除く）が README 内でリンクまたは言及されているかを確認する。未記載のファイルがある場合は「要対応」として報告する。ただし以下は除外する:
+   - `docs/adr/` （ADRは索引テーブルで一覧管理しており、個別ファイルへのリンクがあれば網羅とみなす）
+   - `docs/exec-plans/active/`・`docs/exec-plans/pending/`・`docs/exec-plans/completed/` （exec-plan は進捗管理ファイルであり README への個別記載は不要）
+
+5. **目次（ToC）の有無チェック**: `docs/` 配下の Markdown ファイルのうち、80行を超えるものに `## 目次` セクションが存在するかを確認する。存在しない場合は「要対応」として報告し、追加すべき見出しリンクの案を提示する。ただし以下のパスは除外する:
    - `.claude/agents/**`
    - `.claude/skills/**`
    - `.claude/hooks/**`
@@ -50,5 +54,6 @@ model: sonnet
 - 索引の網羅性: OK
 - リンク整合性: OK
 - .claude/構成との整合性: OK
+- サブディレクトリ内のファイル網羅性: OK
 - ToC有無: OK
 ```
