@@ -58,6 +58,7 @@ ADRが増えてもファイル・連番は分割せず、この表でカテゴ�
 | [APP-ADR-0006](APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md) | accounts.statusに4値設計（deactivated追加）と非adminからのsuspended/deactivated除外 | 業務仕様 | Accepted |
 | [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) | `roles` を権限（Permission）ベースに再定義し `visibility_rules` を廃止 | 業務仕様 | Accepted |
 | [DOC-ADR-0001](DOC-ADR-0001-ドキュメントにchangelogセクションを持たない.md) | ドキュメントにchangelogセクションを持たない（git + ADRリンクで代替） | ドキュメント方針（DOC-ADR） | Accepted |
+| [DOC-ADR-0002](DOC-ADR-0002-docs-READMEをフォルダ索引粒度に整理する.md) | docs/README.md をフォルダ索引粒度（1行説明付き）に整理する | ドキュメント方針（DOC-ADR） | Accepted |
 
 ## ファイル命名規則
 
