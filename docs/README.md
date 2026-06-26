@@ -8,7 +8,7 @@
 - [adr/](adr/README.md) — アーキテクチャ決定record。カテゴリ別索引・命名規則。作成は `/adr-governance` スキル
 - [conventions/](conventions/) — コーディング規約・Gitフロー・pre-commit/push フック・KDoc テスト方針
 - [troubleshooting/](troubleshooting/) — Dev Container・Gradle・CI・Spring Boot の既知問題と対処方法
-- [agents/](agents/README.md) — マルチエージェント構成の概要・使い方（人間向け）とナビゲーション指標ログ
+- [agents/](agents/README.md) — エージェント・ハーネス構成（エージェント一覧・グロブルール・フック・スキル）とナビゲーション指標ログ
 - [exec-plans/](exec-plans/README.md) — 実行計画（pending/active/completed）と運用ルール
 - [design-docs/](design-docs/index.md) — 運用原則（core-beliefs）・ハーネス＆ガードレール構成
 - [requirements/](requirements/README.md) — プロジェクトコンテキスト・UI フロー・データモデル・品質目標
