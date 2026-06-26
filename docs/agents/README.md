@@ -142,6 +142,6 @@ model: <モデル名>
 | [AI-ADR-0015](../adr/AI-ADR-0015-タスク開始時にTodoWriteでプランを作成し見える範囲と見えない範囲を明示する.md) | タスク開始時にTodoWriteでプランを作成し見える範囲・見えない範囲を明示する | Accepted |
 | [AI-ADR-0016](../adr/AI-ADR-0016-GitHub-CopilotとClaudeCodeの役割分担明確化とCopilotエージェントファイルの削除.md) | GitHub Copilot と ClaudeCode の役割分担明確化と Copilot エージェントファイルの削除 | Accepted |
 | [AI-ADR-0017](../adr/AI-ADR-0017-レビュー系エージェントの最終ゲート原則によるモデル選定.md) | レビュー系エージェントの最終ゲート原則によるモデル選定（code-reviewer・test-reviewer を opus に） | Accepted |
-| [AI-ADR-0018](../adr/AI-ADR-0018-レビュー系エージェントの全項目列挙出力パターン.md) | レビュー系エージェントの全項目列挙出力パターン（PASS/FAIL/SKIP 必須列挙） | Accepted |
+| [AI-ADR-0018](../adr/AI-ADR-0018-レビュー系エージェントの全項目列挙出力パターン.md) | チェックリスト出力を持つエージェントの全項目列挙パターン（レビュー系: PASS/FAIL/SKIP・チェッカー系: OK/要対応/SKIP） | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
