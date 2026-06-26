@@ -70,6 +70,8 @@ model: sonnet
 
 ## 出力フォーマット
 
+全チェック項目を必ず列挙し、`OK / 要対応 / SKIP` を明記すること（根拠: [AI-ADR-0018](../../docs/adr/AI-ADR-0018-レビュー系エージェントの全項目列挙出力パターン.md)）。
+
 ```
 ## design-impl-checker: チェック結果
 
@@ -77,9 +79,16 @@ model: sonnet
 - 設計書: docs/design/api/account-role.md
 - Controller: src/main/kotlin/com/kakehashi/presentation/account/AccountController.kt
 
----
+### チェックリスト
 
-### 結果サマリ: ✅ OK / ⚠️ 要確認 X件
+- HTTPメソッド・パス一致: OK / 要対応
+- パスパラメータ一致: OK / 要対応 / SKIP（パスパラメータなし）
+- リクエストボディ一致: OK / 要対応 / SKIP（リクエストボディなし）
+- レスポンスボディ一致: OK / 要対応
+- クエリパラメータ一致: OK / 要対応 / SKIP（クエリパラメータなし）
+- エンドポイント網羅性: OK / 要対応
+
+### 結果サマリ: ✅ 問題なし / ⚠️ 要確認 X件
 
 ---
 
@@ -98,15 +107,6 @@ model: sonnet
 2. TODO追加: 現状を維持しつつ TODO コメントで記録する
 
 > **⚠️ 対応方針をユーザーに確認してください。**
-
----
-
-### 確認済み（問題なし）
-
-| エンドポイント | パス | HTTPメソッド | リクエスト | レスポンス |
-|---|---|---|---|---|
-| UC-A1 Google SSO | ✅ `/api/auth/google/callback` | ✅ POST | ✅ `idToken` | ✅ `accountId`, `status`, `redirectTo` |
-| UC-A3 本登録 | ✅ `/api/accounts/me/registration` | ✅ POST | ✅ なし | ✅ `accountId`, `status` |
 ```
 
 ## 既存コードに不整合があった場合の扱い
