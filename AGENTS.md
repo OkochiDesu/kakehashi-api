@@ -60,6 +60,7 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 
 | ルールファイル | 適用対象 | 内容 |
 |------|------|------|
+| [adr-rules.md](.claude/rules/adr-rules.md) | `**/*-ADR-*.md` | 命名規則・テンプレート・標準構成・ステータス運用・Supersede ルール |
 | [test-rules.md](.claude/rules/test-rules.md) | `**/*Test.kt` | TDD・アサーション種別・updatedAt検証・楽観ロック競合テスト・KDoc テストケース目次・テスト命名 |
 | [mybatis-rules.md](.claude/rules/mybatis-rules.md) | `**/*Mapper.xml`, `**/*Mapper.kt` | `<id>`タグ・`notNullColumn`・`#{}`使用・`@param`必須 |
 
@@ -69,10 +70,6 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 |------|------|
 | [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） |
 | [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。test-scenario-planner→kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
-
-## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）
-
-ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージェントが支援する（互換のため維持、ClaudeCode版は上記参照）。詳細は [docs/adr/README.md](docs/adr/README.md) を参照。
 
 ## ワークフロー
 

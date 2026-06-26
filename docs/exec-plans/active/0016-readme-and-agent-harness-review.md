@@ -19,8 +19,8 @@ README は学習を兼ねてユーザーと会話しながら進める（削除�
 #### docs/ 系
 
 - [x] `docs/README.md` — ドキュメント索引
-- [ ] `docs/adr/README.md` — ADR 索引・運用ルール
-- [ ] `docs/agents/README.md` — マルチエージェント構成
+- [x] `docs/adr/README.md` — ADR 索引・運用ルール
+- [x] `docs/agents/README.md` — マルチエージェント構成
 - [ ] `docs/architecture/README.md` — モジュール構成・パッケージ設計
 - [ ] `docs/database/README.md` — テーブルカタログ
 - [ ] `docs/exec-plans/README.md` — exec-plans 運用ルール

@@ -5,7 +5,7 @@
 ## フォルダ索引
 
 - [TODO.md](TODO.md) — 未対応タスク一覧（アイデア・検討中のみ。着手済みは exec-plans に移行）
-- [adr/](adr/README.md) — アーキテクチャ決定record。カテゴリ別索引・次番号・命名規則。作成は `/adr-governance` スキル（Copilot: `@ADR Governance`）
+- [adr/](adr/README.md) — アーキテクチャ決定record。カテゴリ別索引・命名規則。作成は `/adr-governance` スキル
 - [conventions/](conventions/) — コーディング規約・Gitフロー・pre-commit/push フック・KDoc テスト方針
 - [troubleshooting/](troubleshooting/) — Dev Container・Gradle・CI・Spring Boot の既知問題と対処方法
 - [agents/](agents/README.md) — マルチエージェント構成の概要・使い方（人間向け）とナビゲーション指標ログ

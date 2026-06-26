@@ -39,6 +39,7 @@
 | [`.claude/agents/test-reviewer.md`](../../.claude/agents/test-reviewer.md) | テストコードレビューエージェント（code-reviewer APPROVED後に呼び出し） | ClaudeCode（呼び出すと動く） |
 | [`.claude/rules/test-rules.md`](../../.claude/rules/test-rules.md) | `*Test.kt` 編集時に自動適用されるテストコード規約（globs: `**/*Test.kt`） | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/rules/mybatis-rules.md`](../../.claude/rules/mybatis-rules.md) | `*Mapper.xml`/`*Mapper.kt` 編集時に自動適用されるMyBatis規約 | ClaudeCode（glob一致時に自動適用） |
+| [`.claude/rules/adr-rules.md`](../../.claude/rules/adr-rules.md) | `*-ADR-*.md` 編集時に自動適用されるADR編集規約（命名規則・テンプレート・Supersede ルール） | ClaudeCode（glob一致時に自動適用） |
 | [`.claude/skills/adr-governance/SKILL.md`](../../.claude/skills/adr-governance/SKILL.md) | `/adr-governance` スキル。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） | ClaudeCode（`/adr-governance` で起動） |
 | [`.claude/skills/implement-review-loop/SKILL.md`](../../.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` スキル。test-scenario-planner→kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループ | ClaudeCode（`/implement-review-loop` で起動） |
 | [`.claude/hooks/navigation-metrics-check.sh`](../../.claude/hooks/navigation-metrics-check.sh) | SessionStart時にセッション計測を開始し、前回サマリー注入・閾値チェック・鮮度チェックを実行 | ClaudeCode（自動実行） |
@@ -160,6 +161,7 @@ AI 側の理由でうまくループできない場合や改めてスキルと�
 | [AI-ADR-0013](../adr/AI-ADR-0013-LLMとスクリプトの役割分離とglobルール採用とtest-reviewer順次分離.md) | LLMとスクリプトの役割分離・globルール採用・test-reviewer順次分離 | Accepted |
 | [AI-ADR-0014](../adr/AI-ADR-0014-AIのgit-gh操作権限を3層モデルで整理.md) | AIのgit/gh操作権限を3層モデル（自動・確認・ブロック）に整理 | Accepted |
 | [AI-ADR-0015](../adr/AI-ADR-0015-タスク開始時にTodoWriteでプランを作成し見える範囲と見えない範囲を明示する.md) | タスク開始時にTodoWriteでプランを作成し見える範囲・見えない範囲を明示する | Accepted |
+| [AI-ADR-0016](../adr/AI-ADR-0016-GitHub-CopilotとClaudeCodeの役割分担明確化とCopilotエージェントファイルの削除.md) | GitHub Copilot と ClaudeCode の役割分担明確化と Copilot エージェントファイルの削除 | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。
 

@@ -14,7 +14,7 @@
 ## 関連
 
 - Supersedes: なし
-- Superseded by: なし
+- Superseded by: [AI-ADR-0016](AI-ADR-0016-GitHub-CopilotとClaudeCodeの役割分担明確化とCopilotエージェントファイルの削除.md)（Copilot 並存方針の部分のみ置き換え。3層構造自体は Accepted のまま）
 
 ## 背景
 
@@ -53,7 +53,7 @@ ADR Governanceを以下の3層構造で構成する。
 - ADR更新は `/adr-governance` スキルまたは `adr-governance` サブエージェント経由で行う運用に統一される。
 - 検索・検証はhaikuモデルで実行されるため、ADRスコープが明確な場合のコストを抑えられる。
 - adr-search / adr-validator は読み取り専用（Read, Grep, Glob）であり、ADRファイルの編集はオーケストレーターのみが行う。
-- GitHub Copilot版（`.github/agents/adr/`）は互換維持のため削除せず並存する。
+- GitHub Copilot版（`.github/agents/adr/`）の並存方針は [AI-ADR-0016](AI-ADR-0016-GitHub-CopilotとClaudeCodeの役割分担明確化とCopilotエージェントファイルの削除.md) で置き換え、ファイルは削除済み。
 
 ## 今後の見直しポイント
 
