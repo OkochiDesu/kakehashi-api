@@ -16,7 +16,7 @@ model: haiku
 
 ### 通常ADR（`{PREFIX}-ADR-XXXX-` プレフィックス）
 
-PREFIX は `APP` / `CICD` / `DOC` のいずれか（詳細: `docs/adr/README.md` のファイル命名規則参照）。
+PREFIX は `APP` / `CICD` / `DOC` のいずれか（詳細: [.claude/rules/adr-rules.md](../rules/adr-rules.md) 参照）。
 
 1. ファイル名が `{PREFIX}-ADR-XXXX-タイトル.md` の命名規則に従っている（例: `APP-ADR-0001-テーブル設計共通方針.md`）。
 2. ステータスブロックがマーカー形式を使用し、アクティブ状態がちょうど1つである。
@@ -26,7 +26,7 @@ PREFIX は `APP` / `CICD` / `DOC` のいずれか（詳細: `docs/adr/README.md`
 6. `docs/adr/README.md` の「ADR一覧（カテゴリ別索引）」テーブルに行が追加されているか。
 
 ### AI-ADR（`AI-ADR-XXXX-` プレフィックス）
-1. ファイル名が `AI-ADR-XXXX-タイトル.md` の命名規則に従っている（`docs/adr/README.md` 参照）。
+1. ファイル名が `AI-ADR-XXXX-タイトル.md` の命名規則に従っている（[.claude/rules/adr-rules.md](../rules/adr-rules.md) 参照）。
 2. ステータス・日付・関連・背景・決定・代替案・影響・今後の見直しポイントの標準セクションが存在する。
 3. `docs/agents/README.md` の「エージェント設計ADR（AI-ADR）索引」テーブルに行が追加されているか。
 4. `docs/adr/README.md` のカテゴリ別索引には**含まれていないこと**（AI-ADRは docs/agents/README.md で一元管理）。
