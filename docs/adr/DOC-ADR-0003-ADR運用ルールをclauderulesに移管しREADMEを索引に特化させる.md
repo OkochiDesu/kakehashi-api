@@ -41,7 +41,7 @@ ClaudeCode の `.claude/rules/` はグロブパターンでファイルが開か
 
 - `.claude/rules/adr-rules.md` が ADR 編集・作成時の自動適用ルール集の正となる
 - `docs/adr/README.md` は索引のみ（約30行）になり、AI が読む際のコンテキスト消費が大幅に減る
-- `adr-governance.md` エージェント定義の命名規則テーブルは `.claude/rules/adr-rules.md` と重複するが、エージェント起動時の即時参照用として残す（adr-governance.md は adr-rules.md が自動適用されないコンテキストでも動作するため）
+- `adr-governance.md` エージェント定義の命名規則テーブルは `.claude/rules/adr-rules.md` と重複するが、インラインで保持する。理由: glob による自動適用はメイン AI のみに効き、サブエージェントには適用されないため、エージェントがリンク経由で `adr-rules.md` を Read すると全 96 行がコンテキストに追加される。一方インライン保持は該当テーブル（約 10 行）のみで済む。エージェントは ADR 作成時に `adr-rules.md` 全体も参照するためトータルコンテキストは大差ないが、「リンク化するほどのメリットがない」という判断でインラインを維持する
 - AGENTS.md の「glob ルール」表に `adr-rules.md` のエントリを追加する
 
 ## 今後の見直しポイント
