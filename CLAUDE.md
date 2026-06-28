@@ -7,7 +7,6 @@
 
 ## 作業ルール
 
-### コミュニケーション
 - ユーザーへの応答は日本語で行う
 
 ### 次の作業が決まったときの exec-plan 作成
@@ -80,6 +79,8 @@
 - 意思決定が行われた場合（代替案があり、選んだ理由が現在の文脈に依存し、将来変わりうるもの）は、ADR または AI-ADR の作成をユーザーに提案すること
 - ユーザーから指摘・訂正を受けた場合は、`feedback-harness-agent` サブエージェントを呼び出して分類・仕組み化を行うこと（[core-beliefs.md 原則7](docs/design-docs/core-beliefs.md) 参照）
 - ADR（`{PREFIX}-ADR-XXXX-`、PREFIX: `APP` / `CICD` / `DOC`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
+
+### 実装・変更時の技術的チェックリスト
 - **ADR の `影響` 欄に実装方針（認可ロジック・楽観ロック・パス形式等）が記載されている場合、`.claude/agents/` 配下の関連エージェント定義（特に `kotlin-implementer.md` / `code-reviewer.md` / `api-designer.md`）が陳腐化していないか合わせて確認し、必要なら更新すること**
 - **バージョン文字列（Dockerイメージタグ・ライブラリバージョン等）をコード・設定で変更した場合は、`grep -r` で `docs/` および `.claude/rules/` の同一文字列を検索し、陳腐化した参照を一括更新すること**（例: テストコンテナのイメージタグを変更したら troubleshooting ドキュメントやテスト規約サンプルも更新）
 - **実装アプローチを移行した場合（例: `@TestConfiguration` → `@ServiceConnection`、`ContainerDatabaseDriver` → `@ServiceConnection` 等）は、旧アプローチのクラス名・アノテーション名を `grep -r` で全ファイル（`src/`・`build.gradle.kts`・`docs/`・`.claude/`）に対して検索し、コード・コメント・ドキュメントに残る stale 参照を同一コミットで除去・更新すること**（バージョン文字列と同じ一括更新の考え方を適用する）
