@@ -32,6 +32,29 @@ PREFIX は `APP` / `CICD` / `DOC` のいずれか（詳細: [.claude/rules/adr-r
 4. `docs/adr/README.md` のカテゴリ別索引には**含まれていないこと**（AI-ADRは docs/agents/README.md で一元管理）。
 
 ## 出力フォーマット
-- PASS または FAIL
-- 指摘事項（ファイル＋理由）
-- 最小限の修正内容
+
+全チェック項目を必ず列挙し、`PASS / FAIL / SKIP` を明記すること（根拠: [AI-ADR-0018](../../docs/adr/AI-ADR-0018-レビュー系エージェントの全項目列挙出力パターン.md)）。
+
+```
+## adr-validator: 検証結果
+
+### チェックリスト（通常ADR）※ AI-ADR の場合は全項目 SKIP
+- ファイル命名規則（{PREFIX}-ADR-XXXX-）: PASS / FAIL / SKIP
+- ステータスマーカー（アクティブ1つ）: PASS / FAIL / SKIP
+- Superseded リンク: PASS / FAIL / SKIP（Superseded でない場合）
+- Supersedes/Superseded by 整合性: PASS / FAIL / SKIP（関連ADRなし）
+- 標準9セクション: PASS / FAIL / SKIP
+- docs/adr/README.md 索引への追加: PASS / FAIL / SKIP
+
+### チェックリスト（AI-ADR）※ 通常ADR の場合は全項目 SKIP
+- ファイル命名規則（AI-ADR-XXXX-）: PASS / FAIL / SKIP
+- 標準8セクション: PASS / FAIL / SKIP
+- docs/agents/README.md 索引への追加: PASS / FAIL / SKIP
+- docs/adr/README.md 非掲載（AI-ADR は agents/README.md で管理）: PASS / FAIL / SKIP
+
+### 結果: PASS / FAIL
+
+### 指摘事項（FAIL の場合のみ）
+- [ファイル名] — 問題点
+  修正内容: ...
+```
