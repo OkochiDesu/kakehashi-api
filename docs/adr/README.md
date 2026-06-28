@@ -22,7 +22,8 @@ AI-ADR（`AI-ADR-` プレフィックス）は [docs/agents/README.md](../agents
 | [APP-ADR-0009](APP-ADR-0009-APIパスにバージョンプレフィックスを含めない.md) | API パスにバージョンプレフィックスを含めない | コーディング | Accepted |
 | [APP-ADR-0010](APP-ADR-0010-UseCaseのInputOutputをネストしたdataclassで定義しBuilderを使わない.md) | UseCase の Input/Output 設計パターン（ネスト data class） | コーディング | Accepted |
 | [APP-ADR-0011](APP-ADR-0011-Testcontainersコアを1.20.4に固定しSpringBoot4xのBOM管理2xを回避.md) | Testcontainers コアを 1.20.4 に固定し Spring Boot 4.x の BOM 管理（2.x）を回避 | コーディング | Superseded → APP-ADR-0012 |
-| [APP-ADR-0012](APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md) | Testcontainers を 2.0.5 へ移行し @TestConfiguration 直接起動方式を採用 | コーディング | Accepted |
+| [APP-ADR-0012](APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md) | Testcontainers を 2.0.5 へ移行し @TestConfiguration 直接起動方式を採用 | コーディング | Superseded → APP-ADR-0013 |
+| [APP-ADR-0013](APP-ADR-0013-Testcontainers統合テストをServiceConnection方式へ移行.md) | Testcontainers 統合テストを @ServiceConnection 方式へ移行 | コーディング | Accepted |
 | [APP-ADR-0001](APP-ADR-0001-テーブル設計共通方針.md) | テーブル設計共通方針 | 業務仕様 | Accepted |
 | [APP-ADR-0002](APP-ADR-0002-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
 | [APP-ADR-0003](APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted（決定4のみAPP-ADR-0007で置換） |
