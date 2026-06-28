@@ -1,5 +1,6 @@
 {
   "permissions": {
+    "disableBypassPermissionsMode": "disable",
     "allow": [
       "Bash(git add*)",
       "Bash(git status*)",
@@ -21,7 +22,13 @@
       "Bash(rsync* --delete*)",
       "Bash(curl *http*)",
       "Bash(wget *)",
-      "Bash(fetch *http*)"
+      "Bash(fetch *http*)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Write(.env)",
+      "Write(.env.*)"
     ]
   },
   "hooks": {

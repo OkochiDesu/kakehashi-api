@@ -26,13 +26,15 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 | `docs/conventions/` | コーディング規約・運用ルール |
 | `docs/troubleshooting/` | 既知の問題と対処方法 |
 | `docs/agents/` | マルチエージェント構成・エージェント関連の設計資料 |
-| `docs/exec-plans/` | 実行計画（進行中/完了/技術的負債）。運用ルールは [docs/exec-plans/README.md](docs/exec-plans/README.md) |
+| `docs/exec-plans/` | 実行計画（進行中/完了/技術的負債）。索引は [docs/exec-plans/README.md](docs/exec-plans/README.md)。運用ルールは [.claude/rules/exec-plan-rules.md](.claude/rules/exec-plan-rules.md) |
 | `docs/design-docs/` | 運用原則・思想（[core-beliefs.md](docs/design-docs/core-beliefs.md)） |
 | `docs/requirements/` | 要件定義ドキュメント（UI・データモデル・品質目標）。索引は [docs/requirements/README.md](docs/requirements/README.md) |
 | `docs/design/` | API・詳細設計書（REST APIエンドポイント設計等）。索引は [docs/README.md](docs/README.md) |
 | `docs/references/` | 外部参考資料（記事転記・画像）。記事ごとにサブフォルダで管理 |
 
-新しいドキュメントを追加する場合は、適切なディレクトリに配置し、必ず [docs/README.md](docs/README.md) からリンクすること。
+新しいドキュメントを追加する場合は、適切なディレクトリに配置し、以下の両方を行うこと:
+- [docs/README.md](docs/README.md) からリンクする
+- 追加先サブディレクトリの `README.md` にもドキュメント一覧エントリを追加する（例: `docs/architecture/README.md` のドキュメント一覧）
 
 ## 利用可能なサブエージェント（.claude/agents/）
 
@@ -40,7 +42,6 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 |------|------|
 | [doc-maintainer-structure](.claude/agents/doc-maintainer-structure.md) | `docs/` の索引・リンク整合性・ToC チェック（コミット前軽量チェック用） |
 | [doc-maintainer-content](.claude/agents/doc-maintainer-content.md) | `docs/` の ADR整合・exec-plans・design-docs・TODO実行可能性チェック（定期チェック用、structure と並列実行） |
-| [doc-maintainer](.claude/agents/doc-maintainer.md) | `docs/` の全項目フルチェック（レガシー、上記2エージェントの並列実行を推奨） |
 | [adr-governance](.claude/agents/adr-governance.md) | ADRの作成・更新・Supersedeのオーケストレーター |
 | [adr-search](.claude/agents/adr-search.md) | 変更に関連するADR候補の検索（adr-governanceから呼び出し） |
 | [adr-validator](.claude/agents/adr-validator.md) | ADR・AI-ADRドラフトのポリシー準拠検証（adr-governanceから呼び出し） |
@@ -60,6 +61,8 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 
 | ルールファイル | 適用対象 | 内容 |
 |------|------|------|
+| [adr-rules.md](.claude/rules/adr-rules.md) | `**/*-ADR-*.md` | 命名規則・テンプレート・標準構成・ステータス運用・Supersede ルール |
+| [exec-plan-rules.md](.claude/rules/exec-plan-rules.md) | `docs/exec-plans/**/*.md` | 粒度ポリシー・TODO↔exec-plan すみ分け・昇格基準・更新ワークフロー・テンプレート |
 | [test-rules.md](.claude/rules/test-rules.md) | `**/*Test.kt` | TDD・アサーション種別・updatedAt検証・楽観ロック競合テスト・KDoc テストケース目次・テスト命名 |
 | [mybatis-rules.md](.claude/rules/mybatis-rules.md) | `**/*Mapper.xml`, `**/*Mapper.kt` | `<id>`タグ・`notNullColumn`・`#{}`使用・`@param`必須 |
 
@@ -69,10 +72,6 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 |------|------|
 | [adr-governance](.claude/skills/adr-governance/SKILL.md) | `/adr-governance` で起動。ADR・AI-ADRの作成・更新・Supersedeを行う救済スキル（通常は同一セッション内でAIが自動的にadr-governanceサブエージェントを呼び出す） |
 | [implement-review-loop](.claude/skills/implement-review-loop/SKILL.md) | `/implement-review-loop` で起動。test-scenario-planner→kotlin-implementer→code-reviewer→test-reviewerをAPPROVEDまでループする救済スキル（通常は同一セッション内でAIが自動実行） |
-
-## GitHub Copilot 用エージェント（.github/agents/, .github/skills/）
-
-ADRの作成・更新・Supersedeは、Copilotでは `@ADR Governance` エージェントが支援する（互換のため維持、ClaudeCode版は上記参照）。詳細は [docs/adr/README.md](docs/adr/README.md) を参照。
 
 ## ワークフロー
 

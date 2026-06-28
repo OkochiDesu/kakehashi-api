@@ -22,7 +22,7 @@ repositories {
 
 // Testcontainers は Spring Boot 4.x の BOM 管理（2.x 系）に任せる。
 // 1.20.4 を固定していたのは ContainerDatabaseDriver (JDBC URL 方式) 利用時の互換問題だったが、
-// @TestConfiguration で PostgreSQLContainer を直接使う方式に変更したため制約がなくなった。
+// @ServiceConnection 方式（APP-ADR-0013）に移行したためバージョン固定の制約はなくなった。
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -51,6 +51,8 @@ dependencies {
     testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")
+    // @ServiceConnection サポート（Spring Boot 4.x 標準パターン検証用）
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -77,6 +79,8 @@ tasks.withType<Test> {
     // CI ログに全スタックトレースを出力（Bean 名・原因特定のため）
     testLogging {
         events(
+            org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
             org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
         )
         showExceptions = true

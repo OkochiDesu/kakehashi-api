@@ -10,6 +10,11 @@
 ### コミュニケーション
 - ユーザーへの応答は日本語で行う
 
+### 次の作業が決まったときの exec-plan 作成
+- ユーザーが「次は〇〇をやりたい」「〇〇を差し込みたい」など次の作業への意思を示した場合、その場で [exec-plan の3条件](.claude/rules/exec-plan-rules.md#todo--exec-plan-昇格基準)（DoD が書ける・主要タスク3件以上・PR目的が明確）を満たすか判定し、満たせばすぐ exec-plan を作成する
+  - **TODO.md への追記だけで終わらない**。TODO.md はアイデア・未具体化の段階。着手意思がある = exec-plan が必要
+  - セッションをまたいでも迷子にならないよう、「今から何をするか」を exec-plan に記録してから着手する
+
 ### タスク開始時のゴール定義とプラン作成
 - **3ステップ以上 または 複数ファイルにまたがるタスク**は、作業開始前に以下の順序で進める:
   1. **ゴール定義（完了条件）**: 「このタスクが完了したとき、〇〇ができる／〇〇の状態になっている」を1〜3文で定義する。ユーザーへの提示は不要だが、自分の判断基準として明文化すること
@@ -25,6 +30,7 @@
 - `rm`, `rmdir` など削除コマンドは使用しない
 - `find -delete` や `rsync --delete` など再帰的な削除操作は使用しない
 - `curl`, `wget` などでインターネットからファイルをダウンロードしない
+- 外部URLへのアクセス（内容の読み取り）は、人間の許可を得てから行うこと
 - `.claude/settings.json` を編集した後は必ず `jq . .claude/settings.json` で JSON 構文を確認すること（フォーマット不正によるパースエラー防止のため）
 - `.claude/settings.json` の deny リストを変更した場合は、`docs/agents/README.md`・`docs/design-docs/core-beliefs.md`・`harness-and-guardrails.md` の説明も同一コミットで更新すること
 - CLAUDE.md / AGENTS.md にスキル・コマンド・ファイルパスを記述する前に、対象が実在するかを確認すること（実在しないリソースへの参照は実行不能なルールになる）
@@ -81,6 +87,8 @@
 - ADR（`{PREFIX}-ADR-XXXX-`、PREFIX: `APP` / `CICD` / `DOC`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
 - **ADR の `影響` 欄に実装方針（認可ロジック・楽観ロック・パス形式等）が記載されている場合、`.claude/agents/` 配下の関連エージェント定義（特に `kotlin-implementer.md` / `code-reviewer.md` / `api-designer.md`）が陳腐化していないか合わせて確認し、必要なら更新すること**
 - **バージョン文字列（Dockerイメージタグ・ライブラリバージョン等）をコード・設定で変更した場合は、`grep -r` で `docs/` および `.claude/rules/` の同一文字列を検索し、陳腐化した参照を一括更新すること**（例: テストコンテナのイメージタグを変更したら troubleshooting ドキュメントやテスト規約サンプルも更新）
+- **実装アプローチを移行した場合（例: `@TestConfiguration` → `@ServiceConnection`、`ContainerDatabaseDriver` → `@ServiceConnection` 等）は、旧アプローチのクラス名・アノテーション名を `grep -r` で全ファイル（`src/`・`build.gradle.kts`・`docs/`・`.claude/`）に対して検索し、コード・コメント・ドキュメントに残る stale 参照を同一コミットで除去・更新すること**（バージョン文字列と同じ一括更新の考え方を適用する）
+- **コンパイルレベルの確認が必要な変更（型引数の除去・非推奨 API の置き換え・`@Suppress` の追加等）は、`@Suppress` を「とりあえず暫定」としてコミットせず、「変更を push → CI でビルド確認 → アプローチ確定」の順で進めること**（ローカルで実行環境がない場合も同様。CI で確認できることはCI で確認してから決める）
 
 ## 関連ドキュメント
 - 全体マップ: [AGENTS.md](AGENTS.md)

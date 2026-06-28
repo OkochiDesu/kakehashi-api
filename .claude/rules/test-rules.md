@@ -39,36 +39,24 @@ globs:
 
 ## Testcontainers 統合テスト
 
-Testcontainers を使う `@SpringBootTest` 統合テストでは **`@TestConfiguration` で `PostgreSQLContainer` を直接起動し `DataSource` Bean を提供する**こと。
+Testcontainers を使う `@SpringBootTest` 統合テストでは **`@ServiceConnection` を使う**こと。
+Spring Boot が DataSource・Flyway・MyBatis を自動設定する（APP-ADR-0013）。
 
-**理由**: Spring Boot 4.x では `@JdbcTest` / `@AutoConfigureTestDatabase` / `@DynamicPropertySource` / `@ServiceConnection` / `ContainerDatabaseDriver`（JDBC URL 方式）のいずれも正常に動作しない。
-`DataSourceAutoConfiguration` を除外し `@TestConfiguration` で DataSource を提供する方法が唯一の確定パターン。
+**注意**: `@JdbcTest` / `@AutoConfigureTestDatabase` は Spring Boot 4.x で削除済み。`@DynamicPropertySource` / `ContainerDatabaseDriver`（JDBC URL 方式）は使わない。
 
 ### テストクラス
 
 ```kotlin
-@SpringBootTest(
-    properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"]
-)
+@Testcontainers
+@SpringBootTest
 @ActiveProfiles("integration-test")
 @Transactional
 class MyIntegrationTest {
-    @TestConfiguration
-    class TestDatasourceConfig {
-        @Bean(destroyMethod = "stop")
-        fun postgresContainer(): PostgreSQLContainer<*> =
-            PostgreSQLContainer("postgres:16-alpine").also { it.start() }
-
-        @Bean
-        fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
-            HikariDataSource(
-                HikariConfig().apply {
-                    jdbcUrl = postgres.jdbcUrl
-                    username = postgres.username
-                    password = postgres.password
-                    driverClassName = "org.postgresql.Driver"
-                }
-            )
+    companion object {
+        @Container
+        @ServiceConnection
+        @JvmStatic
+        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
     }
 
     @Autowired
@@ -80,12 +68,13 @@ class MyIntegrationTest {
 ### 設定ファイル（`application-integration-test.properties`）
 
 ```properties
-# DataSource は @TestConfiguration で直接提供するため設定不要
+# @ServiceConnection が DataSource・Flyway・MyBatis を自動設定するため接続設定は不要
 spring.flyway.enabled=true
 ```
 
 - `@ActiveProfiles("integration-test")` を付与し devcontainer の DB に接続しないようにすること
 - `@Transactional` を付与してテスト間のデータ汚染を防ぐこと
+- **ローカル実行制約**: devcontainer では Docker socket が `root:root` 権限のため Testcontainers が起動できない。DB 系統合テストは CI（GitHub Actions）で確認すること（詳細: [testcontainers-jvmstatic-kotlin.md](../../docs/troubleshooting/testcontainers-jvmstatic-kotlin.md)）
 
 詳細: [testcontainers-jvmstatic-kotlin.md](../../docs/troubleshooting/testcontainers-jvmstatic-kotlin.md)
 

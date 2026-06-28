@@ -7,8 +7,8 @@
 ## ステータス
 
 - [ ] Proposed
-- [x] Accepted
-- [ ] Superseded
+- [ ] Accepted
+- [x] Superseded → [APP-ADR-0013](APP-ADR-0013-Testcontainers統合テストをServiceConnection方式へ移行.md)
 - [ ] Rejected
 
 ## 日付
@@ -18,7 +18,7 @@
 ## 関連
 
 - Supersedes: APP-ADR-0011（Testcontainers コアを 1.20.4 に固定し Spring Boot 4.x の BOM 管理（2.x）を回避）
-- Superseded by: なし
+- Superseded by: [APP-ADR-0013](APP-ADR-0013-Testcontainers統合テストをServiceConnection方式へ移行.md)（Testcontainers 統合テストを @ServiceConnection 方式へ移行）— DataSource 提供方式を @TestConfiguration 直接起動から @ServiceConnection 方式へ変更。Testcontainers コア 2.0.5 への移行（決定1・3）と devcontainer 環境変数（決定4）は本 ADR でも有効。
 - 補完: APP-ADR-0004（永続化技術スタックの導入）— DB 統合テストの依存・CI 構成の記録を本 ADR で更新する。
 
 ## 背景

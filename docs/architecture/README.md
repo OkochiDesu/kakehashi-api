@@ -1,13 +1,13 @@
 # Architecture（モジュール構成・パッケージ設計）
 
-このディレクトリは、kakehashi-apiの実装構造に関する情報をまとめる場所。
+このディレクトリは kakehashi-api の実装構造に関するドキュメントをまとめる。
 
-- モジュール構成（Gradleサブプロジェクト等）
-- パッケージ設計（DDD/Clean Architectureに基づくレイヤー・パッケージ分割方針）
-- 想定しているサブプロジェクト構成
+## ドキュメント一覧
+
+- [package-structure.md](package-structure.md) — パッケージ構成規約（レイヤー・命名・UseCase DI・Enum 活用）
 
 ## 現状
 
-現時点（要件定義フェーズ完了時点）では `kakehashi-api` は単一Gradleプロジェクト（[settings.gradle.kts](../../settings.gradle.kts)）であり、本ディレクトリの内容は未作成。
-
-実装フェーズでモジュール構成・パッケージ設計が具体化した段階で、このディレクトリにドキュメントを追加する。アーキテクチャ全体の前提は[docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則adr化予定の方針)を参照。
+Step1（アカウント・ロールドメイン）実装完了。現時点では単一 Gradle プロジェクト（[settings.gradle.kts](../../settings.gradle.kts)）。
+Gradle サブプロジェクト分割やモジュール構成の変更が生じた段階でこのディレクトリを拡充する。
+アーキテクチャ全体の前提は [requirements/README.md](../requirements/README.md) を参照。

@@ -24,8 +24,8 @@ model: sonnet
 
 2. **鮮度**: 内容が明らかにコードや設定と矛盾しているドキュメントがないか（例: 存在しないファイルパスへの言及、削除済み設定への参照）。
 
-3. **exec-plans整合性**: `docs/exec-plans/` の各ディレクトリについて以下を確認する。
-   - `pending/` / `active/` / `completed/` のディレクトリ構成が [README](../../docs/exec-plans/README.md) の定義と一致しているか
+3. **exec-plans整合性**: `docs/exec-plans/` の各ディレクトリについて以下を確認する。運用ルールの詳細は [.claude/rules/exec-plan-rules.md](../rules/exec-plan-rules.md) を参照。
+   - `pending/` / `active/` / `completed/` のディレクトリ構成が定義と一致しているか
    - 命名規則（4桁連番）に従っているか
    - **`active/` 内のファイルで「進捗状況」セクションの全 `- [ ]` が `- [x]` になっているものがないか**（あれば「完了済みのため `completed/` への移動が必要」と報告する）
    - 確認手順: `grep -c '\- \[ \]' <file>` でゼロ件かつ `grep -c '\- \[x\]' <file>` で1件以上ならば完了と判定する
@@ -42,23 +42,25 @@ model: sonnet
 
 ## 出力フォーマット
 
+全チェック項目を必ず列挙し、`OK / 要対応 / SKIP` を明記すること（根拠: [AI-ADR-0018](../../docs/adr/AI-ADR-0018-レビュー系エージェントの全項目列挙出力パターン.md)）。
+
 ```
 ## doc-maintainer-content: チェック結果
 
-### OK / 要対応 X件 / TODO着手候補 Y件
+### チェックリスト
+- ADR整合性: OK / 要対応
+- 鮮度: OK / 要対応
+- exec-plans整合性: OK / 要対応
+- design-docs整合性: OK / 要対応
+- TODO実行可能性: OK / 要対応 / TODO着手候補あり
+- ナビゲーション指標: OK / 要対応（閾値超過） / SKIP（記録なし）
 
-#### 要対応
+### 結果サマリ: OK / 要対応 X件 / TODO着手候補 Y件
+
+### 要対応（ある場合のみ）
 1. [ファイルパス:行番号] — 問題点
    修正案: ...
 
-#### TODO着手候補
+### TODO着手候補（ある場合のみ）
 - [項目名]: 前提条件「〇〇」が満たされている（根拠: ...）→ 軽量プラン or exec-plan化を推奨
-
-#### 確認済み（問題なし）
-- ADR整合性: OK
-- 鮮度: OK
-- exec-plans整合性: OK
-- design-docs整合性: OK
-- TODO実行可能性: OK
-- ナビゲーション指標: OK（閾値未到達）
 ```

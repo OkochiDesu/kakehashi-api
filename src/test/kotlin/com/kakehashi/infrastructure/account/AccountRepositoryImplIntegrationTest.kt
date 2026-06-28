@@ -3,8 +3,6 @@ package com.kakehashi.infrastructure.account
 import com.kakehashi.domain.account.Account
 import com.kakehashi.domain.account.AccountId
 import com.kakehashi.domain.account.AccountStatus
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -12,30 +10,26 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.OffsetDateTime
 import java.util.UUID
-import javax.sql.DataSource
 
 /**
  * AccountRepositoryImpl 統合テスト
  *
- * - TestConfiguration で PostgreSQLContainer を直接起動し DataSource を提供する
- * - DataSourceAutoConfiguration を除外して「devcontainer の db:5432」への接続試行を防ぐ
- * - Flyway マイグレーション（V1, V2）は DataSource を通じて自動実行される
+ * - @ServiceConnection で PostgreSQLContainer を起動し DataSource・Flyway・MyBatis を自動設定する
+ * - @ActiveProfiles("integration-test") で devcontainer の db:5432 への接続試行を防ぐ
+ * - Flyway マイグレーション（V1, V2）は @ServiceConnection 経由で自動実行される
  * - JdbcClient を使った実際の SQL が正しく動くことを保証する
  * - 楽観ロックの version カラム動作もここで検証する
  *
- * 試行済みパターン（Spring Boot 4.x で機能しないことを確認）:
- * - @ServiceConnection: コンテナ検出タイミング問題
- * - @DynamicPropertySource: 全コンテキストロードと Bean 初期化順序問題
- * - ContainerDatabaseDriver (JDBC URL): DataSource が作成されない
- * - @JdbcTest / @AutoConfigureTestDatabase: Spring Boot 4.x で削除済み
- * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0012（APP-ADR-0011 を Supersede）
+ * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0013（APP-ADR-0012 を Supersede）
+ * ローカル実行には Docker socket へのアクセス権限が必要（devcontainer では CI で確認すること）
  *
  * ★★全体観点★★
  * 実際の PostgreSQL 16 コンテナを使い、MyBatis SQL・Flyway マイグレーション・楽観ロックが
@@ -58,27 +52,17 @@ import javax.sql.DataSource
  * 《テスト》正常系： assignRolesAndBumpVersion でロールが付与され version がインクリメントされる
  * 《テスト》正常系： assignRolesAndBumpVersion でロールを全剥奪できる
  */
-@SpringBootTest(
-    properties = ["spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"],
-)
+@Testcontainers
+@SpringBootTest
 @ActiveProfiles("integration-test")
 @Transactional
 class AccountRepositoryImplIntegrationTest {
-    @TestConfiguration
-    class TestDatasourceConfig {
-        @Bean(destroyMethod = "stop")
-        fun postgresContainer(): PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine").also { it.start() }
-
-        @Bean
-        fun dataSource(postgres: PostgreSQLContainer<*>): DataSource =
-            HikariDataSource(
-                HikariConfig().apply {
-                    jdbcUrl = postgres.jdbcUrl
-                    username = postgres.username
-                    password = postgres.password
-                    driverClassName = "org.postgresql.Driver"
-                },
-            )
+    companion object {
+        @Container
+        @ServiceConnection
+        @JvmStatic
+        @Suppress("DEPRECATION")
+        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
     }
 
     @Autowired

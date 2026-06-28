@@ -14,4 +14,4 @@
 
 ## 関連
 
-- 検出: [doc-maintainer](../../.claude/agents/doc-maintainer.md) のチェック項目2（リンク整合性）で、`#補足`や`#補足-\d+`のような連番付き重複見出しアンカーへのリンクを検出対象とする。
+- 検出: [doc-maintainer-structure](../../.claude/agents/doc-maintainer-structure.md) のチェック項目（リンク整合性）で、`#補足`や`#補足-\d+`のような連番付き重複見出しアンカーへのリンクを検出対象とする。

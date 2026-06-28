@@ -3,7 +3,7 @@
 ## 目次
 
 - [Platform / DevEx](#platform--devex)
-  - [コーディング規約](#コーディング規約) / [CI 設計課題](#ci-設計課題) / [CI パフォーマンス](#ci-パフォーマンス) / [Copilot 活用](#copilot-活用) / [AI駆動ドキュメンテーション](#ai駆動ドキュメンテーションナレッジ管理) / [サンドボックス環境](#サンドボックス環境)
+  - [コーディング規約](#コーディング規約) / [CI 設計課題](#ci-設計課題) / [CI パフォーマンス](#ci-パフォーマンス) / [Copilot 活用](#copilot-活用) / [AI駆動ドキュメンテーション](#ai駆動ドキュメンテーションナレッジ管理) / [MCPサーバー](#mcpサーバーブラウザ経由の外部urlアクセス) / [セキュリティ設定強化](#claude-code-セキュリティ設定の強化) / [サンドボックス環境](#サンドボックス環境)
 - [Frontend](#frontend)
   - [フロントエンド連携](#フロントエンド連携) / [フロントエンド実装・UI開発](#フロントエンド実装ui開発)
 - [Backend](#backend)
@@ -126,6 +126,48 @@
   - **パターンA（API連携）**: NotebookLM Enterprise API を使用し、GitHub Actionsから直接ソースを上書き更新する。
   - **パターンB（Google Drive経由）**: GitHub Actionsから Google Drive API を叩いてドキュメント（GDoc等）を更新し、NotebookLM側の「同期（Sync）」機能と連動させる。
 - **期待効果**: 新規参画メンバーのオンボーディングや、複雑な仕様の検索をNotebookLM上でのチャットで完結させる。
+
+#### MCPサーバー（ブラウザ経由の外部URLアクセス）
+
+- AIが外部URLを直接読めない問題への対策（OpenAI等はボットアクセスをブロックするため、AI から `WebFetch` で 403 が返る）
+- Puppeteer等を使ったブラウザ自動化MCPサーバーを用意することで、AIが実ブラウザ経由でWebページを読み取れるようになる
+- 用途:
+  - 外部技術記事・ドキュメントの参照・検証
+  - `docs/references/` に新規追加する記事の取り込み補助
+- 検討観点: MCPサーバーの構成（ローカル起動 / Dev Container内）・セキュリティ（アクセス先の制限方針）
+
+### Claude Code セキュリティ設定の強化
+
+参考: [【2026年最新版】Claude Codeで行うべきセキュリティ設定10選](https://qiita.com/miruky/items/51db293a7a7d0d277a5d)
+
+#### 全10項目の対応状況
+
+| # | 設定項目 | 状態 | 備考 |
+|---|---|---|---|
+| ① | サンドボックス有効化（`sandbox.enabled: true`） | **未対応** | 下記参照 |
+| ② | 脱出口の塞止（`sandbox.allowUnsandboxedCommands: false`） | **未対応** | ①が前提 |
+| ③ | 危険コマンドブロック（rm / curl / wget 等） | ✅ 対応済み | `permissions.deny` に追加済み |
+| ④ | 機密ファイルアクセス拒否（.env / SSH鍵等） | ✅ 対応済み | `Read(.env*)` 等を deny に追加済み |
+| ⑤ | ネットワーク制限（ホワイトリスト方式） | **部分対応** | curl/wget は deny 済み。OS レベルの完全制限は①に依存 |
+| ⑥ | `disableBypassPermissionsMode: "disable"` | ✅ 対応済み | `permissions.disableBypassPermissionsMode` に追加済み |
+| ⑦ | PreToolUse フック（カスタム検証スクリプト） | **未対応** | 下記参照 |
+| ⑧ | 権限の定期棚卸し（`/permissions` コマンド） | 運用次第 | ツールではなく運用対応 |
+| ⑨ | devcontainer 環境 | ✅ 対応済み | 既に devcontainer で開発中 |
+| ⑩ | Managed Settings（組織ポリシー一括管理） | 対象外 | 個人利用のため不要 |
+
+#### 未対応項目と先送り理由
+
+**① サンドボックス（`sandbox.enabled: true`）**
+- Bash 全操作を OS 層で隔離するため、git / gradle 系コマンドが動かなくなるリスクがある
+- 検証コストが高く、devcontainer で既にある程度隔離されているため優先度を下げた
+- 検討時は `sandbox.excludedCommands` で許可コマンドを列挙して段階的に導入する
+
+**② 脱出口の塞止**
+- ① サンドボックスが前提。① 未適用では効果がない
+
+**⑦ PreToolUse フック**
+- カスタム検証スクリプトを別途作成する必要があり、設計コストがある
+- 現状は deny ルールとpost-commit フックで代替できているため後回し
 
 ### サンドボックス環境
 

@@ -54,6 +54,15 @@ jobs:
         # フォーマット違反またはテスト失敗でジョブを失敗させる
         run: ./gradlew spotlessCheck test jacocoTestReport --no-daemon
 
+      - name: Upload test results
+        # テストケース単位の pass/fail を確認できるよう JUnit XML を保存する
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          if-no-files-found: warn
+          path: build/test-results/test/
+
       - name: Upload JaCoCo XML
         # 次ジョブのPRカバレッジコメントで利用する
         if: always()

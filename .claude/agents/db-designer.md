@@ -25,7 +25,7 @@ model: sonnet
   - PK カラム名は `<エンティティ名>_id` に統一
   - `accounts.account_id` は `AZ0000` 形式の text。他の PK は UUID v7（アプリ側採番）
   - `display_order` は 1 始まりの連番
-- **APP-ADR-0003**（ロール別可視範囲）を参照し、`roles` / `visibility_rules` の初期データを正しく投入する
+- **APP-ADR-0007**（権限ベース認可設計）を参照し、`roles` の初期データを正しく投入する（`visibility_rules` は廃止済み）
 - マイグレーションファイルの命名は Flyway の規則に従う: `V<バージョン>__<説明>.sql`（バージョンは既存の最大値+1）
 - 既存マイグレーションファイルを変更しない。変更が必要な場合は新規ファイルで対応する
 - `rm` 等の削除コマンドは使用しない
@@ -36,7 +36,7 @@ model: sonnet
 2. `docs/adr/` 配下の関連 ADR（特に APP-ADR-0001・0007・0008）を確認する
 3. 既存のマイグレーションファイル（`src/main/resources/db/migration/`）を確認し、最大バージョン番号を特定する
 4. CREATE TABLE / INSERT 文を APP-ADR-0001 の方針に従って作成する
-5. `visibility_rules` 等の初期データが必要な場合は同一ファイル内に INSERT 文を含める
+5. 初期データが必要な場合は同一ファイル内に INSERT 文を含める
 6. SQL 作成後、`docs/database/README.md` のテーブルカタログに新テーブルの行を追記する（DDL・data-models.md・関連ADRへのリンクを含める）
 
 ## 出力フォーマット

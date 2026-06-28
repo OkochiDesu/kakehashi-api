@@ -80,7 +80,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
    - 実装完了後に `./gradlew test` で全テストが通る（緑）ことを確認する
 7. `./gradlew build` でビルドエラーがないことを確認する
 
-## 出力
+## 出力フォーマット
 
 - 作成・編集したファイルの一覧と変更内容の要約を出力する
 - ビルド結果（成功 / エラー）を報告する
