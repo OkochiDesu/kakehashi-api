@@ -61,7 +61,8 @@ class AccountRepositoryImplIntegrationTest {
         @Container
         @ServiceConnection
         @JvmStatic
-        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:16-alpine")
+        @Suppress("DEPRECATION")
+        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
     }
 
     @Autowired
