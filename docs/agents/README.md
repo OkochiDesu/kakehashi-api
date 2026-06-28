@@ -86,6 +86,18 @@ model: <モデル名>
 | [code-reviewer](../../.claude/agents/code-reviewer.md) | 実装コードレビュー（ADR 準拠・セキュリティ・設計品質） |
 | [test-reviewer](../../.claude/agents/test-reviewer.md) | テストコードレビュー（code-reviewer APPROVED 後） |
 
+#### ドメイン番人系
+
+| エージェント | 役割 |
+|---|---|
+| [account-domain-agent](../../.claude/agents/account-domain-agent.md) | アカウントドメインのビジネスルール番人。ステータス遷移・認可・楽観ロックの準拠を検証（api-designer/kotlin-implementer がアカウント触れる際に呼び出す） |
+
+#### フィードバック対応系
+
+| エージェント | 役割 |
+|---|---|
+| [feedback-harness-agent](../../.claude/agents/feedback-harness-agent.md) | ユーザー/GitHub Copilot の指摘を受けたとき、memory/CLAUDE.md/agents/.githooks への振り分けを分類・提案・実装する |
+
 ### グロブルール（`.claude/rules/`）
 
 | ルール | 適用対象 | 内容 |
@@ -144,5 +156,7 @@ model: <モデル名>
 | [AI-ADR-0016](../adr/AI-ADR-0016-GitHub-CopilotとClaudeCodeの役割分担明確化とCopilotエージェントファイルの削除.md) | GitHub Copilot と ClaudeCode の役割分担明確化と Copilot エージェントファイルの削除 | Accepted |
 | [AI-ADR-0017](../adr/AI-ADR-0017-レビュー系エージェントの最終ゲート原則によるモデル選定.md) | レビュー系エージェントの最終ゲート原則によるモデル選定（code-reviewer・test-reviewer を opus に） | Accepted |
 | [AI-ADR-0018](../adr/AI-ADR-0018-レビュー系エージェントの全項目列挙出力パターン.md) | チェックリスト出力を持つエージェントの全項目列挙パターン（レビュー系: PASS/FAIL/SKIP・チェッカー系: OK/要対応/SKIP） | Accepted |
+| [AI-ADR-0019](../adr/AI-ADR-0019-Qiitaセキュリティ設定棚卸し結果の記録.md) | Qiita セキュリティ設定棚卸し結果の記録（3項目の見送り判断） | Accepted |
+| [AI-ADR-0020](../adr/AI-ADR-0020-feedback-harness-agentの導入.md) | feedback-harness-agent の導入（指摘受領時の5分類エージェント化） | Accepted |
 
 > AI-ADR の追加・更新は `/adr-governance` スキルまたは `adr-governance` サブエージェントで行う。

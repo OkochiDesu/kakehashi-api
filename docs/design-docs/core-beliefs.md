@@ -24,7 +24,6 @@
 - コミット前（軽量・必須）: [doc-maintainer-structure](../../.claude/agents/doc-maintainer-structure.md) が索引・リンク整合性・ToC をチェックする。
 - 定期チェック（PR作成前 / ユーザー明示指示時）: `doc-maintainer-structure` と [doc-maintainer-content](../../.claude/agents/doc-maintainer-content.md) を並列で呼び出し、ADR整合・鮮度・exec-plans・TODO実行可能性をチェックする（[AI-ADR-0011](../adr/AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md)）。
 - ファイルの作成・編集・削除は行わず、レポートのみを返す。適用判断は人間（または呼び出し元）に委ねる。
-- レガシーの [doc-maintainer](../../.claude/agents/doc-maintainer.md)（フルチェック版）も維持しているが、上記2エージェントの並列実行を推奨。
 
 ## 4. ADRはリポジトリの事実のみを根拠に、証拠ベースで更新する
 

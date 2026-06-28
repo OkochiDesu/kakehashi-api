@@ -54,6 +54,8 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 | [design-impl-checker](.claude/agents/design-impl-checker.md) | API設計書（`docs/design/api/*.md`）とController実装のパス・リクエスト/レスポンス整合性をチェック |
 | [code-reviewer](.claude/agents/code-reviewer.md) | 実装コードのレビュー。APPROVED/REQUIRES_CHANGESを明示し人間の最終確認を支援 |
 | [test-reviewer](.claude/agents/test-reviewer.md) | テストコードのレビュー。code-reviewer APPROVED後に呼び出し、テスト品質・カバレッジ・監査カラム検証・楽観ロック競合テストを確認 |
+| [account-domain-agent](.claude/agents/account-domain-agent.md) | アカウントドメインのビジネスルール番人。ステータス遷移・認可・楽観ロックの準拠を検証（api-designer/kotlin-implementerがアカウント触れる際に呼び出す） |
+| [feedback-harness-agent](.claude/agents/feedback-harness-agent.md) | ユーザー/GitHub Copilot の指摘を受けたとき、memory/CLAUDE.md/agents/.githooks への振り分けを分類・提案・実装する |
 
 ## 利用可能な glob ルール（.claude/rules/）
 
