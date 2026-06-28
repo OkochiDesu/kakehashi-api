@@ -17,6 +17,7 @@ AI-ADR（`AI-ADR-` プレフィックス）は [docs/agents/README.md](../agents
 | [CICD-ADR-0003](CICD-ADR-0003-複雑度しきい値によるCIフェイル条件導入.md) | 複雑度しきい値によるCIフェイル条件導入 | CI/CD | Accepted |
 | [CICD-ADR-0004](CICD-ADR-0004-コミットメッセージベースのPRサマリー自動コメント導入.md) | コミットメッセージベースのPRサマリー自動コメント導入 | CI/CD | Accepted（決定4のみCICD-ADR-0005で置換） |
 | [CICD-ADR-0005](CICD-ADR-0005-PR本文への変更内容自動反映方式への変更.md) | PR本文への変更内容自動反映方式への変更 | CI/CD | Accepted |
+| [CICD-ADR-0006](CICD-ADR-0006-CIテストレポート方式にGradle-testLoggingを採用.md) | CIテストレポート方式にGradle testLoggingを採用 | CI/CD | Accepted |
 | [APP-ADR-0004](APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) | 永続化技術スタックの導入（Flyway / MyBatis / PostgreSQL） | コーディング | Accepted |
 | [APP-ADR-0008](APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) | DDD + CQRS アーキテクチャ原則の採用 | コーディング | Accepted |
 | [APP-ADR-0009](APP-ADR-0009-APIパスにバージョンプレフィックスを含めない.md) | API パスにバージョンプレフィックスを含めない | コーディング | Accepted |

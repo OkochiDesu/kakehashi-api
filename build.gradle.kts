@@ -79,6 +79,8 @@ tasks.withType<Test> {
     // CI ログに全スタックトレースを出力（Bean 名・原因特定のため）
     testLogging {
         events(
+            org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
             org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
         )
         showExceptions = true
