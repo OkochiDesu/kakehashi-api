@@ -36,12 +36,14 @@ README は学習を兼ねてユーザーと会話しながら進める（削除�
 
 ### エージェント・ハーネス整理
 
-- [ ] `.claude/agents/` — 各エージェント定義（陳腐化・不整合・不要定義の洗い出し）
-- [ ] `.claude/rules/` — glob ルール（test-rules.md・mybatis-rules.md）
-- [ ] `.claude/hooks/` — hook スクリプト（動作・説明の整合性確認）
-- [ ] `.claude/skills/` — スキル定義（adr-governance・implement-review-loop）
+- [x] `.claude/agents/` — 各エージェント定義（陳腐化・不整合・不要定義の洗い出し）
+- [x] `.claude/rules/` — glob ルール（test-rules.md・mybatis-rules.md）
+- [x] `.claude/hooks/` — hook スクリプト（動作・説明の整合性確認）
+- [x] `.claude/skills/` — スキル定義（adr-governance・implement-review-loop）
 - [ ] PR 作成・マージ
 
 ## 意思決定ログ
+
+- 2026-06-28: db-designer.md の `visibility_rules` / APP-ADR-0003 言及を APP-ADR-0007 に更新（APP-ADR-0007 で visibility_rules 廃止済みのため）
 
 ## 残課題・引き継ぎ事項
