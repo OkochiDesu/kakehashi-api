@@ -40,5 +40,15 @@
     // コンテナ内で使用するユーザー名
     "remoteUser": "vscode",
     // コンテナ作成後に実行するコマンド（git hooks 有効化と Gradle Wrapper の事前取得）
-    "postCreateCommand": "sh -lc 'mkdir -p \"$GRADLE_USER_HOME\" && git config core.hooksPath .githooks && ./gradlew --version'"
+    "postCreateCommand": "sh -lc 'mkdir -p \"$GRADLE_USER_HOME\" && git config core.hooksPath .githooks && ./gradlew --version'",
+    // 転送するポートとその用途を明示する（VS Code の自動検出ポートが無制限に増えるのを防ぐ）
+    "forwardPorts": [5432, 8080, 8090, 5005],
+    "portsAttributes": {
+        "5432": { "label": "PostgreSQL", "onAutoForward": "notify" },
+        "8080": { "label": "Spring Boot (bootRun)", "onAutoForward": "notify" },
+        "8090": { "label": "JaCoCo Report", "onAutoForward": "notify" },
+        "5005": { "label": "Java Debug (JDWP)", "onAutoForward": "silent" }
+    },
+    // 上記以外のポートは自動転送しない（予期しないポートが増えるのを防ぐ）
+    "otherPortsAttributes": { "onAutoForward": "ignore" }
 }

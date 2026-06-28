@@ -7,7 +7,6 @@
 
 ## 作業ルール
 
-### コミュニケーション
 - ユーザーへの応答は日本語で行う
 
 ### 次の作業が決まったときの exec-plan 作成
@@ -78,13 +77,10 @@
 - 不明な点や判断が必要な場合は、ユーザーに質問すること
 - 確認事項をユーザーに質問する前に、既存のADR（[docs/adr/](docs/adr/)）と要件定義ドキュメント（[docs/requirements/](docs/requirements/)）を確認し、既に決定済みの内容を除外すること
 - 意思決定が行われた場合（代替案があり、選んだ理由が現在の文脈に依存し、将来変わりうるもの）は、ADR または AI-ADR の作成をユーザーに提案すること
-- ユーザーから指摘・訂正を受けた場合は、以下の分類で仕組み化を提案すること（[core-beliefs.md 原則7](docs/design-docs/core-beliefs.md) 参照）:
-  - 一時的な文脈ミス → `memory/` に保存
-  - プロジェクト固有の行動ルール違反 → `CLAUDE.md` にルール追記
-  - 特定エージェントの設計ミス → `.claude/agents/` を更新
-  - 設計判断レベルの問題 → AI-ADR として記録
-  - **上記に加え、grep/正規表現で確実に検出できるパターンかを判断すること**（YES → `.githooks/pre-commit` にも追加。上記分類と組み合わせ可。判断基準は [harness-and-guardrails.md](docs/design-docs/harness-and-guardrails.md) 参照）
+- ユーザーから指摘・訂正を受けた場合は、`feedback-harness-agent` サブエージェントを呼び出して分類・仕組み化を行うこと（[core-beliefs.md 原則7](docs/design-docs/core-beliefs.md) 参照）
 - ADR（`{PREFIX}-ADR-XXXX-`、PREFIX: `APP` / `CICD` / `DOC`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
+
+### 実装・変更時の技術的チェックリスト
 - **ADR の `影響` 欄に実装方針（認可ロジック・楽観ロック・パス形式等）が記載されている場合、`.claude/agents/` 配下の関連エージェント定義（特に `kotlin-implementer.md` / `code-reviewer.md` / `api-designer.md`）が陳腐化していないか合わせて確認し、必要なら更新すること**
 - **バージョン文字列（Dockerイメージタグ・ライブラリバージョン等）をコード・設定で変更した場合は、`grep -r` で `docs/` および `.claude/rules/` の同一文字列を検索し、陳腐化した参照を一括更新すること**（例: テストコンテナのイメージタグを変更したら troubleshooting ドキュメントやテスト規約サンプルも更新）
 - **実装アプローチを移行した場合（例: `@TestConfiguration` → `@ServiceConnection`、`ContainerDatabaseDriver` → `@ServiceConnection` 等）は、旧アプローチのクラス名・アノテーション名を `grep -r` で全ファイル（`src/`・`build.gradle.kts`・`docs/`・`.claude/`）に対して検索し、コード・コメント・ドキュメントに残る stale 参照を同一コミットで除去・更新すること**（バージョン文字列と同じ一括更新の考え方を適用する）
