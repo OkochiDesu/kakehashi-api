@@ -22,7 +22,7 @@ repositories {
 
 // Testcontainers は Spring Boot 4.x の BOM 管理（2.x 系）に任せる。
 // 1.20.4 を固定していたのは ContainerDatabaseDriver (JDBC URL 方式) 利用時の互換問題だったが、
-// @TestConfiguration で PostgreSQLContainer を直接使う方式に変更したため制約がなくなった。
+// @ServiceConnection 方式（APP-ADR-0013）に移行したためバージョン固定の制約はなくなった。
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")

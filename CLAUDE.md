@@ -87,6 +87,8 @@
 - ADR（`{PREFIX}-ADR-XXXX-`、PREFIX: `APP` / `CICD` / `DOC`）または AI-ADR（`AI-ADR-XXXX-`）を作成・更新・Supersede する際は、`adr-governance` サブエージェントを呼び出すこと（ユーザーが `/adr-governance` スキルを起動した場合はスキル側が呼び出すため不要）
 - **ADR の `影響` 欄に実装方針（認可ロジック・楽観ロック・パス形式等）が記載されている場合、`.claude/agents/` 配下の関連エージェント定義（特に `kotlin-implementer.md` / `code-reviewer.md` / `api-designer.md`）が陳腐化していないか合わせて確認し、必要なら更新すること**
 - **バージョン文字列（Dockerイメージタグ・ライブラリバージョン等）をコード・設定で変更した場合は、`grep -r` で `docs/` および `.claude/rules/` の同一文字列を検索し、陳腐化した参照を一括更新すること**（例: テストコンテナのイメージタグを変更したら troubleshooting ドキュメントやテスト規約サンプルも更新）
+- **実装アプローチを移行した場合（例: `@TestConfiguration` → `@ServiceConnection`、`ContainerDatabaseDriver` → `@ServiceConnection` 等）は、旧アプローチのクラス名・アノテーション名を `grep -r` で全ファイル（`src/`・`build.gradle.kts`・`docs/`・`.claude/`）に対して検索し、コード・コメント・ドキュメントに残る stale 参照を同一コミットで除去・更新すること**（バージョン文字列と同じ一括更新の考え方を適用する）
+- **コンパイルレベルの確認が必要な変更（型引数の除去・非推奨 API の置き換え・`@Suppress` の追加等）は、`@Suppress` を「とりあえず暫定」としてコミットせず、「変更を push → CI でビルド確認 → アプローチ確定」の順で進めること**（ローカルで実行環境がない場合も同様。CI で確認できることはCI で確認してから決める）
 
 ## 関連ドキュメント
 - 全体マップ: [AGENTS.md](AGENTS.md)
