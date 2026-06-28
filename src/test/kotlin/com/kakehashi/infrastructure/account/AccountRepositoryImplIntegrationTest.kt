@@ -22,9 +22,9 @@ import java.util.UUID
 /**
  * AccountRepositoryImpl 統合テスト
  *
- * - TestConfiguration で PostgreSQLContainer を直接起動し DataSource を提供する
- * - DataSourceAutoConfiguration を除外して「devcontainer の db:5432」への接続試行を防ぐ
- * - Flyway マイグレーション（V1, V2）は DataSource を通じて自動実行される
+ * - @ServiceConnection で PostgreSQLContainer を起動し DataSource・Flyway・MyBatis を自動設定する
+ * - @ActiveProfiles("integration-test") で devcontainer の db:5432 への接続試行を防ぐ
+ * - Flyway マイグレーション（V1, V2）は @ServiceConnection 経由で自動実行される
  * - JdbcClient を使った実際の SQL が正しく動くことを保証する
  * - 楽観ロックの version カラム動作もここで検証する
  *
@@ -61,6 +61,7 @@ class AccountRepositoryImplIntegrationTest {
         @Container
         @ServiceConnection
         @JvmStatic
+        @Suppress("DEPRECATION")
         val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
     }
 
