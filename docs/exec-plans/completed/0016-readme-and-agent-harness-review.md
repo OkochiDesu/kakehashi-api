@@ -40,7 +40,7 @@ README は学習を兼ねてユーザーと会話しながら進める（削除�
 - [x] `.claude/rules/` — glob ルール（test-rules.md・mybatis-rules.md）
 - [x] `.claude/hooks/` — hook スクリプト（動作・説明の整合性確認）
 - [x] `.claude/skills/` — スキル定義（adr-governance・implement-review-loop）
-- [ ] PR 作成・マージ
+- [x] PR 作成・マージ（PR #15 マージ済み）
 
 ## 意思決定ログ
 
