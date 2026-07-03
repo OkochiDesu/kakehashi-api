@@ -40,8 +40,15 @@ dependencies {
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1")
     // Bean Validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    // 認証基盤（APP-ADR-0014）: Google IDトークン検証（JWKS）+ 自前JWT発行
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.ninja-squad:springmockk:4.0.2")
