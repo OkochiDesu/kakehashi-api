@@ -4,7 +4,7 @@
 
 対象ユースケース: UC-A1〜A7（[ui-flows.md 1章](../../requirements/ui-flows.md#1-認証アカウントコンテキスト)）
 根拠テーブル: `accounts` / `roles` / `account_roles`（[data-models.md 1章](../../requirements/data-models.md#1-認証アカウントコンテキスト)）
-参照ADR: [APP-ADR-0001](../../adr/APP-ADR-0001-テーブル設計共通方針.md) / [APP-ADR-0003](../../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) / [APP-ADR-0007](../../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) / [APP-ADR-0008](../../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) / [APP-ADR-0009](../../adr/APP-ADR-0009-APIパスにバージョンプレフィックスを含めない.md)
+参照ADR: [APP-ADR-0001](../../adr/APP-ADR-0001-テーブル設計共通方針.md) / [APP-ADR-0003](../../adr/APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) / [APP-ADR-0007](../../adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) / [APP-ADR-0008](../../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) / [APP-ADR-0009](../../adr/APP-ADR-0009-APIパスにバージョンプレフィックスを含めない.md) / [APP-ADR-0014](../../adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md)
 
 ---
 
@@ -21,7 +21,7 @@
   - [UC-A1: Google SSOログイン（仮登録・自動プロビジョニング）](#uc-a1-google-ssoログイン仮登録自動プロビジョニング)
   - [UC-A3: 本登録申込み](#uc-a3-本登録申込み)
   - [UC-A4: アカウント情報編集（本人）](#uc-a4-アカウント情報編集本人)
-  - [UC-A6: ロール付与・変更（管理者）](#uc-a6-ロール付与変更管理者)
+  - [UC-A6: 権限付与・変更（管理者）](#uc-a6-権限付与変更管理者)
   - [UC-A7: アカウント停止・停止解除（管理者）](#uc-a7-アカウント停止停止解除管理者)
 - [Query（参照系）エンドポイント](#query参照系エンドポイント)
   - [UC-A5: アカウント一覧・検索（管理者）](#uc-a5-アカウント一覧検索管理者)
@@ -43,9 +43,15 @@
 
 ### 認証・認可
 
-- Spring Security + Google OAuth2（OIDC）を前提とする。`sub` クレームをSHA-256等でハッシュ化し `accounts.google_sub_hash` と照合する（平文の `sub` はサーバー側で保持しない）。
-- 認証が必要なエンドポイントは `Authorization: Bearer <JWT>` ヘッダーを要求する。
-- ロール制御は Spring Security の `@PreAuthorize` で実施する。
+自前JWT発行方式を採用する（[APP-ADR-0014](../../adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md)）。認証フローは以下の3段構成:
+
+1. `POST /api/auth/google/callback` で Google ID トークン（`idToken`）を受け取り、バックエンドが Google JWKS を用いて署名検証する。
+2. 検証後、`sub` クレームを SHA-256 等でハッシュ化し `accounts.google_sub_hash` と照合する（平文の `sub` はサーバー側で保持しない）。一致するアカウントが存在しない場合は JIT プロビジョニング（仮登録）を行う。
+3. バックエンドが `accountId` クレームを埋め込んだ**自前JWT**を発行し、レスポンスで返す（UC-A1 のレスポンス参照）。
+
+これ以降のリクエストは、この自前JWTを `Authorization: Bearer <JWT>` ヘッダーで送信する（Google ID トークンそのものは Bearer トークンとして使用しない。この点は [APP-ADR-0014](../../adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md) が却下した代替案「Google id_token Bearer 方式」との違いに留意すること）。
+
+Spring Security のカスタムフィルターが自前JWTを検証し、`SecurityContextHolder` に `accountId` をセットする。ロール制御は Spring Security の `@PreAuthorize` で実施する（`accountId` から権限を解決する具体的な認可ロジックは exec-plan 0007 のスコープ）。
 
 ### accounts.account_id の形式
 
@@ -103,14 +109,12 @@
 - **メソッド・パス**: `POST /api/auth/google/callback`
 - **認証**: 不要（Google OAuthコールバック受信）
 - **アクセス制御**: 全ロール（未登録含む）
-- **処理概要（JITプロビジョニング）**:
-  1. Googleから受け取った `id_token`（または `code`）を検証し、`sub` クレームをハッシュ化して `accounts.google_sub_hash` と照合する。
-  2. 一致するアカウントが存在しない場合（初回ログイン）は `accounts.status = 'provisional'` でアカウントを仮登録する（UC-A2 相当の内部処理）。
-  3. アカウント状態（`status`）に応じてフロントエンドへのリダイレクト先を返す。
-  - `provisional`: 本登録申込み画面
-  - `active`: マイページ
-  - `suspended`: エラー（ログイン拒否）。退職者も同じ扱い
-  - `deactivated`: エラー（ログイン拒否）
+- **処理概要（JITプロビジョニング・自前JWT発行、[APP-ADR-0014](../../adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md)）**:
+  1. Googleから受け取った `idToken` をバックエンドで Google JWKS を用いて署名検証する。
+  2. 検証成功後、`sub` クレームをハッシュ化して `accounts.google_sub_hash` と照合する。一致するアカウントが存在しない場合（初回ログイン）は `accounts.status = 'provisional'` でアカウントを仮登録する（UC-A2 相当の内部処理）。
+  3. アカウント状態（`status`）に応じて処理を分岐する。
+     - `provisional` / `active`: `accountId` クレームを埋め込んだ自前JWTを発行し、フロントエンドへのリダイレクト先とあわせて返す（`provisional` は本登録申込み画面、`active` はマイページ）。
+     - `suspended` / `deactivated`: 自前JWTは発行せず、ログインを拒否する（エラー応答）。退職者は `suspended` 扱いで同様に拒否する。
 
 - **リクエスト（ボディ）**:
   ```
@@ -119,22 +123,24 @@
   }
   ```
 
-- **レスポンス 200**:
+- **レスポンス 200**（`status` が `provisional` または `active` の場合のみ。`suspended` / `deactivated` はログイン拒否のため 4xx を返す）:
   ```
   {
     "accountId": string,          // AZ0000 形式（新規仮登録時は採番済み値）
-    "status": "provisional" | "active" | "suspended" | "deactivated",
+    "status": "provisional" | "active",
+    "accessToken": string,        // バックエンド発行の自前JWT（accountIdクレームを含む）。
+                                   // 以降のリクエストは Authorization: Bearer <accessToken> ヘッダーで送信する
     "redirectTo": string          // フロントエンドがリダイレクトすべきパス
   }
   ```
 
 - **レスポンス 4xx**:
-  - `401 Unauthorized`: id_token の署名検証失敗
-  - `403 Forbidden`: `status = 'suspended'` のアカウントのログイン試行
-  - `422 Unprocessable Entity`: id_token のフォーマット不正、ドメインチェック失敗（環境変数で指定した会社ドメイン以外のGoogleアカウント）
+  - `401 Unauthorized`: `idToken` の署名検証失敗（Google JWKS 照合失敗）
+  - `403 Forbidden`: `status = 'suspended'` または `status = 'deactivated'` のアカウントのログイン試行（自前JWTは発行しない）
+  - `422 Unprocessable Entity`: `idToken` のフォーマット不正、ドメインチェック失敗（環境変数で指定した会社ドメイン以外のGoogleアカウント）
 
 - **根拠 UC**: UC-A1, UC-A2（内部処理）
-- **備考**: UC-A2（仮登録）はこのコールバック内のシステム内部処理であり、独立したエンドポイントは持たない。
+- **備考**: UC-A2（仮登録）はこのコールバック内のシステム内部処理であり、独立したエンドポイントは持たない。自前JWTの署名鍵・有効期限・リフレッシュ方針は本設計書のスコープ外（[APP-ADR-0014](../../adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md)「影響」参照、認証基盤実装時に決定）。
 
 ---
 
@@ -428,3 +434,5 @@ UC-A5 の詳細画面、マイページ表示、UC-A6・UC-A7 の操作前 `vers
 | Command | POST | `/api/accounts/{accountId}/unsuspend` | 必要 | admin 権限 | UC-A7 |
 | Query | GET | `/api/accounts` | 必要 | admin 権限 | UC-A5 |
 | Query | GET | `/api/accounts/{accountId}` | 必要 | 本人 or admin 権限 | UC-A3, UC-A4, UC-A5, UC-A6, UC-A7 |
+
+> 上表の「認証」欄における `Authorization: Bearer <JWT>` は、いずれもバックエンドが UC-A1 で発行する自前JWTを指す（[APP-ADR-0014](../../adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md)）。
