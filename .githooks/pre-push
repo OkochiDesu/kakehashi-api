@@ -8,6 +8,8 @@
 #   - *Config.kt         : Spring @Configuration（DI 設定のみ）
 #   - *Exceptions.kt     : 例外クラスの定義のみ（ロジックなし）
 #   - GlobalExceptionHandler.kt : Controller テスト経由で間接テスト済み
+#   - GoogleIdTokenVerifier.kt / JwtTokenIssuer.kt : domain層のポート定義インターフェース
+#     （DTO・例外クラスのみ含む。実装は infrastructure/** 側でテスト、または Impl のテストファイルで検証）
 #   - infrastructure/**  : Testcontainers（DB接続が必要）のため別ブランチで対応
 
 SKIP_PATTERNS=(
@@ -15,6 +17,8 @@ SKIP_PATTERNS=(
     "*Config.kt"
     "*Exceptions.kt"
     "GlobalExceptionHandler.kt"
+    "GoogleIdTokenVerifier.kt"
+    "JwtTokenIssuer.kt"
 )
 
 # infrastructure 層は Testcontainers ブランチで別途対応（パス部分一致で除外）
