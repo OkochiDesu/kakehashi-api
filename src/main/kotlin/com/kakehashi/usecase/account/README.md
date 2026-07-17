@@ -61,10 +61,23 @@ classDiagram
 
     class GoogleSsoCallbackUseCase {
         -AccountRepository accountRepository
+        -GoogleIdTokenVerifier googleIdTokenVerifier
+        -JwtTokenIssuer jwtTokenIssuer
+        -Set~String~ allowedGoogleDomains
         +execute(input) Output
+    }
+    class GoogleSsoCallbackUseCase_Output {
+        <<data class>>
+        +String accountId
+        +AccountStatus status
+        +String accessToken
+        +String redirectTo
     }
 
     RegisterAccountUseCase --> RegisterAccountUseCase_Output : returns
+    GoogleSsoCallbackUseCase --> GoogleSsoCallbackUseCase_Output : returns
+    GoogleSsoCallbackUseCase ..> GoogleIdTokenVerifier : verifies idToken
+    GoogleSsoCallbackUseCase ..> JwtTokenIssuer : issues accessToken
     EditAccountUseCase --> EditAccountUseCase_Input : takes
     AssignRolesUseCase --> AssignRolesUseCase_Input : takes
 ```
@@ -112,7 +125,7 @@ classDiagram
 
 | クラス | 設計書No | 概要 |
 |--------|---------|------|
-| `GoogleSsoCallbackUseCase` | UC-A1/A2 | Google SSO コールバック処理。初回ログイン時に仮登録アカウントを作成 |
+| `GoogleSsoCallbackUseCase` | UC-A1/A2 | Google SSO コールバック処理。Google IDトークン検証 → JIT プロビジョニング（初回ログイン時に仮登録アカウントを作成）→ 自前 JWT 発行の3段構成（APP-ADR-0014） |
 | `RegisterAccountUseCase` | UC-A3 | 本登録申込み。PROVISIONAL → ACTIVE へステータス遷移 |
 | `EditAccountUseCase` | UC-A4 | アカウント情報（表示名）を編集 |
 | `SuspendAccountUseCase` | UC-A7 | アカウントを停止（ACTIVE → SUSPENDED） |
@@ -143,6 +156,14 @@ flowchart LR
         Q --> MAP[AccountMapper]
         MAP --> DB
     end
+    subgraph "Google SSO ログイン（UC-A1）"
+        GC[Controller] --> GUC[GoogleSsoCallbackUseCase]
+        GUC --> GV["GoogleIdTokenVerifier（Google JWKS 署名検証）"]
+        GUC --> AGG2["Account集約（JIT プロビジョニング）"]
+        AGG2 --> REPO2[AccountRepository]
+        REPO2 --> DB
+        GUC --> JI["JwtTokenIssuer（自前 JWT 発行）"]
+    end
 ```
 
 ---
@@ -154,12 +175,16 @@ flowchart LR
 | `AccountNotFoundException` | 404 | 指定 ID のアカウントが存在しない |
 | `InvalidStatusTransitionException` | 409 | `canTransitionTo()` が false |
 | `OptimisticLockException` | 409 | UPDATE 0件（version 不一致） |
-| `ForbiddenOperationException` | 403 | 権限不足（`isAdmin = false`） |
+| `ForbiddenOperationException` | 403 | 権限不足（`isAdmin = false`）、または `AccountStatus.canLogin()` が false（UC-A1: suspended/deactivated アカウントのログイン試行） |
+| `GoogleIdTokenVerificationException` | 401 | Google JWKS による署名・iss/aud/有効期限の検証に失敗（UC-A1、APP-ADR-0014） |
+| `InvalidIdTokenFormatException` | 422 | idToken が JWT フォーマット（`header.payload.signature`）として不正（UC-A1、APP-ADR-0014） |
+| `DomainNotAllowedException` | 422 | 許可ドメイン（`app.auth.google.allowed-domains`）に一致しない Google アカウント（UC-A1、APP-ADR-0014） |
 
 ---
 
 ## 関連 ADR
 
-- [APP-ADR-0005](../../../../../docs/adr/APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md) — 楽観ロック
-- [APP-ADR-0007](../../../../../docs/adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) — 権限設計
-- [APP-ADR-0008](../../../../../docs/adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) — DDD / CQRS
+- [APP-ADR-0005](../../../../../../../docs/adr/APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md) — 楽観ロック
+- [APP-ADR-0007](../../../../../../../docs/adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) — 権限設計
+- [APP-ADR-0008](../../../../../../../docs/adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) — DDD / CQRS
+- [APP-ADR-0014](../../../../../../../docs/adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md) — 認証基盤（Google SSO 検証・自前 JWT 発行戦略）
