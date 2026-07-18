@@ -37,12 +37,7 @@ class AccountUseCaseConfig {
         jwtTokenIssuer: JwtTokenIssuer,
         @Value("\${app.auth.google.allowed-domains:}") allowedDomainsRaw: String,
     ): GoogleSsoCallbackUseCase {
-        val allowedDomains =
-            allowedDomainsRaw
-                .split(",")
-                .map { it.trim().lowercase() }
-                .filter { it.isNotEmpty() }
-                .toSet()
+        val allowedDomains = AllowedDomainsParser.parse(allowedDomainsRaw)
         return GoogleSsoCallbackUseCase(repo, googleIdTokenVerifier, jwtTokenIssuer, allowedDomains)
     }
 

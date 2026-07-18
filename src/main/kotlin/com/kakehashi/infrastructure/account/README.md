@@ -63,6 +63,17 @@ classDiagram
     class JwtAuthenticationFilter {
         -JwtTokenIssuer jwtTokenIssuer
         +doFilterInternal(request, response, filterChain)
+        -writeUnauthorized(response, message)
+    }
+
+    class RestAuthenticationEntryPoint {
+        <<AuthenticationEntryPoint>>
+        +commence(request, response, authException)
+    }
+
+    class AuthErrorResponseWriter {
+        <<file function>>
+        +writeUnauthorizedJson(response, code, message)$ Unit
     }
 
     AccountRepositoryImpl ..> AccountRepository : implements
@@ -72,6 +83,8 @@ classDiagram
     AccountMapper ..> AccountDetailRow : returns
     AccountDetailRow *-- RoleRow : roles
     JwtAuthenticationFilter --> JwtTokenIssuer : verifies Bearer token
+    JwtAuthenticationFilter ..> AuthErrorResponseWriter : uses(writeUnauthorizedJson)
+    RestAuthenticationEntryPoint ..> AuthErrorResponseWriter : uses(writeUnauthorizedJson)
 ```
 
 ---
@@ -84,8 +97,10 @@ classDiagram
 | `AccountMapper` | `@Mapper`（MyBatis インターフェース） | Query 系（一覧・詳細取得）を DTO に直接マッピング。ドメイン層をバイパスする（APP-ADR-0008）。SQL 本体は `src/main/resources/mapper/account/AccountMapper.xml` |
 | `AccountSummaryRow` / `AccountDetailRow` / `RoleRow` | data class（DTO） | `AccountMapper` の戻り値型。ドメインの `Account` とは別の Query 専用モデル |
 | `GoogleIdTokenVerifierImpl` | `@Component`（アダプタ） | `GoogleIdTokenVerifier` の実装。Spring Security OAuth2 の `NimbusJwtDecoder` を Google JWKS で構成し、署名・iss/aud/exp・`email_verified` を検証する（APP-ADR-0014） |
-| `JwtTokenIssuerImpl` | `@Component`（アダプタ） | `JwtTokenIssuer` の実装。jjwt による HS256 署名の自前 JWT を発行・検証する（有効期限60分固定、APP-ADR-0014） |
-| `JwtAuthenticationFilter` | `OncePerRequestFilter` | `Authorization: Bearer <JWT>` を検証し `SecurityContextHolder` に accountId を principal としてセットするカスタムフィルター。`@Component` は付与せず `config/SecurityConfig` から明示的にインスタンス化する（`@WebMvcTest` の型スキャンに誤って取り込まれないため） |
+| `JwtTokenIssuerImpl` | `@Component`（アダプタ） | `JwtTokenIssuer` の実装。jjwt による HS256 署名の自前 JWT を発行・検証する（有効期限60分固定、APP-ADR-0014）。`verify()` は `JwtException` に加え `IllegalArgumentException`（jjwt が空文字列等の形式不正入力で投げることがある）も捕捉し `JwtVerificationFailedException` にラップする。捕捉範囲を広げないと 401 ではなく 500 Internal Server Error になってしまうため |
+| `JwtAuthenticationFilter` | `OncePerRequestFilter` | `Authorization: Bearer <JWT>` を検証し `SecurityContextHolder` に accountId を principal としてセットするカスタムフィルター。`@Component` は付与せず `config/SecurityConfig` から明示的にインスタンス化する（`@WebMvcTest` の型スキャンに誤って取り込まれないため）。検証失敗時は `AuthErrorResponseWriter.writeUnauthorizedJson` で401 JSONを書き込む |
+| `RestAuthenticationEntryPoint` | `AuthenticationEntryPoint`（アダプタ） | 未認証アクセス時に常に401を返す。`httpBasic()`/`formLogin()` を設定しない構成では Spring Security のデフォルト実装が `Http403ForbiddenEntryPoint` にフォールバックし403になってしまうため明示的に登録する（PR #21 code-reviewer 指摘）。`@Component` は付与せず `config/SecurityConfig` から明示的にインスタンス化する（`JwtAuthenticationFilter` と同じ方針） |
+| `AuthErrorResponseWriter.kt`（`writeUnauthorizedJson`） | `internal` トップレベル関数 | 401 JSONレスポンス（`{"code":...,"message":...}`）書き込みの共通処理。`JwtAuthenticationFilter`（JWT検証失敗時）と `RestAuthenticationEntryPoint`（未認証アクセス時）で応答フォーマットを統一するために共通化（PR #21 code-reviewer 指摘） |
 
 ---
 

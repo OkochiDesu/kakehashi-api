@@ -36,8 +36,16 @@ classDiagram
         +validate()
     }
 
+    class AllowedDomainsParser {
+        <<object>>
+        +parse(raw)$ Set~String~
+    }
+
     AccountUseCaseConfig ..> GoogleSsoCallbackUseCase : creates(Bean)
+    AccountUseCaseConfig ..> AllowedDomainsParser : uses
+    AuthStartupValidator ..> AllowedDomainsParser : uses
     SecurityConfig ..> JwtAuthenticationFilter : creates
+    SecurityConfig ..> RestAuthenticationEntryPoint : creates
     SecurityConfig --> JwtTokenIssuer : uses
 ```
 
@@ -47,9 +55,10 @@ classDiagram
 
 | クラス | 種別 | 役割 |
 |--------|------|------|
-| `AccountUseCaseConfig` | `@Configuration` | UseCase / Query の `@Bean` 登録。UseCase クラス自体に `@Service` を付与しないことで、ユースケース層が Spring に依存しないことを型システムで保証する（APP-ADR-0008）。`app.auth.google.allowed-domains`（カンマ区切り）をパースして `GoogleSsoCallbackUseCase` に注入する |
-| `SecurityConfig` | `@Configuration` + `@EnableWebSecurity` | Spring Security 設定（APP-ADR-0014）。`POST /api/auth/google/callback` のみ未認証で許可し、それ以外は `JwtAuthenticationFilter` による自前 JWT 検証を通す。ステートレス API のため CSRF・セッション管理を無効化する |
-| `AuthStartupValidator` | `@Component`（`@Profile("!test & !integration-test")`） | 認証基盤の設定値を起動時に検証する fail-fast ガード（`@PostConstruct`）。`app.auth.jwt.secret` が開発用デフォルト値のまま・鍵長不足の場合、または `app.auth.google.allowed-domains` が空の場合に `IllegalStateException` で起動を止める |
+| `AccountUseCaseConfig` | `@Configuration` | UseCase / Query の `@Bean` 登録。UseCase クラス自体に `@Service` を付与しないことで、ユースケース層が Spring に依存しないことを型システムで保証する（APP-ADR-0008）。`app.auth.google.allowed-domains`（カンマ区切り）を `AllowedDomainsParser` でパースして `GoogleSsoCallbackUseCase` に注入する |
+| `SecurityConfig` | `@Configuration` + `@EnableWebSecurity` | Spring Security 設定（APP-ADR-0014）。`POST /api/auth/google/callback` のみ未認証で許可し、それ以外は `JwtAuthenticationFilter` による自前 JWT 検証を通す。未認証アクセスは `RestAuthenticationEntryPoint` により常に 401 を返す（デフォルトの `Http403ForbiddenEntryPoint` フォールバックを回避）。ステートレス API のため CSRF・セッション管理を無効化する |
+| `AuthStartupValidator` | `@Component`（`@Profile("!test & !integration-test")`） | 認証基盤の設定値を起動時に検証する fail-fast ガード（`@PostConstruct`）。`app.auth.jwt.secret` が開発用デフォルト値のまま・鍵長不足の場合、または `app.auth.google.allowed-domains`（`AllowedDomainsParser` でのパース結果）が空の場合に `IllegalStateException` で起動を止める |
+| `AllowedDomainsParser` | `internal object`（ユーティリティ） | `app.auth.google.allowed-domains` のパース処理（トリム・小文字化・空要素除外）を1箇所に集約する。`AccountUseCaseConfig` と `AuthStartupValidator` の双方から利用され、パース仕様の重複によるドリフトを防ぐ（PR #21 code-reviewer 指摘） |
 
 ---
 

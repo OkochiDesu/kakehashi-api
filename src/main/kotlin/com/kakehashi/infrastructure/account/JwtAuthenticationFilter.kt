@@ -57,10 +57,7 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         message: String,
     ) {
-        response.status = HttpServletResponse.SC_UNAUTHORIZED
-        response.contentType = "application/json;charset=UTF-8"
-        val escapedMessage = message.replace("\\", "\\\\").replace("\"", "\\\"")
-        response.writer.write("""{"code":"JWT_VERIFICATION_FAILED","message":"$escapedMessage"}""")
+        writeUnauthorizedJson(response, "JWT_VERIFICATION_FAILED", message)
     }
 
     companion object {

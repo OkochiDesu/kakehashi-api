@@ -34,6 +34,7 @@ import java.util.Date
  * 《観　点》不正・期限切れJWTを401で拒否しフィルターチェーンを止めることの確認
  * 《テスト》異常系： 署名鍵が異なるJWTは401を返しフィルターチェーンを止める
  * 《テスト》異常系： 期限切れJWTは401を返しフィルターチェーンを止める
+ * 《テスト》異常系： Authorization ヘッダーが Bearer のみ（トークン部分が空文字）の場合は500ではなく401を返す
  */
 class JwtAuthenticationFilterTest {
     private val secret = "test-only-jwt-secret-for-filter-test-min-32-bytes"
@@ -112,5 +113,20 @@ class JwtAuthenticationFilterTest {
 
         assertEquals(401, response.status)
         assertFalse(chainCalled)
+    }
+
+    @Test
+    fun `異常系： Authorization ヘッダーが Bearer のみ（トークン部分が空文字）の場合は500ではなく401を返す`() {
+        val request = MockHttpServletRequest()
+        request.addHeader("Authorization", "Bearer ")
+        val response = MockHttpServletResponse()
+        var chainCalled = false
+        val chain = FilterChain { _, _ -> chainCalled = true }
+
+        filter.doFilter(request, response, chain)
+
+        assertEquals(401, response.status)
+        assertFalse(chainCalled)
+        assertNull(SecurityContextHolder.getContext().authentication)
     }
 }

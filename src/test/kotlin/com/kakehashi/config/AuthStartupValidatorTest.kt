@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
  * 《観　点》Google許可ドメインの検証
  * 《テスト》異常系： Google許可ドメインが空文字の場合は IllegalStateException
  * 《テスト》異常系： Google許可ドメインが空白のみの場合は IllegalStateException
+ * 《テスト》異常系： Google許可ドメインがカンマのみ（パース後に空集合）の場合は IllegalStateException
  */
 class AuthStartupValidatorTest {
     private val validSecret = "production-only-jwt-secret-value-min-32-bytes-long"
@@ -79,6 +80,18 @@ class AuthStartupValidatorTest {
             AuthStartupValidator(
                 jwtSecret = validSecret,
                 allowedDomains = "   ",
+            )
+
+        assertThrows(IllegalStateException::class.java) { validator.validate() }
+    }
+
+    @Test
+    fun `異常系： Google許可ドメインがカンマのみ（パース後に空集合）の場合は IllegalStateException`() {
+        // isNotBlank() は通過するが、AllowedDomainsParser.parse() では空集合になるケース
+        val validator =
+            AuthStartupValidator(
+                jwtSecret = validSecret,
+                allowedDomains = ",,",
             )
 
         assertThrows(IllegalStateException::class.java) { validator.validate() }

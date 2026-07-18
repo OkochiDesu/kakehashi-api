@@ -2,6 +2,7 @@ package com.kakehashi.config
 
 import com.kakehashi.domain.account.JwtTokenIssuer
 import com.kakehashi.infrastructure.account.JwtAuthenticationFilter
+import com.kakehashi.infrastructure.account.RestAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -18,11 +19,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * - `POST /api/auth/google/callback`（UC-A1）は未認証で許可する（Google SSO コールバック受信のため）
  * - それ以外のエンドポイントは [JwtAuthenticationFilter] による自前JWT検証を通過させる
  * - セッションを使用しないステートレス API のため CSRF 保護・セッション管理は無効化する
+ * - 未認証アクセスは常に 401 Unauthorized を返す（[RestAuthenticationEntryPoint]）。
+ *   `httpBasic()` / `formLogin()` を設定しない構成では Spring Security のデフォルト
+ *   `AuthenticationEntryPoint` が `Http403ForbiddenEntryPoint` にフォールバックし
+ *   403 になってしまうため明示的に登録する（code-reviewer 指摘、PR #21）
  * - ロールベースの認可判定（`@PreAuthorize` 等）は exec-plan 0007 のスコープ
  *
  * `config` 層は全レイヤーに依存可能（DI 配線のため、docs/architecture/package-structure.md）。
- * [JwtAuthenticationFilter] は `@Component` を付与せず本クラスから明示的にインスタンス化する
- * （`@Component` にすると `@WebMvcTest` の型ベーススキャンで意図せず取り込まれるおそれがあるため）。
+ * [JwtAuthenticationFilter] / [RestAuthenticationEntryPoint] は `@Component` を付与せず
+ * 本クラスから明示的にインスタンス化する（`@Component` にすると `@WebMvcTest` の型ベーススキャンで
+ * 意図せず取り込まれるおそれがあるため）。
  */
 @Configuration
 @EnableWebSecurity
@@ -34,6 +40,7 @@ class SecurityConfig(
         http
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .exceptionHandling { it.authenticationEntryPoint(RestAuthenticationEntryPoint()) }
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers("/api/auth/google/callback")

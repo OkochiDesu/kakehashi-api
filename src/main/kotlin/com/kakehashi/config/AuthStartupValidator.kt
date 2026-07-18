@@ -41,7 +41,8 @@ class AuthStartupValidator(
      * 起動時に呼び出され、認証基盤の設定値が本番相当環境として妥当かを検証する。
      *
      * @throws IllegalStateException jwtSecret が開発用デフォルト値のまま、jwtSecret が
-     *   32byte(256bit) 未満、または allowedDomains が空白の場合
+     *   32byte(256bit) 未満、または allowedDomains のパース結果（[AllowedDomainsParser.parse]）が
+     *   空集合の場合
      */
     @PostConstruct
     fun validate() {
@@ -53,8 +54,11 @@ class AuthStartupValidator(
             "app.auth.jwt.secret の鍵長が ${MIN_JWT_SECRET_BYTES}byte(256bit) 未満です。" +
                 "本番相当環境では環境変数 JWT_SECRET に十分な長さのランダム値を設定してください"
         }
-        check(allowedDomains.isNotBlank()) {
-            "app.auth.google.allowed-domains が未設定です。" +
+        // isNotBlank() だけでは "," のようなカンマのみの値を通過させてしまい、
+        // AccountUseCaseConfig 側のパース結果は空集合（ドメイン制限なし）になる不整合が起きるため、
+        // 実際にパースした結果で判定する
+        check(AllowedDomainsParser.parse(allowedDomains).isNotEmpty()) {
+            "app.auth.google.allowed-domains に有効なドメインが1件も含まれていません。" +
                 "本番相当環境では環境変数 GOOGLE_ALLOWED_DOMAINS に許可するドメインを設定してください"
         }
     }

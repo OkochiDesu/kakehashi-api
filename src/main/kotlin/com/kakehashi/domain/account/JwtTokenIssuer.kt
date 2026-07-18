@@ -21,7 +21,8 @@ interface JwtTokenIssuer {
      *
      * @param token `Authorization: Bearer` で受け取った JWT 文字列
      * @return 検証済みの accountId
-     * @throws JwtVerificationFailedException 署名・有効期限の検証に失敗した場合、または accountId クレームが不正な場合
+     * @throws JwtVerificationFailedException 署名・有効期限の検証に失敗した場合、token が空文字列等の
+     *   不正な形式の場合、または accountId クレームが不正な場合
      */
     fun verify(token: String): AccountId
 }

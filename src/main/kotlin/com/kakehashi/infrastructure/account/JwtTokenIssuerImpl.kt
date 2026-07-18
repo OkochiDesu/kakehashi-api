@@ -61,6 +61,13 @@ class JwtTokenIssuerImpl(
                     .payload
             } catch (e: JwtException) {
                 throw JwtVerificationFailedException("JWTの検証に失敗しました", e)
+            } catch (e: IllegalArgumentException) {
+                // jjwt は空文字列・null 等の形式不正な入力に対して JwtException 系ではなく
+                // IllegalArgumentException を投げることがある（例: Assert.hasText チェック）。
+                // ここで捕捉せず伝播させると JwtAuthenticationFilter の catch (JwtVerificationFailedException)
+                // を素通りし 500 Internal Server Error になってしまうため、401 に変換できるよう
+                // 同じ JwtVerificationFailedException にラップする。
+                throw JwtVerificationFailedException("JWTの検証に失敗しました", e)
             }
 
         val accountIdValue =
