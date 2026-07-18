@@ -5,6 +5,7 @@ import com.kakehashi.domain.account.JwtVerificationFailedException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
@@ -18,8 +19,12 @@ import org.springframework.web.filter.OncePerRequestFilter
  * accountId を principal とする認証情報をセットする。ロールベースの認可判定
  * （`@PreAuthorize` 等）は exec-plan 0007 のスコープであり本フィルターの責務ではない。
  *
- * - Authorization ヘッダーが存在しない、または `Bearer ` 形式（大文字小文字は区別しない）でない場合は
- *   そのまま後続へ通す（エンドポイント側の認可設定・`/api/auth/google/callback` の permitAll 等で判定する）
+ * - [GOOGLE_CALLBACK_PATH]（[com.kakehashi.config.SecurityConfig] の permitAll 対象）は
+ *   [shouldNotFilter] でフィルター自体をスキップする。クライアントが古い/不正な
+ *   `Authorization` ヘッダーを付与したまま再ログインしようとした場合に、本フィルターが
+ *   先に 401 を返してログイン用エンドポイントに到達できなくなるのを防ぐため（Copilotレビュー指摘、PR #21）
+ * - 上記以外で Authorization ヘッダーが存在しない、または `Bearer ` 形式（大文字小文字は区別しない）
+ *   でない場合はそのまま後続へ通す（エンドポイント側の認可設定で判定する）
  * - スキームとトークンの間に余分な空白がある場合はトリムしてから検証する
  *   （HTTP の auth-scheme は大文字小文字を区別しないため `bearer` 表記や空白混在も許容する）
  * - トークンが存在するが検証に失敗した場合（署名不正・有効期限切れ・トリム後に空文字等）は
@@ -30,6 +35,15 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtAuthenticationFilter(
     private val jwtTokenIssuer: JwtTokenIssuer,
 ) : OncePerRequestFilter() {
+    /**
+     * [GOOGLE_CALLBACK_PATH] への POST リクエストかどうかを判定し、本フィルターの適用対象から除外する。
+     *
+     * @param request 判定対象のリクエスト
+     * @return permitAll 対象（POST [GOOGLE_CALLBACK_PATH]）の場合 true
+     */
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean =
+        request.method == HttpMethod.POST.name() && request.requestURI == GOOGLE_CALLBACK_PATH
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -77,5 +91,11 @@ class JwtAuthenticationFilter(
     companion object {
         private const val AUTHORIZATION_HEADER = "Authorization"
         private const val BEARER_PREFIX = "Bearer "
+
+        /**
+         * Google SSO コールバック（UC-A1）の permitAll 対象パス。
+         * [com.kakehashi.config.SecurityConfig] の matcher と値を一致させること（drift 防止）。
+         */
+        internal const val GOOGLE_CALLBACK_PATH = "/api/auth/google/callback"
     }
 }

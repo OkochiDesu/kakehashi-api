@@ -54,6 +54,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - 悪い例: `"Cannot transition from $status to ACTIVE"`
   - 良い例: `"${status} から ACTIVE への遷移は許可されていません"`
 - **`@param` / `@return` は `private` / `internal` を含むすべての関数で省略しない**（1つでも `@param` を書く場合は残りの引数も省略しない）。引数なし・戻り値 `Unit` の自明なシンプル関数のみ例外的に省略可。**`interface` のメソッドおよびリポジトリ系の公開メソッドは特に厳密に省略しない**（実装クラスとの対応追跡を容易にするため）
+  - **例外**: `override` メソッドで実装元 interface（自プロジェクトのドメインポート、または Spring 等の外部フレームワーク）側に既に `@param`/`@return`/`@throws` が明記されている場合、実装側での再記載は省略可（重複記述はドリフトの温床になるため）。実装固有の注意点があればクラスKDocまたは1行コメントで補足する
 - **パラメータ名は型から容易に推測できる具体名を使う**（`repo: AccountRepository` ではなく `accountRepository: AccountRepository`）。`repo` / `mgr` / `svc` のような省略形は避ける
 - **クラス/メソッドKDocに調査経緯・議論の詳細を書き込まない**: 「なぜこの設計にしたか」は ADR / exec-plan への参照1行に留め、KDoc本体は「このコードが何をするか」に集中する
 - **文字列全体にマッチさせる正規表現には必ず `^` と `$` アンカーを付与する**（例: `Regex("^AZ\\d{4}$")`）。アンカーなしだと部分一致で誤通過する

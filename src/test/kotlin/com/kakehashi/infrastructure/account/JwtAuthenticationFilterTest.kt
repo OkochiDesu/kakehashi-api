@@ -40,6 +40,10 @@ import java.util.Date
  * 《テスト》異常系： 期限切れJWTは401を返しフィルターチェーンを止める
  * 《テスト》異常系： Authorization ヘッダーが Bearer のみ（トークン部分が空文字）の場合は500ではなく401を返す
  * 《テスト》異常系： Authorization ヘッダーが Bearer + 空白のみ（トリム後に空文字）の場合は500ではなく401を返す
+ *
+ * 《観　点》permitAll対象パス（POSTのgoogleコールバック）はフィルター自体をスキップすることの確認
+ * 《テスト》正常系： POST googleコールバックパスへのリクエストは不正なAuthorizationヘッダーがあってもフィルターをスキップする
+ * 《テスト》正常系： GET googleコールバックパスへのリクエストはPOSTではないためフィルターをスキップしない
  */
 class JwtAuthenticationFilterTest {
     private val secret = "test-only-jwt-secret-for-filter-test-min-32-bytes"
@@ -169,6 +173,36 @@ class JwtAuthenticationFilterTest {
     fun `異常系： Authorization ヘッダーが Bearer + 空白のみ（トリム後に空文字）の場合は500ではなく401を返す`() {
         val request = MockHttpServletRequest()
         request.addHeader("Authorization", "Bearer     ")
+        val response = MockHttpServletResponse()
+        var chainCalled = false
+        val chain = FilterChain { _, _ -> chainCalled = true }
+
+        filter.doFilter(request, response, chain)
+
+        assertEquals(401, response.status)
+        assertFalse(chainCalled)
+        assertNull(SecurityContextHolder.getContext().authentication)
+    }
+
+    @Test
+    fun `正常系： POST googleコールバックパスへのリクエストは不正なAuthorizationヘッダーがあってもフィルターをスキップする`() {
+        val request = MockHttpServletRequest("POST", JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH)
+        request.addHeader("Authorization", "Bearer invalid-or-expired-token")
+        val response = MockHttpServletResponse()
+        var chainCalled = false
+        val chain = FilterChain { _, _ -> chainCalled = true }
+
+        filter.doFilter(request, response, chain)
+
+        assertTrue(chainCalled)
+        assertEquals(200, response.status)
+        assertNull(SecurityContextHolder.getContext().authentication)
+    }
+
+    @Test
+    fun `正常系： GET googleコールバックパスへのリクエストはPOSTではないためフィルターをスキップしない`() {
+        val request = MockHttpServletRequest("GET", JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH)
+        request.addHeader("Authorization", "Bearer invalid-or-expired-token")
         val response = MockHttpServletResponse()
         var chainCalled = false
         val chain = FilterChain { _, _ -> chainCalled = true }

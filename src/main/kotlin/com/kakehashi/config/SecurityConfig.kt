@@ -17,9 +17,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  *
  * 根拠: docs/design/api/account-role.md（認証・認可節）
  *
- * - `POST /api/auth/google/callback`（UC-A1）のみ未認証で許可する（Google SSO コールバック受信のため）。
- *   HTTPメソッドを限定しないと将来同じパスに別メソッドのハンドラが追加された際に意図せず未認証公開されるため、
- *   `requestMatchers(HttpMethod.POST, ...)` でメソッドを明示する（Copilotレビュー指摘、PR #21）
+ * - `POST /api/auth/google/callback`（UC-A1、[JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH]）のみ
+ *   未認証で許可する（Google SSO コールバック受信のため）。HTTPメソッドを限定しないと将来同じパスに
+ *   別メソッドのハンドラが追加された際に意図せず未認証公開されるため、
+ *   `requestMatchers(HttpMethod.POST, ...)` でメソッドを明示する（Copilotレビュー指摘、PR #21）。
+ *   同じパスを [JwtAuthenticationFilter.shouldNotFilter] でも参照するため、パス文字列は
+ *   [JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH] を共有し2箇所の drift を防ぐ
  * - それ以外のエンドポイントは [JwtAuthenticationFilter] による自前JWT検証を通過させる
  * - セッションを使用しないステートレス API のため CSRF 保護・セッション管理は無効化する
  * - 未認証アクセスは常に 401 Unauthorized を返す（[RestAuthenticationEntryPoint]）。
@@ -46,7 +49,7 @@ class SecurityConfig(
             .exceptionHandling { it.authenticationEntryPoint(RestAuthenticationEntryPoint()) }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers(HttpMethod.POST, "/api/auth/google/callback")
+                    .requestMatchers(HttpMethod.POST, JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH)
                     .permitAll()
                     .anyRequest()
                     .authenticated()

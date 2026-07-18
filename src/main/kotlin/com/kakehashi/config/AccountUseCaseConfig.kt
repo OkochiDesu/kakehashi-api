@@ -33,8 +33,9 @@ class AccountUseCaseConfig {
      * @param googleIdTokenVerifier Google ID トークン検証ポート
      * @param jwtTokenIssuer 自前 JWT 発行・検証ポート
      * @param allowedDomainsRaw `app.auth.google.allowed-domains` の未加工値（カンマ区切りの許可ドメイン一覧、
-     *   例: "example.com,example.co.jp"）。未設定・空文字の場合はドメイン制限なし
-     *   （開発環境向けデフォルト。本番環境では必ず設定すること。[AllowedDomainsParser] 参照）
+     *   例: "example.com,example.co.jp"）。未設定・空文字の場合はパース結果が空集合となりドメイン制限なしになるが、
+     *   本番相当プロファイル（test/integration-test以外）では [AuthStartupValidator] が空集合での
+     *   起動を失敗させるため実質必須設定である（[AllowedDomainsParser] 参照）
      * @return 構築済みの [GoogleSsoCallbackUseCase]
      */
     @Bean
