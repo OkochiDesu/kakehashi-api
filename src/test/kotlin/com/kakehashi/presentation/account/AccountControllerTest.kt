@@ -12,7 +12,10 @@ import com.kakehashi.usecase.account.RegisterAccountUseCase
 import com.kakehashi.usecase.account.SuspendAccountUseCase
 import com.kakehashi.usecase.account.UnsuspendAccountUseCase
 import com.kakehashi.usecase.account.exception.AccountNotFoundException
+import com.kakehashi.usecase.account.exception.DomainNotAllowedException
 import com.kakehashi.usecase.account.exception.ForbiddenOperationException
+import com.kakehashi.usecase.account.exception.GoogleIdTokenVerificationException
+import com.kakehashi.usecase.account.exception.InvalidIdTokenFormatException
 import com.kakehashi.usecase.account.exception.InvalidStatusTransitionException
 import com.kakehashi.usecase.account.exception.OptimisticLockException
 import com.ninjasquad.springmockk.MockkBean
@@ -43,11 +46,14 @@ import java.time.OffsetDateTime
  * UseCase のビジネスロジックはここでは検証しない。
  * GlobalExceptionHandler による例外 → HTTP ステータスコードのマッピングも合わせて確認する。
  *
- * 《観　点》googleCallback: SSO コールバックの HTTP マッピング確認
- * 《テスト》googleCallback 正常系： PROVISIONAL アカウントは 200 OK を返す
- * 《テスト》googleCallback 正常系： ACTIVE アカウントは 200 OK を返す
- * 《テスト》googleCallback 異常系： SUSPENDED アカウントは 403 Forbidden を返す
- * 《テスト》googleCallback 異常系： DEACTIVATED アカウントは 403 Forbidden を返す
+ * 《観　点》googleCallback: SSO コールバックの HTTP マッピング確認（APP-ADR-0014）
+ * 《テスト》googleCallback 正常系： PROVISIONAL アカウントは 200 OK で accessToken を含むレスポンスを返す
+ * 《テスト》googleCallback 正常系： ACTIVE アカウントは 200 OK で accessToken を含むレスポンスを返す
+ * 《テスト》googleCallback 異常系： GoogleIdTokenVerificationException は 401 Unauthorized を返す
+ * 《テスト》googleCallback 異常系： SUSPENDED アカウントによる ForbiddenOperationException は 403 Forbidden を返し accessToken を含まない
+ * 《テスト》googleCallback 異常系： DEACTIVATED アカウントによる ForbiddenOperationException は 403 Forbidden を返し accessToken を含まない
+ * 《テスト》googleCallback 異常系： InvalidIdTokenFormatException は 422 Unprocessable Entity を返す
+ * 《テスト》googleCallback 異常系： DomainNotAllowedException は 422 Unprocessable Entity を返す
  * 《テスト》googleCallback 異常系： idToken がない場合は 400 Bad Request
  *
  * 《観　点》register: 登録完了リクエストの HTTP マッピング確認
@@ -112,11 +118,12 @@ class AccountControllerTest {
     // ================================================================
 
     @Test
-    fun `googleCallback 正常系： PROVISIONAL アカウントは 200 OK を返す`() {
+    fun `googleCallback 正常系： PROVISIONAL アカウントは 200 OK で accessToken を含むレスポンスを返す`() {
         every { googleSsoCallbackUseCase.execute(any()) } returns
             GoogleSsoCallbackUseCase.Output(
                 accountId = "AZ0001",
                 status = AccountStatus.PROVISIONAL,
+                accessToken = "signed.jwt.token",
                 redirectTo = "/registration",
             )
 
@@ -127,16 +134,18 @@ class AccountControllerTest {
             }.andExpect {
                 status { isOk() }
                 jsonPath("$.accountId") { value("AZ0001") }
+                jsonPath("$.accessToken") { value("signed.jwt.token") }
                 jsonPath("$.redirectTo") { value("/registration") }
             }
     }
 
     @Test
-    fun `googleCallback 正常系： ACTIVE アカウントは 200 OK を返す`() {
+    fun `googleCallback 正常系： ACTIVE アカウントは 200 OK で accessToken を含むレスポンスを返す`() {
         every { googleSsoCallbackUseCase.execute(any()) } returns
             GoogleSsoCallbackUseCase.Output(
                 accountId = "AZ0001",
                 status = AccountStatus.ACTIVE,
+                accessToken = "signed.jwt.token",
                 redirectTo = "/mypage",
             )
 
@@ -146,17 +155,29 @@ class AccountControllerTest {
                 content = """{"idToken":"valid_token"}"""
             }.andExpect {
                 status { isOk() }
+                jsonPath("$.accessToken") { value("signed.jwt.token") }
             }
     }
 
     @Test
-    fun `googleCallback 異常系： SUSPENDED アカウントは 403 Forbidden を返す`() {
-        every { googleSsoCallbackUseCase.execute(any()) } returns
-            GoogleSsoCallbackUseCase.Output(
-                accountId = "AZ0001",
-                status = AccountStatus.SUSPENDED,
-                redirectTo = "/error/suspended",
-            )
+    fun `googleCallback 異常系： GoogleIdTokenVerificationException は 401 Unauthorized を返す`() {
+        every { googleSsoCallbackUseCase.execute(any()) } throws
+            GoogleIdTokenVerificationException("Google IDトークンの検証に失敗しました")
+
+        mockMvc
+            .post("/api/auth/google/callback") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"idToken":"invalid_token"}"""
+            }.andExpect {
+                status { isUnauthorized() }
+                jsonPath("$.code") { value("GOOGLE_ID_TOKEN_VERIFICATION_FAILED") }
+            }
+    }
+
+    @Test
+    fun `googleCallback 異常系： SUSPENDED アカウントによる ForbiddenOperationException は 403 Forbidden を返し accessToken を含まない`() {
+        every { googleSsoCallbackUseCase.execute(any()) } throws
+            ForbiddenOperationException("アカウント AZ0001 はログインできません（status: SUSPENDED）")
 
         mockMvc
             .post("/api/auth/google/callback") {
@@ -164,17 +185,15 @@ class AccountControllerTest {
                 content = """{"idToken":"valid_token"}"""
             }.andExpect {
                 status { isForbidden() }
+                jsonPath("$.code") { value("FORBIDDEN") }
+                jsonPath("$.accessToken") { doesNotExist() }
             }
     }
 
     @Test
-    fun `googleCallback 異常系： DEACTIVATED アカウントは 403 Forbidden を返す`() {
-        every { googleSsoCallbackUseCase.execute(any()) } returns
-            GoogleSsoCallbackUseCase.Output(
-                accountId = "AZ0001",
-                status = AccountStatus.DEACTIVATED,
-                redirectTo = "/error/deactivated",
-            )
+    fun `googleCallback 異常系： DEACTIVATED アカウントによる ForbiddenOperationException は 403 Forbidden を返し accessToken を含まない`() {
+        every { googleSsoCallbackUseCase.execute(any()) } throws
+            ForbiddenOperationException("アカウント AZ0001 はログインできません（status: DEACTIVATED）")
 
         mockMvc
             .post("/api/auth/google/callback") {
@@ -182,6 +201,38 @@ class AccountControllerTest {
                 content = """{"idToken":"valid_token"}"""
             }.andExpect {
                 status { isForbidden() }
+                jsonPath("$.code") { value("FORBIDDEN") }
+                jsonPath("$.accessToken") { doesNotExist() }
+            }
+    }
+
+    @Test
+    fun `googleCallback 異常系： InvalidIdTokenFormatException は 422 Unprocessable Entity を返す`() {
+        every { googleSsoCallbackUseCase.execute(any()) } throws
+            InvalidIdTokenFormatException("idToken の形式が不正です")
+
+        mockMvc
+            .post("/api/auth/google/callback") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"idToken":"not-a-jwt"}"""
+            }.andExpect {
+                status { isUnprocessableContent() }
+                jsonPath("$.code") { value("INVALID_ID_TOKEN_FORMAT") }
+            }
+    }
+
+    @Test
+    fun `googleCallback 異常系： DomainNotAllowedException は 422 Unprocessable Entity を返す`() {
+        every { googleSsoCallbackUseCase.execute(any()) } throws
+            DomainNotAllowedException("許可されていないドメインの Google アカウントです: other.com")
+
+        mockMvc
+            .post("/api/auth/google/callback") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"idToken":"valid_token"}"""
+            }.andExpect {
+                status { isUnprocessableContent() }
+                jsonPath("$.code") { value("DOMAIN_NOT_ALLOWED") }
             }
     }
 

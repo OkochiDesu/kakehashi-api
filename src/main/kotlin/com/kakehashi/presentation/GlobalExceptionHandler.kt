@@ -1,7 +1,10 @@
 package com.kakehashi.presentation
 
 import com.kakehashi.usecase.account.exception.AccountNotFoundException
+import com.kakehashi.usecase.account.exception.DomainNotAllowedException
 import com.kakehashi.usecase.account.exception.ForbiddenOperationException
+import com.kakehashi.usecase.account.exception.GoogleIdTokenVerificationException
+import com.kakehashi.usecase.account.exception.InvalidIdTokenFormatException
 import com.kakehashi.usecase.account.exception.InvalidStatusTransitionException
 import com.kakehashi.usecase.account.exception.OptimisticLockException
 import org.springframework.http.HttpStatus
@@ -61,6 +64,51 @@ class GlobalExceptionHandler {
         ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(ErrorResponse(code = "FORBIDDEN", message = ex.message ?: "この操作を実行する権限がありません"))
+
+    /**
+     * 401 Unauthorized — Google ID トークンの署名検証失敗
+     * APP-ADR-0014: Google JWKS による署名・iss/aud/有効期限の検証に失敗した場合
+     */
+    @ExceptionHandler(GoogleIdTokenVerificationException::class)
+    fun handleGoogleIdTokenVerification(ex: GoogleIdTokenVerificationException): ResponseEntity<ErrorResponse> =
+        ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                ErrorResponse(
+                    code = "GOOGLE_ID_TOKEN_VERIFICATION_FAILED",
+                    message = ex.message ?: "Google IDトークンの検証に失敗しました",
+                ),
+            )
+
+    /**
+     * 422 Unprocessable Entity — idToken のフォーマット不正
+     * APP-ADR-0014: idToken が JWT として解析できない場合
+     */
+    @ExceptionHandler(InvalidIdTokenFormatException::class)
+    fun handleInvalidIdTokenFormat(ex: InvalidIdTokenFormatException): ResponseEntity<ErrorResponse> =
+        ResponseEntity
+            .status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .body(
+                ErrorResponse(
+                    code = "INVALID_ID_TOKEN_FORMAT",
+                    message = ex.message ?: "idTokenのフォーマットが不正です",
+                ),
+            )
+
+    /**
+     * 422 Unprocessable Entity — 許可ドメイン外の Google アカウント
+     * APP-ADR-0014: 環境変数で指定した会社ドメイン以外の Google アカウントによるログイン試行
+     */
+    @ExceptionHandler(DomainNotAllowedException::class)
+    fun handleDomainNotAllowed(ex: DomainNotAllowedException): ResponseEntity<ErrorResponse> =
+        ResponseEntity
+            .status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .body(
+                ErrorResponse(
+                    code = "DOMAIN_NOT_ALLOWED",
+                    message = ex.message ?: "許可されていないドメインのアカウントです",
+                ),
+            )
 
     /** 400 Bad Request — バリデーションエラー（@Valid） */
     @ExceptionHandler(MethodArgumentNotValidException::class)

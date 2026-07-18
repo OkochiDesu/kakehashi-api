@@ -30,10 +30,12 @@ import org.junit.jupiter.api.assertThrows
  * 《テスト》異常系： SUSPENDED から PROVISIONAL へは遷移できない
  * 《テスト》異常系： DEACTIVATED からはいかなるステータスへも遷移できない
  *
- * 《観　点》canLogin / isSearchable: ACTIVE のみがログイン・検索対象の境界値確認
- * 《テスト》正常系： ACTIVE のみ canLogin が true を返す
+ * 《観　点》canLogin: PROVISIONAL/ACTIVE がログイン可能、SUSPENDED/DEACTIVATED がログイン不可であることの確認（UC-A1、APP-ADR-0014）
+ * 《テスト》正常系： PROVISIONAL と ACTIVE は canLogin が true を返す
+ * 《テスト》異常系： SUSPENDED と DEACTIVATED は canLogin が false を返す
+ *
+ * 《観　点》isSearchable: ACTIVE のみが検索対象であることの境界値確認
  * 《テスト》正常系： ACTIVE のみ isSearchable が true を返す
- * 《テスト》異常系： ACTIVE 以外は canLogin が false を返す
  * 《テスト》異常系： ACTIVE 以外は isSearchable が false を返す
  *
  * 《観　点》fromDbValue: DB 文字列から enum への変換の確認
@@ -100,13 +102,15 @@ class AccountStatusTest {
     @Nested
     inner class CanLogin {
         @Test
-        fun `正常系： ACTIVE のみ canLogin が true を返す`() {
-            assertTrue(AccountStatus.ACTIVE.canLogin())
+        fun `正常系： PROVISIONAL と ACTIVE は canLogin が true を返す`() {
+            listOf(AccountStatus.PROVISIONAL, AccountStatus.ACTIVE).forEach {
+                assertTrue(it.canLogin())
+            }
         }
 
         @Test
-        fun `異常系： ACTIVE 以外は canLogin が false を返す`() {
-            listOf(AccountStatus.PROVISIONAL, AccountStatus.SUSPENDED, AccountStatus.DEACTIVATED).forEach {
+        fun `異常系： SUSPENDED と DEACTIVATED は canLogin が false を返す`() {
+            listOf(AccountStatus.SUSPENDED, AccountStatus.DEACTIVATED).forEach {
                 assertFalse(it.canLogin())
             }
         }
