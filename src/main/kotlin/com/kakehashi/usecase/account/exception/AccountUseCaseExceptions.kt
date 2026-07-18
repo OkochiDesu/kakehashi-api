@@ -27,3 +27,31 @@ class OptimisticLockException(
 class ForbiddenOperationException(
     message: String,
 ) : RuntimeException(message)
+
+/**
+ * Google ID トークンの署名検証に失敗（401 Unauthorized）
+ *
+ * 根拠: docs/design/api/account-role.md（UC-A1）、APP-ADR-0014
+ * Google JWKS による署名・iss/aud/有効期限の検証に失敗した場合にスローする。
+ */
+class GoogleIdTokenVerificationException(
+    message: String,
+) : RuntimeException(message)
+
+/**
+ * idToken のフォーマットが JWT として不正（422 Unprocessable Entity）
+ *
+ * 根拠: docs/design/api/account-role.md（UC-A1）、APP-ADR-0014
+ */
+class InvalidIdTokenFormatException(
+    message: String,
+) : RuntimeException(message)
+
+/**
+ * 許可された会社ドメイン以外の Google アカウント（422 Unprocessable Entity）
+ *
+ * 根拠: docs/design/api/account-role.md（UC-A1）、APP-ADR-0014
+ */
+class DomainNotAllowedException(
+    message: String,
+) : RuntimeException(message)

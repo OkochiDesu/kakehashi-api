@@ -16,12 +16,15 @@ enum class AccountStatus {
     /**
      * ログイン可否を返す。
      *
-     * 設計書No：-
-     * ADRNo：APP-ADR-0006
+     * 設計書No：UC-A1
+     * ADRNo：APP-ADR-0014
      *
-     * @return ACTIVE の場合のみ true
+     * PROVISIONAL（仮登録・本登録申込み画面へ誘導）/ ACTIVE（マイページへ誘導）はログイン可能。
+     * SUSPENDED（停止中・退職者含む）/ DEACTIVATED（廃止）はログイン不可。
+     *
+     * @return PROVISIONAL または ACTIVE の場合に true
      */
-    fun canLogin(): Boolean = this == ACTIVE
+    fun canLogin(): Boolean = this == PROVISIONAL || this == ACTIVE
 
     /**
      * 指定ステータスへの遷移が有効かを返す。

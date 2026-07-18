@@ -1,7 +1,6 @@
 package com.kakehashi.presentation.account
 
 import com.kakehashi.domain.account.AccountId
-import com.kakehashi.domain.account.AccountStatus
 import com.kakehashi.domain.account.RoleCode
 import com.kakehashi.usecase.account.AssignRolesUseCase
 import com.kakehashi.usecase.account.EditAccountUseCase
@@ -15,7 +14,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -34,11 +32,11 @@ import org.springframework.web.bind.annotation.RestController
  * 根拠: docs/design/api/account-role.md（全エンドポイント）
  * APP-ADR-0009: API パスにバージョンプレフィックスを含めない（/api/accounts/...）
  *
- * 認証（暫定実装）:
- * - Spring Security の本格実装は別ブランチで行う
- * - @RequestHeader("X-Account-Id") を仮の認証方式として使用する
- * - admin 権限チェックは UseCase 内で account_roles を確認する形で将来実装する
- *   現時点では @RequestHeader("X-Is-Admin") で仮受けする
+ * 認証:
+ * - UC-A1（`googleCallback`）は APP-ADR-0014 に基づき Google ID トークン検証・自前JWT発行を行う（本実装済み）
+ * - UC-A1 以外のエンドポイントは、`SecurityContextHolder` からの `accountId` 取得・`@PreAuthorize`
+ *   による認可（exec-plan 0007）が未実装のため、暫定的に @RequestHeader("X-Account-Id") /
+ *   @RequestHeader("X-Is-Admin") を仮の認証・認可方式として使用する
  */
 @RestController
 @RequestMapping("/api")
@@ -58,36 +56,25 @@ class AccountController(
     // ================================================================
 
     /**
-     * Google SSO コールバックを受け付け、JIT プロビジョニングを行う。
+     * Google SSO コールバックを受け付け、Google ID トークン検証・JIT プロビジョニング・
+     * 自前 JWT 発行を行う。
      *
      * 設計書No：UC-A1
-     * ADRNo：APP-ADR-0009
+     * ADRNo：APP-ADR-0014
      *
-     * suspended / deactivated のアカウントは 403 Forbidden を返す（ログイン拒否）。
+     * suspended / deactivated のアカウントによるログイン試行は UseCase が
+     * `ForbiddenOperationException` をスローし、`GlobalExceptionHandler` が 403 Forbidden に変換する。
      */
     @PostMapping("/auth/google/callback")
     fun googleCallback(
         @Valid @RequestBody body: GoogleCallbackRequest,
     ): ResponseEntity<GoogleCallbackResponse> {
-        // 暫定: id_token の検証・sub ハッシュ化は本格実装まで stub
-        // 実際の実装では GoogleIdTokenVerifier 等で検証し sub をハッシュ化する
-        val input =
-            GoogleSsoCallbackUseCase.Input(
-                googleSubHash = body.idToken.take(64), // stub: 本来は SHA-256 ハッシュ
-                email = "stub@example.com", // stub: id_token から取得
-                name = "Stub User", // stub: id_token から取得
-            )
-        val output = googleSsoCallbackUseCase.execute(input)
-
-        // 設計書 UC-A1: suspended / deactivated のアカウントのログイン試行は 403 Forbidden
-        if (output.status == AccountStatus.SUSPENDED || output.status == AccountStatus.DEACTIVATED) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
-        }
-
+        val output = googleSsoCallbackUseCase.execute(GoogleSsoCallbackUseCase.Input(idToken = body.idToken))
         return ResponseEntity.ok(
             GoogleCallbackResponse(
                 accountId = output.accountId,
                 status = output.status.toDbValue(),
+                accessToken = output.accessToken,
                 redirectTo = output.redirectTo,
             ),
         )
@@ -412,6 +399,7 @@ data class VersionRequest(
 data class GoogleCallbackResponse(
     val accountId: String,
     val status: String,
+    val accessToken: String,
     val redirectTo: String,
 )
 

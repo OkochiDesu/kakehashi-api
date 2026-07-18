@@ -1,0 +1,62 @@
+package com.kakehashi.config
+
+import com.kakehashi.domain.account.JwtTokenIssuer
+import com.kakehashi.infrastructure.account.JwtAuthenticationFilter
+import com.kakehashi.infrastructure.account.RestAuthenticationEntryPoint
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+
+/**
+ * Spring Security 設定（APP-ADR-0014）
+ *
+ * 根拠: docs/design/api/account-role.md（認証・認可節）
+ *
+ * - `POST /api/auth/google/callback`（UC-A1、[JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH]）のみ
+ *   未認証で許可する（Google SSO コールバック受信のため）。HTTPメソッドを限定しないと将来同じパスに
+ *   別メソッドのハンドラが追加された際に意図せず未認証公開されるため、
+ *   `requestMatchers(HttpMethod.POST, ...)` でメソッドを明示する（Copilotレビュー指摘、PR #21）。
+ *   同じパスを [JwtAuthenticationFilter.shouldNotFilter] でも参照するため、パス文字列は
+ *   [JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH] を共有し2箇所の drift を防ぐ
+ * - それ以外のエンドポイントは [JwtAuthenticationFilter] による自前JWT検証を通過させる
+ * - セッションを使用しないステートレス API のため CSRF 保護・セッション管理は無効化する
+ * - 未認証アクセスは常に 401 Unauthorized を返す（[RestAuthenticationEntryPoint]）。
+ *   `httpBasic()` / `formLogin()` を設定しない構成では Spring Security のデフォルト
+ *   `AuthenticationEntryPoint` が `Http403ForbiddenEntryPoint` にフォールバックし
+ *   403 になってしまうため明示的に登録する（code-reviewer 指摘、PR #21）
+ * - ロールベースの認可判定（`@PreAuthorize` 等）は exec-plan 0007 のスコープ
+ *
+ * `config` 層は全レイヤーに依存可能（DI 配線のため、docs/architecture/package-structure.md）。
+ * [JwtAuthenticationFilter] / [RestAuthenticationEntryPoint] は `@Component` を付与せず
+ * 本クラスから明示的にインスタンス化する（`@Component` にすると `@WebMvcTest` の型ベーススキャンで
+ * 意図せず取り込まれるおそれがあるため）。
+ */
+@Configuration
+@EnableWebSecurity
+class SecurityConfig(
+    private val jwtTokenIssuer: JwtTokenIssuer,
+) {
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .exceptionHandling { it.authenticationEntryPoint(RestAuthenticationEntryPoint()) }
+            .authorizeHttpRequests { authorize ->
+                authorize
+                    .requestMatchers(HttpMethod.POST, JwtAuthenticationFilter.GOOGLE_CALLBACK_PATH)
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            }.addFilterBefore(
+                JwtAuthenticationFilter(jwtTokenIssuer),
+                UsernamePasswordAuthenticationFilter::class.java,
+            )
+        return http.build()
+    }
+}
