@@ -26,6 +26,8 @@ AI-ADR（`AI-ADR-` プレフィックス）は [docs/agents/README.md](../agents
 | [APP-ADR-0012](APP-ADR-0012-Testcontainersを2.0.5へ移行しTestConfiguration直接起動方式を採用.md) | Testcontainers を 2.0.5 へ移行し @TestConfiguration 直接起動方式を採用 | コーディング | Superseded → APP-ADR-0013 |
 | [APP-ADR-0013](APP-ADR-0013-Testcontainers統合テストをServiceConnection方式へ移行.md) | Testcontainers 統合テストを @ServiceConnection 方式へ移行 | コーディング | Accepted |
 | [APP-ADR-0014](APP-ADR-0014-JWT戦略-自前JWT発行を採用.md) | JWT戦略（自前JWT発行を採用） | コーディング | Accepted |
+| [APP-ADR-0015](APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md) | DDD エンティティは振る舞いを持つ通常 class として実装し、値オブジェクトの data class と区別する | コーディング | Accepted |
+| [APP-ADR-0016](APP-ADR-0016-Repository実装をMyBatis統一しリフレクション対象を中間DTOに限定する.md) | Repository 実装を MyBatis に統一し、リフレクション対象をエンティティ本体ではなく中間 DTO に限定する | コーディング | Accepted |
 | [APP-ADR-0001](APP-ADR-0001-テーブル設計共通方針.md) | テーブル設計共通方針 | 業務仕様 | Accepted |
 | [APP-ADR-0002](APP-ADR-0002-星取表マスタと経歴書のデータ連携方針.md) | 星取表マスタと経歴書のデータ連携方針 | 業務仕様 | Accepted |
 | [APP-ADR-0003](APP-ADR-0003-経歴書のマスク範囲-コンタクト経路-ファイル出力範囲のスコープ判断.md) | 経歴書のマスク範囲・コンタクト経路・ファイル出力範囲のスコープ判断 | 業務仕様 | Accepted（決定4のみAPP-ADR-0007で置換） |
