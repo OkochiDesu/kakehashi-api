@@ -27,34 +27,41 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class AccountUseCaseConfig {
     /**
-     * `app.auth.google.allowed-domains` はカンマ区切りの許可ドメイン一覧（例: "example.com,example.co.jp"）。
-     * 未設定・空文字の場合はドメイン制限なし（開発環境向けデフォルト。本番環境では必ず設定すること）。
+     * Google SSO コールバック（UC-A1）UseCase を DI コンテナへ登録する。
+     *
+     * @param accountRepository アカウント永続化のリポジトリ
+     * @param googleIdTokenVerifier Google ID トークン検証ポート
+     * @param jwtTokenIssuer 自前 JWT 発行・検証ポート
+     * @param allowedDomainsRaw `app.auth.google.allowed-domains` の未加工値（カンマ区切りの許可ドメイン一覧、
+     *   例: "example.com,example.co.jp"）。未設定・空文字の場合はドメイン制限なし
+     *   （開発環境向けデフォルト。本番環境では必ず設定すること。[AllowedDomainsParser] 参照）
+     * @return 構築済みの [GoogleSsoCallbackUseCase]
      */
     @Bean
     fun googleSsoCallbackUseCase(
-        repo: AccountRepository,
+        accountRepository: AccountRepository,
         googleIdTokenVerifier: GoogleIdTokenVerifier,
         jwtTokenIssuer: JwtTokenIssuer,
         @Value("\${app.auth.google.allowed-domains:}") allowedDomainsRaw: String,
     ): GoogleSsoCallbackUseCase {
         val allowedDomains = AllowedDomainsParser.parse(allowedDomainsRaw)
-        return GoogleSsoCallbackUseCase(repo, googleIdTokenVerifier, jwtTokenIssuer, allowedDomains)
+        return GoogleSsoCallbackUseCase(accountRepository, googleIdTokenVerifier, jwtTokenIssuer, allowedDomains)
     }
 
     @Bean
-    fun registerAccountUseCase(repo: AccountRepository): RegisterAccountUseCase = RegisterAccountUseCase(repo)
+    fun registerAccountUseCase(accountRepository: AccountRepository): RegisterAccountUseCase = RegisterAccountUseCase(accountRepository)
 
     @Bean
-    fun editAccountUseCase(repo: AccountRepository): EditAccountUseCase = EditAccountUseCase(repo)
+    fun editAccountUseCase(accountRepository: AccountRepository): EditAccountUseCase = EditAccountUseCase(accountRepository)
 
     @Bean
-    fun assignRolesUseCase(repo: AccountRepository): AssignRolesUseCase = AssignRolesUseCase(repo)
+    fun assignRolesUseCase(accountRepository: AccountRepository): AssignRolesUseCase = AssignRolesUseCase(accountRepository)
 
     @Bean
-    fun suspendAccountUseCase(repo: AccountRepository): SuspendAccountUseCase = SuspendAccountUseCase(repo)
+    fun suspendAccountUseCase(accountRepository: AccountRepository): SuspendAccountUseCase = SuspendAccountUseCase(accountRepository)
 
     @Bean
-    fun unsuspendAccountUseCase(repo: AccountRepository): UnsuspendAccountUseCase = UnsuspendAccountUseCase(repo)
+    fun unsuspendAccountUseCase(accountRepository: AccountRepository): UnsuspendAccountUseCase = UnsuspendAccountUseCase(accountRepository)
 
     @Bean
     fun listAccountsQuery(mapper: AccountMapper): ListAccountsQuery = ListAccountsQuery(mapper)

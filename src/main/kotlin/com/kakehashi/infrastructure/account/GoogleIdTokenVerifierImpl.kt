@@ -101,7 +101,12 @@ class GoogleIdTokenVerifierImpl(
         )
     }
 
-    /** Google sub クレームを SHA-256 でハッシュ化する（平文の sub はサーバー側で保持しない） */
+    /**
+     * Google sub クレームを SHA-256 でハッシュ化する（平文の sub はサーバー側で保持しない）。
+     *
+     * @param sub Google ID トークンの sub クレーム（平文）
+     * @return SHA-256 ハッシュの16進数文字列
+     */
     private fun hashSub(sub: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(sub.toByteArray(Charsets.UTF_8))
         return digest.joinToString(separator = "") { "%02x".format(it) }

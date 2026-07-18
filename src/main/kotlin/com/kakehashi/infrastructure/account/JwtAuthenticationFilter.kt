@@ -53,6 +53,12 @@ class JwtAuthenticationFilter(
         filterChain.doFilter(request, response)
     }
 
+    /**
+     * JWT検証失敗時の401 JSONレスポンスを書き込む（[writeUnauthorizedJson]に委譲）。
+     *
+     * @param response 書き込み対象のレスポンス
+     * @param message エラーメッセージ
+     */
     private fun writeUnauthorized(
         response: HttpServletResponse,
         message: String,

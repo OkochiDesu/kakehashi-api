@@ -133,6 +133,12 @@ class GoogleSsoCallbackUseCase(
         )
     }
 
+    /**
+     * トークンが JWS Compact Serialization の形式（header.payload.signature）に一致するかを返す。
+     *
+     * @param token 検証対象のトークン文字列
+     * @return 形式が一致する場合 true
+     */
     private fun isJwtFormat(token: String): Boolean = JWT_FORMAT_REGEX.matches(token)
 
     companion object {

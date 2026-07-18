@@ -8,25 +8,14 @@ import org.springframework.stereotype.Component
 /**
  * 認証基盤（APP-ADR-0014）の設定値を起動時に検証する fail-fast ガード
  *
- * 根拠: code-reviewer 指摘（exec-plan 0006 差し戻し）。
- * `app.auth.jwt.secret` は環境変数 `JWT_SECRET` 未設定時に公知の開発用デフォルト値へ
- * サイレントにフォールバックする（`application.properties` 参照）。この鍵を知る者は任意の
- * `accountId` の JWT を偽造できるため、本番相当環境ではデフォルト値のまま・鍵長不足での
- * 起動を許してはならない。同様に `app.auth.google.allowed-domains` が空の場合、
- * ドメイン制限なしとして扱われ社外の任意の Google アカウントでログインが成立してしまう。
+ * `app.auth.jwt.secret`・`app.auth.google.allowed-domains` が本番相当環境で
+ * デフォルト値・未設定のまま起動するのを防ぐ。検証の背景・経緯は exec-plan 0006 の
+ * 意思決定ログ（2026-07-17）を参照。
  *
- * `@Profile("!test & !integration-test")` を付与しているが、これは「プロファイル未指定なら無効」
- * という意味ではない点に注意（`!test & !integration-test` はプロファイル未指定時 true＝有効になる）。
- * 実際に既存テストで本ガードが発火しないのは以下の理由による:
- * - `@WebMvcTest` 等のスライステストは `@Component` を型スキャンで読み込まないため、
- *   そもそも `AuthStartupValidator` 自体がコンテキストに登録されない
- * - `AccountRepositoryImplIntegrationTest` 等は `@ActiveProfiles("integration-test")` を
- *   明示しており `!integration-test` により無効化される
- * `test` プロファイルは現状未使用だが将来の追加に備えて明示的に除外している。
- * **注意**: プロファイル未指定のフルコンテキスト `@SpringBootTest`（例: 将来再有効化される
- * `KakehashiApiApplicationTests`）を追加する場合、本ガードは有効化されるため、
- * `@ActiveProfiles("integration-test")` の指定または有効な `JWT_SECRET`/`GOOGLE_ALLOWED_DOMAINS`
- * の設定が必要になる（残課題は exec-plan 0006 参照）。
+ * 注意: `@Profile("!test & !integration-test")` はプロファイル未指定時に有効になる
+ * （Spring の標準セマンティクス）。スライステスト（`@WebMvcTest` 等）で本ガードが発火しないのは
+ * `@Component` を型スキャンしないためであり、プロファイル条件によるものではない。
+ * プロファイル未指定のフルコンテキスト `@SpringBootTest` を追加する場合は本ガードが有効化される点に注意。
  *
  * @param jwtSecret `app.auth.jwt.secret` プロパティの値
  * @param allowedDomains `app.auth.google.allowed-domains` プロパティの値（カンマ区切り、未加工）
