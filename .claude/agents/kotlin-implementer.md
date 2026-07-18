@@ -53,7 +53,9 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 - **エラーメッセージは日本語で記述する**（`require()` / `check()` / `checkNotNull()` / `requireNotNull()` / RuntimeException のメッセージ文字列、`GlobalExceptionHandler` のフォールバック文字列すべて）。pre-commit でも検出するが、実装時にも徹底すること
   - 悪い例: `"Cannot transition from $status to ACTIVE"`
   - 良い例: `"${status} から ACTIVE への遷移は許可されていません"`
-- **`interface` のメソッドおよびリポジトリ系の公開メソッドは `@param` を省略しない**（実装クラスとの対応追跡を容易にするため）
+- **`@param` / `@return` は `private` / `internal` を含むすべての関数で省略しない**（1つでも `@param` を書く場合は残りの引数も省略しない）。引数なし・戻り値 `Unit` の自明なシンプル関数のみ例外的に省略可。**`interface` のメソッドおよびリポジトリ系の公開メソッドは特に厳密に省略しない**（実装クラスとの対応追跡を容易にするため）
+- **パラメータ名は型から容易に推測できる具体名を使う**（`repo: AccountRepository` ではなく `accountRepository: AccountRepository`）。`repo` / `mgr` / `svc` のような省略形は避ける
+- **クラス/メソッドKDocに調査経緯・議論の詳細を書き込まない**: 「なぜこの設計にしたか」は ADR / exec-plan への参照1行に留め、KDoc本体は「このコードが何をするか」に集中する
 - **文字列全体にマッチさせる正規表現には必ず `^` と `$` アンカーを付与する**（例: `Regex("^AZ\\d{4}$")`）。アンカーなしだと部分一致で誤通過する
 - **MyBatis を使う場合は [mybatis-rules.md](../../.claude/rules/mybatis-rules.md) を参照すること**（`<id>` タグ・`notNullColumn`・`#{}` 使用等）
 - **UseCase / ドメインメソッドのステータスチェックは設計書の「許可される元ステータス」に合わせて特定する**。`canTransitionTo()` 等の汎用チェックは複数のユースケース間で条件が重なることがあるため、設計書（UC-XX の事前条件）を確認してから `status == AccountStatus.XXX` のような明示チェックを使うか判断すること
