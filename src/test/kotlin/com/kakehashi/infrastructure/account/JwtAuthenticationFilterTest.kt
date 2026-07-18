@@ -31,10 +31,15 @@ import java.util.Date
  * 《テスト》正常系： 有効な自前JWTを付けたリクエストで SecurityContextHolder から accountId が取得できる
  * 《テスト》正常系： Authorization ヘッダーがないリクエストはそのまま後続フィルターへ通す
  *
+ * 《観　点》Bearer スキームの大文字小文字・余分な空白の許容確認
+ * 《テスト》正常系： スキームが小文字（bearer）でも SecurityContextHolder から accountId が取得できる
+ * 《テスト》正常系： スキームとトークンの間に余分な空白があってもトリムして検証できる
+ *
  * 《観　点》不正・期限切れJWTを401で拒否しフィルターチェーンを止めることの確認
  * 《テスト》異常系： 署名鍵が異なるJWTは401を返しフィルターチェーンを止める
  * 《テスト》異常系： 期限切れJWTは401を返しフィルターチェーンを止める
  * 《テスト》異常系： Authorization ヘッダーが Bearer のみ（トークン部分が空文字）の場合は500ではなく401を返す
+ * 《テスト》異常系： Authorization ヘッダーが Bearer + 空白のみ（トリム後に空文字）の場合は500ではなく401を返す
  */
 class JwtAuthenticationFilterTest {
     private val secret = "test-only-jwt-secret-for-filter-test-min-32-bytes"
@@ -71,6 +76,36 @@ class JwtAuthenticationFilterTest {
         filter.doFilter(request, response, chain)
 
         assertNull(SecurityContextHolder.getContext().authentication)
+        assertTrue(chainCalled)
+    }
+
+    @Test
+    fun `正常系： スキームが小文字（bearer）でも SecurityContextHolder から accountId が取得できる`() {
+        val token = jwtTokenIssuer.issue(AccountId("AZ0001"))
+        val request = MockHttpServletRequest()
+        request.addHeader("Authorization", "bearer $token")
+        val response = MockHttpServletResponse()
+        var chainCalled = false
+        val chain = FilterChain { _, _ -> chainCalled = true }
+
+        filter.doFilter(request, response, chain)
+
+        assertEquals("AZ0001", SecurityContextHolder.getContext().authentication?.principal)
+        assertTrue(chainCalled)
+    }
+
+    @Test
+    fun `正常系： スキームとトークンの間に余分な空白があってもトリムして検証できる`() {
+        val token = jwtTokenIssuer.issue(AccountId("AZ0001"))
+        val request = MockHttpServletRequest()
+        request.addHeader("Authorization", "Bearer    $token   ")
+        val response = MockHttpServletResponse()
+        var chainCalled = false
+        val chain = FilterChain { _, _ -> chainCalled = true }
+
+        filter.doFilter(request, response, chain)
+
+        assertEquals("AZ0001", SecurityContextHolder.getContext().authentication?.principal)
         assertTrue(chainCalled)
     }
 
@@ -119,6 +154,21 @@ class JwtAuthenticationFilterTest {
     fun `異常系： Authorization ヘッダーが Bearer のみ（トークン部分が空文字）の場合は500ではなく401を返す`() {
         val request = MockHttpServletRequest()
         request.addHeader("Authorization", "Bearer ")
+        val response = MockHttpServletResponse()
+        var chainCalled = false
+        val chain = FilterChain { _, _ -> chainCalled = true }
+
+        filter.doFilter(request, response, chain)
+
+        assertEquals(401, response.status)
+        assertFalse(chainCalled)
+        assertNull(SecurityContextHolder.getContext().authentication)
+    }
+
+    @Test
+    fun `異常系： Authorization ヘッダーが Bearer + 空白のみ（トリム後に空文字）の場合は500ではなく401を返す`() {
+        val request = MockHttpServletRequest()
+        request.addHeader("Authorization", "Bearer     ")
         val response = MockHttpServletResponse()
         var chainCalled = false
         val chain = FilterChain { _, _ -> chainCalled = true }

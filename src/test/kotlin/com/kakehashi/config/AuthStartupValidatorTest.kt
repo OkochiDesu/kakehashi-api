@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
  * 成立してしまうため、認証基盤のセキュリティ根幹を担うテストである。
  *
  * 《観　点》JWT署名鍵の検証
- * 《テスト》正常系： デフォルト値と異なり32byte以上の鍵・非空の許可ドメインなら例外をスローしない
+ * 《テスト》正常系： デフォルト値と異なり32byte以上の鍵・非空の許可ドメイン・非空のClient IDなら例外をスローしない
  * 《テスト》異常系： JWT署名鍵が開発用デフォルト値のままの場合は IllegalStateException
  * 《テスト》異常系： JWT署名鍵が32byte(256bit)未満の場合は IllegalStateException
  *
@@ -25,17 +25,23 @@ import org.junit.jupiter.api.Test
  * 《テスト》異常系： Google許可ドメインが空文字の場合は IllegalStateException
  * 《テスト》異常系： Google許可ドメインが空白のみの場合は IllegalStateException
  * 《テスト》異常系： Google許可ドメインがカンマのみ（パース後に空集合）の場合は IllegalStateException
+ *
+ * 《観　点》Google Client ID の検証
+ * 《テスト》異常系： Google Client IDが空文字の場合は IllegalStateException
+ * 《テスト》異常系： Google Client IDが空白のみの場合は IllegalStateException
  */
 class AuthStartupValidatorTest {
     private val validSecret = "production-only-jwt-secret-value-min-32-bytes-long"
     private val validAllowedDomains = "example.com"
+    private val validGoogleClientId = "dummy-client-id.apps.googleusercontent.com"
 
     @Test
-    fun `正常系： デフォルト値と異なり32byte以上の鍵・非空の許可ドメインなら例外をスローしない`() {
+    fun `正常系： デフォルト値と異なり32byte以上の鍵・非空の許可ドメイン・非空のClient IDなら例外をスローしない`() {
         val validator =
             AuthStartupValidator(
                 jwtSecret = validSecret,
                 allowedDomains = validAllowedDomains,
+                googleClientId = validGoogleClientId,
             )
 
         assertDoesNotThrow { validator.validate() }
@@ -47,6 +53,7 @@ class AuthStartupValidatorTest {
             AuthStartupValidator(
                 jwtSecret = "dev-only-jwt-secret-please-override-in-production-min-32bytes",
                 allowedDomains = validAllowedDomains,
+                googleClientId = validGoogleClientId,
             )
 
         assertThrows(IllegalStateException::class.java) { validator.validate() }
@@ -58,6 +65,7 @@ class AuthStartupValidatorTest {
             AuthStartupValidator(
                 jwtSecret = "short-secret-under-32-bytes",
                 allowedDomains = validAllowedDomains,
+                googleClientId = validGoogleClientId,
             )
 
         assertThrows(IllegalStateException::class.java) { validator.validate() }
@@ -69,6 +77,7 @@ class AuthStartupValidatorTest {
             AuthStartupValidator(
                 jwtSecret = validSecret,
                 allowedDomains = "",
+                googleClientId = validGoogleClientId,
             )
 
         assertThrows(IllegalStateException::class.java) { validator.validate() }
@@ -80,6 +89,7 @@ class AuthStartupValidatorTest {
             AuthStartupValidator(
                 jwtSecret = validSecret,
                 allowedDomains = "   ",
+                googleClientId = validGoogleClientId,
             )
 
         assertThrows(IllegalStateException::class.java) { validator.validate() }
@@ -92,6 +102,31 @@ class AuthStartupValidatorTest {
             AuthStartupValidator(
                 jwtSecret = validSecret,
                 allowedDomains = ",,",
+                googleClientId = validGoogleClientId,
+            )
+
+        assertThrows(IllegalStateException::class.java) { validator.validate() }
+    }
+
+    @Test
+    fun `異常系： Google Client IDが空文字の場合は IllegalStateException`() {
+        val validator =
+            AuthStartupValidator(
+                jwtSecret = validSecret,
+                allowedDomains = validAllowedDomains,
+                googleClientId = "",
+            )
+
+        assertThrows(IllegalStateException::class.java) { validator.validate() }
+    }
+
+    @Test
+    fun `異常系： Google Client IDが空白のみの場合は IllegalStateException`() {
+        val validator =
+            AuthStartupValidator(
+                jwtSecret = validSecret,
+                allowedDomains = validAllowedDomains,
+                googleClientId = "   ",
             )
 
         assertThrows(IllegalStateException::class.java) { validator.validate() }

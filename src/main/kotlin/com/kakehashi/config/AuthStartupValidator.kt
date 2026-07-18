@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component
 /**
  * 認証基盤（APP-ADR-0014）の設定値を起動時に検証する fail-fast ガード
  *
- * `app.auth.jwt.secret`・`app.auth.google.allowed-domains` が本番相当環境で
- * デフォルト値・未設定のまま起動するのを防ぐ。検証の背景・経緯は exec-plan 0006 の
- * 意思決定ログ（2026-07-17）を参照。
+ * `app.auth.jwt.secret`・`app.auth.google.allowed-domains`・`app.auth.google.client-id` が
+ * 本番相当環境でデフォルト値・未設定のまま起動するのを防ぐ。検証の背景・経緯は exec-plan 0006 の
+ * 意思決定ログ（2026-07-17・2026-07-18）を参照。
  *
  * 注意: `@Profile("!test & !integration-test")` はプロファイル未指定時に有効になる
  * （Spring の標準セマンティクス）。スライステスト（`@WebMvcTest` 等）で本ガードが発火しないのは
@@ -19,19 +19,22 @@ import org.springframework.stereotype.Component
  *
  * @param jwtSecret `app.auth.jwt.secret` プロパティの値
  * @param allowedDomains `app.auth.google.allowed-domains` プロパティの値（カンマ区切り、未加工）
+ * @param googleClientId `app.auth.google.client-id` プロパティの値
+ *   （[com.kakehashi.infrastructure.account.GoogleIdTokenVerifierImpl] の aud クレーム検証で使用）
  */
 @Component
 @Profile("!test & !integration-test")
 class AuthStartupValidator(
     @Value("\${app.auth.jwt.secret}") private val jwtSecret: String,
     @Value("\${app.auth.google.allowed-domains:}") private val allowedDomains: String,
+    @Value("\${app.auth.google.client-id:}") private val googleClientId: String,
 ) {
     /**
      * 起動時に呼び出され、認証基盤の設定値が本番相当環境として妥当かを検証する。
      *
      * @throws IllegalStateException jwtSecret が開発用デフォルト値のまま、jwtSecret が
-     *   32byte(256bit) 未満、または allowedDomains のパース結果（[AllowedDomainsParser.parse]）が
-     *   空集合の場合
+     *   32byte(256bit) 未満、allowedDomains のパース結果（[AllowedDomainsParser.parse]）が
+     *   空集合、または googleClientId が空白のみの場合
      */
     @PostConstruct
     fun validate() {
@@ -49,6 +52,10 @@ class AuthStartupValidator(
         check(AllowedDomainsParser.parse(allowedDomains).isNotEmpty()) {
             "app.auth.google.allowed-domains に有効なドメインが1件も含まれていません。" +
                 "本番相当環境では環境変数 GOOGLE_ALLOWED_DOMAINS に許可するドメインを設定してください"
+        }
+        check(googleClientId.isNotBlank()) {
+            "app.auth.google.client-id が未設定です。未設定のままだと Google ID トークンの aud クレーム検証が" +
+                "常に失敗し全ログインが401になります。本番相当環境では環境変数 GOOGLE_CLIENT_ID を設定してください"
         }
     }
 

@@ -18,9 +18,12 @@ import org.springframework.web.filter.OncePerRequestFilter
  * accountId を principal とする認証情報をセットする。ロールベースの認可判定
  * （`@PreAuthorize` 等）は exec-plan 0007 のスコープであり本フィルターの責務ではない。
  *
- * - Authorization ヘッダーが存在しない、または `Bearer ` 形式でない場合はそのまま後続へ通す
- *   （エンドポイント側の認可設定・`/api/auth/google/callback` の permitAll 等で判定する）
- * - トークンが存在するが検証に失敗した場合（署名不正・有効期限切れ等）は 401 を返しフィルターチェーンを止める
+ * - Authorization ヘッダーが存在しない、または `Bearer ` 形式（大文字小文字は区別しない）でない場合は
+ *   そのまま後続へ通す（エンドポイント側の認可設定・`/api/auth/google/callback` の permitAll 等で判定する）
+ * - スキームとトークンの間に余分な空白がある場合はトリムしてから検証する
+ *   （HTTP の auth-scheme は大文字小文字を区別しないため `bearer` 表記や空白混在も許容する）
+ * - トークンが存在するが検証に失敗した場合（署名不正・有効期限切れ・トリム後に空文字等）は
+ *   401 を返しフィルターチェーンを止める
  *
  * @property jwtTokenIssuer 自前 JWT の検証ポート（[JwtTokenIssuer.verify]）
  */
@@ -33,12 +36,17 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain,
     ) {
         val header = request.getHeader(AUTHORIZATION_HEADER)
-        if (header == null || !header.startsWith(BEARER_PREFIX)) {
+        if (header == null || !header.startsWith(BEARER_PREFIX, ignoreCase = true)) {
             filterChain.doFilter(request, response)
             return
         }
 
-        val token = header.removePrefix(BEARER_PREFIX)
+        val token = header.substring(BEARER_PREFIX.length).trim()
+        if (token.isEmpty()) {
+            writeUnauthorized(response, "Authorization ヘッダーにトークンが含まれていません")
+            return
+        }
+
         val accountId =
             try {
                 jwtTokenIssuer.verify(token)
