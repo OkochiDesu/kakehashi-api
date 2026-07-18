@@ -9,13 +9,8 @@ import org.springframework.stereotype.Component
  * 認証基盤（APP-ADR-0014）の設定値を起動時に検証する fail-fast ガード
  *
  * `app.auth.jwt.secret`・`app.auth.google.allowed-domains`・`app.auth.google.client-id` が
- * 本番相当環境でデフォルト値・未設定のまま起動するのを防ぐ。検証の背景・経緯は exec-plan 0006 の
- * 意思決定ログ（2026-07-17・2026-07-18）を参照。
- *
- * 注意: `@Profile("!test & !integration-test")` はプロファイル未指定時に有効になる
- * （Spring の標準セマンティクス）。スライステスト（`@WebMvcTest` 等）で本ガードが発火しないのは
- * `@Component` を型スキャンしないためであり、プロファイル条件によるものではない。
- * プロファイル未指定のフルコンテキスト `@SpringBootTest` を追加する場合は本ガードが有効化される点に注意。
+ * 本番相当環境でデフォルト値・未設定のまま起動するのを防ぐ。`@Profile`の挙動・スライステストで
+ * 発火しない理由等の詳細は exec-plan 0006 の意思決定ログ（2026-07-17・2026-07-18）を参照。
  *
  * @param jwtSecret `app.auth.jwt.secret` プロパティの値
  * @param allowedDomains `app.auth.google.allowed-domains` プロパティの値（カンマ区切り、未加工）
