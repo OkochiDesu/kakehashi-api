@@ -26,7 +26,7 @@ import java.util.UUID
  * 《テスト》異常系： accountIdとaccountパラメータのaccountIdが不一致だとIllegalArgumentExceptionをスローする
  *
  * 《観　点》assignRolesAndBumpVersion の operatorId 整合性検証
- * 《テスト》異常系： operatorIdとaccount.updatedByが不一致だとIllegalArgumentExceptionをスローする
+ * 《テスト》異常系： operatorIdとaccountのupdatedByが不一致だとIllegalArgumentExceptionをスローする
  */
 class AccountRepositoryImplTest {
     @Test
@@ -48,7 +48,7 @@ class AccountRepositoryImplTest {
     }
 
     @Test
-    fun `異常系： operatorIdとaccount_updatedByが不一致だとIllegalArgumentExceptionをスローする`() {
+    fun `異常系： operatorIdとaccountのupdatedByが不一致だとIllegalArgumentExceptionをスローする`() {
         val accountMapper = mockk<AccountMapper>()
         val repository = AccountRepositoryImpl(accountMapper)
         val account = buildAccount("AZ0001", updatedBy = "AZ0001")
