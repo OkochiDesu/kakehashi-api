@@ -11,6 +11,18 @@ import java.time.OffsetDateTime
  * - APP-ADR-0005: version による楽観ロック
  * - APP-ADR-0015: 通常 class として実装し、ID 基準の equals()/hashCode()・PII 安全な toString()・
  *   private constructor + companion object ファクトリ・private withChanges() を備える
+ *
+ * @property accountId アカウントID
+ * @property googleSubHash Google sub クレームの SHA-256 ハッシュ値
+ * @property email メールアドレス
+ * @property name 表示名
+ * @property status アカウントステータス
+ * @property suspendedAt 停止日時（未停止の場合 null）
+ * @property version 楽観ロック用バージョン
+ * @property createdBy 作成者の accountId
+ * @property updatedBy 更新者の accountId
+ * @property createdAt 作成日時
+ * @property updatedAt 更新日時
  */
 class Account private constructor(
     val accountId: AccountId,
@@ -25,10 +37,18 @@ class Account private constructor(
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
 ) {
+    /**
+     * accountId のみで同一性を判定する（APP-ADR-0015: ID基準の同一性）。
+     * version・updatedAt 等の他フィールドが異なっていても accountId が同一なら true を返す。
+     * @param other 比較対象
+     * @return accountId が一致する Account なら true
+     */
     override fun equals(other: Any?): Boolean = other is Account && other.accountId == accountId
 
+    /** [equals] と同じ accountId のみを基準にハッシュ値を計算する。 */
     override fun hashCode(): Int = accountId.hashCode()
 
+    /** PII（email・googleSubHash 等）を含まない安全な文字列表現を返す（APP-ADR-0015）。 */
     override fun toString(): String = "Account(accountId=$accountId, status=$status)"
 
     /**

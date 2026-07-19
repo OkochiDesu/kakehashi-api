@@ -12,12 +12,14 @@ import java.util.UUID
 /**
  * AccountRepository 実装（Command 系 DB アクセス）
  *
- * 根拠: docs/architecture/package-structure.md（infrastructure 層の責務）
- * APP-ADR-0008: Command 側は集約 → Repository → DB の流れ
- * APP-ADR-0005: UPDATE 時に WHERE version = ? を条件に含め、0件更新なら 409 Conflict
- * APP-ADR-0016: MyBatis（AccountMapper）に統一する。MyBatis がリフレクションで直接触れる対象は
- *   中間 DTO（AccountRow）に限定し、Account（エンティティ本体、private constructor）には触れない。
- *   このクラスが「境界防波堤」として AccountRow ↔ Account の詰め替えを一手に引き受ける。
+ * MyBatis（AccountMapper）経由で DB アクセスする。MyBatis がリフレクションで直接触れる対象は
+ * 中間 DTO（AccountRow）に限定し、Account（エンティティ本体、private constructor）には触れない。
+ * このクラスが「境界防波堤」として AccountRow ↔ Account の詰め替え（reconstruct()/toRow()）を
+ * 一手に引き受ける。UPDATE 時は WHERE version = ? を条件に含め、0件更新（version 不一致）の場合は
+ * 呼び出し元で 409 Conflict に変換する。
+ *
+ * 関連: docs/architecture/package-structure.md（infrastructure 層の責務）・APP-ADR-0005（楽観ロック）・
+ * APP-ADR-0008（Command系の集約→Repository→DBの流れ）・APP-ADR-0016（Repository実装のMyBatis統一）
  */
 @Repository
 class AccountRepositoryImpl(

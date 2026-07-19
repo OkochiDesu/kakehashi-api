@@ -7,13 +7,14 @@ import java.time.OffsetDateTime
 /**
  * アカウント MyBatis Mapper（Query 系・Command 系 DTO マッピング）
  *
- * 根拠: docs/architecture/package-structure.md（infrastructure 層の責務）
- * APP-ADR-0008: Query 側は MyBatis Mapper でドメイン層をバイパスし、JOIN 結果を DTO に直接マッピング
- * APP-ADR-0016: Command 側（単一集約・全フィールド・ID セントリックな読み書き）も MyBatis に統一し、
- *   リフレクション対象を中間 DTO（AccountRow）に限定する。エンティティへの変換は
- *   AccountRepositoryImpl が reconstruct() で手書きで行う（このインターフェースは Account に触れない）
+ * Query 系は MyBatis Mapper でドメイン層をバイパスし、JOIN 結果を DTO に直接マッピングする。
+ * Command 系（単一集約・全フィールド・ID セントリックな読み書き）はリフレクション対象を中間 DTO
+ * （`AccountRow`）に限定し、エンティティへの変換は `AccountRepositoryImpl` が `reconstruct()` で
+ * 手書きで行う（このインターフェース自体は `Account` に触れない）。
+ * SQL は src/main/resources/mapper/account/AccountMapper.xml に記述する。
  *
- * SQL は src/main/resources/mapper/account/AccountMapper.xml に記述する
+ * 関連: docs/architecture/package-structure.md（infrastructure 層の責務）・APP-ADR-0008（Query系の設計原則）・
+ * APP-ADR-0016（Repository実装のMyBatis統一・中間DTO限定方針）
  */
 @Mapper
 interface AccountMapper {
@@ -120,6 +121,18 @@ interface AccountMapper {
  * MyBatis がリフレクションで直接マッピングする対象はこの DTO に限定し、
  * `Account`（`private constructor` を持つエンティティ本体）には一度も触れない。
  * val プロパティのみを持つ不変な data class とする。
+ *
+ * @property accountId アカウントID
+ * @property googleSubHash Google sub クレームの SHA-256 ハッシュ値
+ * @property email メールアドレス
+ * @property name 表示名
+ * @property status アカウントステータス（DB 上の文字列表現）
+ * @property suspendedAt 停止日時（未停止の場合 null）
+ * @property version 楽観ロック用バージョン
+ * @property createdBy 作成者の accountId
+ * @property updatedBy 更新者の accountId
+ * @property createdAt 作成日時
+ * @property updatedAt 更新日時
  */
 data class AccountRow(
     val accountId: String,
@@ -135,7 +148,17 @@ data class AccountRow(
     val updatedAt: OffsetDateTime,
 )
 
-/** account_roles 一括挿入用 DTO（UC-A6） */
+/**
+ * account_roles 一括挿入用 DTO（UC-A6）
+ *
+ * @property accountRoleId account_roles の主キー（UUID の文字列表現、呼び出し元で採番）
+ * @property accountId 対象アカウントID
+ * @property roleId 付与するロールID（UUID の文字列表現）
+ * @property createdBy 作成者（操作者）の accountId
+ * @property updatedBy 更新者（操作者）の accountId
+ * @property createdAt 作成日時
+ * @property updatedAt 更新日時
+ */
 data class AccountRoleInsertRow(
     val accountRoleId: String,
     val accountId: String,
@@ -146,14 +169,33 @@ data class AccountRoleInsertRow(
     val updatedAt: OffsetDateTime,
 )
 
-/** アカウント一覧用 DTO */
+/**
+ * アカウント一覧用 DTO
+ *
+ * @property accountId アカウントID
+ * @property name 表示名
+ * @property status アカウントステータス（DB 上の文字列表現）
+ */
 data class AccountSummaryRow(
     val accountId: String,
     val name: String,
     val status: String,
 )
 
-/** アカウント詳細用 DTO */
+/**
+ * アカウント詳細用 DTO
+ *
+ * @property accountId アカウントID
+ * @property name 表示名
+ * @property email メールアドレス
+ * @property status アカウントステータス（DB 上の文字列表現）
+ * @property suspendedAt 停止日時（ISO 8601 文字列、未停止の場合 null）
+ * @property version 楽観ロック用バージョン
+ * @property createdAt 作成日時（ISO 8601 文字列）
+ * @property updatedAt 更新日時（ISO 8601 文字列）
+ * @property updatedBy 更新者の accountId
+ * @property roles 付与されているロール一覧
+ */
 data class AccountDetailRow(
     val accountId: String,
     val name: String,
@@ -167,7 +209,13 @@ data class AccountDetailRow(
     val roles: List<RoleRow>,
 )
 
-/** ロール情報 DTO */
+/**
+ * ロール情報 DTO
+ *
+ * @property roleId ロールID
+ * @property code 権限コード（RoleCode の DB 上の文字列表現）
+ * @property name ロール名
+ */
 data class RoleRow(
     val roleId: String,
     val code: String,
