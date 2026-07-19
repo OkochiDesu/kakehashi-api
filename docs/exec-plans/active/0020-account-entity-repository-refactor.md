@@ -14,18 +14,21 @@ APP-ADR-0015（DDDエンティティは通常classとして実装）・APP-ADR-0
 
 ## 進捗状況
 
-- [ ] `Account.kt`を`data class`から通常`class`へリファクタリング（`private constructor`・`companion object.reconstruct()`・ID基準`equals()`/`hashCode()`・PII安全`toString()`・`withChanges()`privateヘルパー）
-- [ ] `AccountRepositoryImpl`をMyBatis化: 中間DTO（`AccountRow`等）を新設し、`AccountMapper`（`@Mapper`）経由でMyBatisがリフレクションで触れる対象を中間DTOに限定する。読み取り方向は`AccountRow`→`Account.reconstruct(...)`、書き込み方向は`Account`のフィールド→`AccountRow`への詰め替え
-- [ ] 既存の単体テスト（`AccountTest.kt`・`GoogleSsoCallbackUseCaseTest.kt`等）・統合テスト（`AccountRepositoryImplIntegrationTest.kt`）を新設計に追随させる
-- [ ] `.claude/agents/kotlin-implementer.md`・`.claude/agents/account-domain-agent.md`がAPP-ADR-0015/0016の方針を反映しているか確認し、必要なら更新する
-- [ ] `docs/architecture/package-structure.md`にエンティティ実装方針（通常class、APP-ADR-0015）の補記を検討する
-- [ ] コードレビュー（`code-reviewer` → `test-reviewer`）
+- [x] `Account.kt`を`data class`から通常`class`へリファクタリング（`private constructor`・`companion object.reconstruct()`・ID基準`equals()`/`hashCode()`・PII安全`toString()`・`withChanges()`privateヘルパー）。新規メソッド`assignRoles(updatedBy)`（ロール変更に伴うversion bump専用）・`provision()`ファクトリ（新規発行用）も追加
+- [x] `AccountRepositoryImpl`をMyBatis化: 中間DTO（`AccountRow`・`AccountRoleInsertRow`）を新設し、`AccountMapper`（`@Mapper`）経由でMyBatisがリフレクションで触れる対象を中間DTOに限定する。読み取り方向は`AccountRow`→`Account.reconstruct(...)`、書き込み方向は`Account`のフィールド→`AccountRow`への詰め替え
+- [x] 既存の単体テスト（`AccountTest.kt`・`AccountTestFixtures.kt`等）・統合テスト（`AccountRepositoryImplIntegrationTest.kt`）を新設計に追随させる。equals/hashCode・toString・assignRolesの新規テストも追加
+- [x] `.claude/agents/kotlin-implementer.md`を更新（APP-ADR-0015のエンティティ実装方針・APP-ADR-0016のMyBatis統一方針を反映）。`account-domain-agent.md`は業務ルール専用で実装スタイルに触れないため変更不要と判断
+- [x] `docs/architecture/package-structure.md`にエンティティ実装方針（通常class、APP-ADR-0015）・Repository実装方針（MyBatis統一、APP-ADR-0016）を補記
+- [x] コードレビュー（`code-reviewer` → `test-reviewer`）: 両者ともAPPROVED（FAIL項目なし）
 - [ ] PR作成・マージ
 
 ## 意思決定ログ
 
 - 2026-07-17: exec-plan 0006（Google SSO実装）のPRレビュー中の議論から、`Account`エンティティの`data class`実装への懸念が提起され、APP-ADR-0015（エンティティ実装方針）・APP-ADR-0016（Repository実装方針）として方針を確定。実装はスコープを分離し、本exec-planとして別途起票した。
 - 2026-07-19: exec-plan 0006（PR #18/#19/#21）が全項目完了・マージ済みとなり`completed/`へ移動。次に着手するexec-planとして本0020をユーザーが選定し、`pending/`から`active/`へ移動して着手を決定した。
+- 2026-07-19: 実装中、TDDのred確認（テスト追加後・実装前に実行して失敗を確認する）を怠っていたとユーザーから指摘を受けた。再発防止として`.claude/rules/test-rules.md`のTDDセクションにred確認の明示的ステップ・コンパイルレベル変更時の扱い・Testcontainers統合テストのCI依存の扱いを追記した。
+- 2026-07-19: `AssignRolesUseCase`の`copy()`呼び出し（version bumpのみ、ロール自体はAccountのフィールドではない）は、新規ドメインメソッド`assignRoles(updatedBy)`として`Account`に追加する設計とした。ガード不要な単純なversion bumpのため`check()`は付与していない。
+- 2026-07-19: 実装・テストともにcode-reviewer/test-reviewerでAPPROVED（FAIL項目なし）。作業中に発見した`usecase/account/README.md`の既存ドリフト（`AssignRolesUseCase_Input`のフィールド名不一致等、本exec-plan起因ではない）も同一コミットで解消した。
 
 ## 残課題・引き継ぎ事項
 

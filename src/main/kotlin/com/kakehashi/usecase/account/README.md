@@ -29,7 +29,6 @@ classDiagram
         <<data class>>
         +AccountId accountId
         +String name
-        +String operatorAccountId
         +Int version
     }
 
@@ -45,17 +44,18 @@ classDiagram
 
     class AssignRolesUseCase {
         -AccountRepository accountRepository
-        +ADMIN_ROLE_ID$ UUID
-        +VIEW_PERSONAL_INFO_ROLE_ID$ UUID
+        -ADMIN_ROLE_ID$ UUID
+        -VIEW_PERSONAL_INFO_ROLE_ID$ UUID
+        +roleIdFor(roleCode)$ UUID
         +execute(input) Output
     }
     class AssignRolesUseCase_Input {
         <<data class>>
         +AccountId targetAccountId
         +String operatorAccountId
-        +Boolean isAdmin
-        +Boolean admin
-        +Boolean viewPersonalInfo
+        +Boolean operatorIsAdmin
+        +Boolean grantAdminRole
+        +Boolean grantViewPersonalInfoRole
         +Int version
     }
 
@@ -185,6 +185,7 @@ flowchart LR
 ## 関連 ADR
 
 - [APP-ADR-0005](../../../../../../../docs/adr/APP-ADR-0005-楽観ロックにversionカラム整数カウンタを採用.md) — 楽観ロック
+- [APP-ADR-0006](../../../../../../../docs/adr/APP-ADR-0006-accounts.statusに4値設計（deactivated追加）と非adminからのsuspended-deactivated除外.md) — ステータス可視性制御（GetAccountQuery / ListAccountsQuery）
 - [APP-ADR-0007](../../../../../../../docs/adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) — 権限設計
 - [APP-ADR-0008](../../../../../../../docs/adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) — DDD / CQRS
 - [APP-ADR-0014](../../../../../../../docs/adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md) — 認証基盤（Google SSO 検証・自前 JWT 発行戦略）

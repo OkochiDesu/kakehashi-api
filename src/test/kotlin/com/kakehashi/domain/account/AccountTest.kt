@@ -1,8 +1,11 @@
 package com.kakehashi.domain.account
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.OffsetDateTime
@@ -11,12 +14,13 @@ import java.time.OffsetDateTime
  * Account ドメインエンティティの単体テスト
  *
  * 設計書No：-
- * ADRNo：APP-ADR-0001, APP-ADR-0006
+ * ADRNo：APP-ADR-0001, APP-ADR-0006, APP-ADR-0015
  *
  * ★★全体観点★★
- * Account 集約の各ビジネスメソッド（register / editName / suspend / unsuspend）が、
+ * Account 集約の各ビジネスメソッド（register / editName / suspend / unsuspend / assignRoles）が、
  * 状態遷移・バリデーション・version インクリメント・タイムスタンプ更新を
- * 集約単位で一貫して実行することを保証する。
+ * 集約単位で一貫して実行することを保証する。加えて、通常 class 化（APP-ADR-0015）に伴う
+ * ID 基準の同一性判定・PII 安全な toString() が仕様通り機能することを保証する。
  *
  * 《観　点》register: PROVISIONAL → ACTIVE 遷移と集約状態の正確性確認
  * 《テスト》register - PROVISIONALからACTIVEへ遷移しversionが増加する
@@ -33,14 +37,28 @@ import java.time.OffsetDateTime
  * 《観　点》unsuspend: SUSPENDED → ACTIVE 遷移と停止日時クリアの確認
  * 《テスト》unsuspend - SUSPENDEDからACTIVEへ遷移しsuspendedAtがクリアされる
  * 《テスト》unsuspend - SUSPENDED以外から呼ぶと例外をスローする
+ *
+ * 《観　点》assignRoles: ロール変更に伴うversionインクリメントの確認
+ * 《テスト》assignRoles - versionが増加しupdatedByが反映される
+ *
+ * 《観　点》ID基準のequals()/hashCode()（APP-ADR-0015）
+ * 《テスト》正常系： accountIdが同一なら他フィールドが異なっても等価と判定される
+ * 《テスト》正常系： accountIdが異なれば他フィールドが同じでも非等価と判定される
+ *
+ * 《観　点》PII安全なtoString()（APP-ADR-0015）
+ * 《テスト》正常系： toString()はemail・googleSubHashを含まずaccountId・statusのみ含む
  */
 class AccountTest {
-    private fun buildAccount(status: AccountStatus = AccountStatus.PROVISIONAL): Account =
-        Account(
-            accountId = AccountId("AZ0001"),
+    private fun buildAccount(
+        status: AccountStatus = AccountStatus.PROVISIONAL,
+        accountId: String = "AZ0001",
+        name: String = "テストユーザー",
+    ): Account =
+        Account.reconstruct(
+            accountId = AccountId(accountId),
             googleSubHash = "hash_az0001",
             email = "user@example.com",
-            name = "テストユーザー",
+            name = name,
             status = status,
             suspendedAt = null,
             version = 0,
@@ -106,5 +124,38 @@ class AccountTest {
     fun `unsuspend - SUSPENDED以外から呼ぶと例外をスローする`() {
         val account = buildAccount(AccountStatus.ACTIVE)
         assertThrows<IllegalStateException> { account.unsuspend("AZ0001") }
+    }
+
+    @Test
+    fun `assignRoles - versionが増加しupdatedByが反映される`() {
+        val account = buildAccount(status = AccountStatus.ACTIVE)
+        val result = account.assignRoles("OPERATOR")
+        assertEquals(1, result.version)
+        assertEquals("OPERATOR", result.updatedBy)
+    }
+
+    @Test
+    fun `正常系： accountIdが同一なら他フィールドが異なっても等価と判定される`() {
+        val account1 = buildAccount(accountId = "AZ0001", name = "名前A")
+        val account2 = buildAccount(accountId = "AZ0001", name = "名前B")
+        assertEquals(account1, account2)
+        assertEquals(account1.hashCode(), account2.hashCode())
+    }
+
+    @Test
+    fun `正常系： accountIdが異なれば他フィールドが同じでも非等価と判定される`() {
+        val account1 = buildAccount(accountId = "AZ0001")
+        val account2 = buildAccount(accountId = "AZ0002")
+        assertNotEquals(account1, account2)
+    }
+
+    @Test
+    fun `正常系： toString()はemail・googleSubHashを含まずaccountId・statusのみ含む`() {
+        val account = buildAccount(accountId = "AZ0001", status = AccountStatus.ACTIVE)
+        val result = account.toString()
+        assertTrue(result.contains("AZ0001"))
+        assertTrue(result.contains("ACTIVE"))
+        assertFalse(result.contains("user@example.com"))
+        assertFalse(result.contains("hash_az0001"))
     }
 }

@@ -1,6 +1,6 @@
 # パッケージ構成規約
 
-根拠ADR: [APP-ADR-0008](../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md)（DDD + Clean Architecture + CQRS）
+根拠ADR: [APP-ADR-0008](../adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md)（DDD + Clean Architecture + CQRS）、[APP-ADR-0015](../adr/APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md)（エンティティの実装方針）、[APP-ADR-0016](../adr/APP-ADR-0016-Repository実装をMyBatis統一しリフレクション対象を中間DTOに限定する.md)（Repository 実装の技術統一）
 
 ---
 
@@ -53,8 +53,8 @@ src/main/kotlin/com/kakehashi/
 │       └── GetAccountQuery.kt           # 詳細取得（Query）
 ├── infrastructure/
 │   └── account/
-│       ├── AccountRepositoryImpl.kt     # AccountRepository の実装（Command 用）
-│       └── AccountMapper.kt             # MyBatis Mapper（Query 用 DTO マッピング）
+│       ├── AccountRepositoryImpl.kt     # AccountRepository の実装（Command 用、AccountMapper 経由）
+│       └── AccountMapper.kt             # MyBatis Mapper（Query 用・Command 用 DTO マッピング）
 ├── presentation/
 │   └── account/
 │       └── AccountController.kt        # 全エンドポイント（@RestController）
@@ -69,8 +69,8 @@ src/main/kotlin/com/kakehashi/
 ### domain/
 
 - フレームワーク非依存（Spring / MyBatis のアノテーション・型を持ち込まない）
-- **エンティティ**: 識別子（`AccountId`）を持ち、状態遷移のルールを持つ
-- **値オブジェクト**: 不変。等価性は値で判断（`AccountId` 等）
+- **エンティティ**: 識別子（`AccountId`）を持ち、状態遷移のルールを持つ。**`data class` ではなく通常 `class` として実装する**（APP-ADR-0015）。`private constructor` + `companion object` ファクトリ（`reconstruct()` 等）・ID 基準の `equals()`/`hashCode()` 手書き実装・PII 安全な `toString()`・状態更新用の private `withChanges()` ヘルパーを備える
+- **値オブジェクト**: 不変。等価性は値で判断（`AccountId` 等）。エンティティと異なり `data class` / `value class` で実装する（APP-ADR-0015）
 - **Enum**: ドメイン概念を型で表現し、業務ルールをメソッドとして実装する（後述）
 - **リポジトリインターフェース**: `save` / `findById` 等を定義。実装は `infrastructure` 層
 
@@ -83,8 +83,8 @@ src/main/kotlin/com/kakehashi/
 
 ### infrastructure/
 
-- `AccountRepositoryImpl`: `AccountRepository` インターフェースを実装する Spring Bean
-- `AccountMapper`: MyBatis の `@Mapper`。Query 系 UseCase から直接呼ばれる
+- `AccountRepositoryImpl`: `AccountRepository` インターフェースを実装する Spring Bean。**Repository 実装は MyBatis に統一する**（APP-ADR-0016）。MyBatis がリフレクションで直接触れる対象は中間 DTO（`AccountRow` 等、`val` プロパティのみの `data class`）に限定し、エンティティ本体（`Account`）には触れさせない。`AccountRepositoryImpl` が「境界防波堤」として中間 DTO ↔ エンティティの詰め替え（`reconstruct()` 等）を担う
+- `AccountMapper`: MyBatis の `@Mapper`。Query 系 UseCase（`ListAccountsQuery` 等）から直接呼ばれるほか、`AccountRepositoryImpl`（Command 系・単一集約読み取り）からも呼ばれる。前者は `AccountSummaryRow` / `AccountDetailRow`（部分射影・JOIN結合、ドメインを経由しない）、後者は `AccountRow`（全フィールド・`reconstruct()` でエンティティ化）と、用途に応じて異なる中間 DTO を返す（APP-ADR-0016）
 
 ### presentation/
 

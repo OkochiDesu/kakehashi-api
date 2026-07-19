@@ -25,7 +25,7 @@ import java.util.UUID
  * - @ServiceConnection で PostgreSQLContainer を起動し DataSource・Flyway・MyBatis を自動設定する
  * - @ActiveProfiles("integration-test") で devcontainer の db:5432 への接続試行を防ぐ
  * - Flyway マイグレーション（V1, V2）は @ServiceConnection 経由で自動実行される
- * - JdbcClient を使った実際の SQL が正しく動くことを保証する
+ * - AccountMapper（MyBatis）経由の実際の SQL が正しく動くことを保証する（APP-ADR-0016）
  * - 楽観ロックの version カラム動作もここで検証する
  *
  * 詳細: docs/troubleshooting/testcontainers-jvmstatic-kotlin.md、APP-ADR-0013（APP-ADR-0012 を Supersede）
@@ -75,7 +75,7 @@ class AccountRepositoryImplIntegrationTest {
         version: Int = 0,
     ): Account {
         val now = OffsetDateTime.now()
-        return Account(
+        return Account.reconstruct(
             accountId = AccountId(accountId),
             googleSubHash = googleSubHash,
             email = "$accountId@example.com",
@@ -89,6 +89,26 @@ class AccountRepositoryImplIntegrationTest {
             updatedAt = now,
         )
     }
+
+    /** テスト用: version をインクリメントし一部フィールドを上書きした Account を作る（本番の withChanges() 相当）。 */
+    private fun bump(
+        account: Account,
+        name: String = account.name,
+        updatedBy: String = account.updatedBy,
+    ): Account =
+        Account.reconstruct(
+            accountId = account.accountId,
+            googleSubHash = account.googleSubHash,
+            email = account.email,
+            name = name,
+            status = account.status,
+            suspendedAt = account.suspendedAt,
+            version = account.version + 1,
+            createdBy = account.createdBy,
+            updatedBy = updatedBy,
+            createdAt = account.createdAt,
+            updatedAt = OffsetDateTime.now(),
+        )
 
     @Test
     fun `Flyway マイグレーション（V1・V2）が正常に完了し accounts テーブルが存在する`() {
@@ -131,13 +151,7 @@ class AccountRepositoryImplIntegrationTest {
         val account = buildAccount("AZ0003", version = 0)
         repository.save(account)
 
-        val updated =
-            account.copy(
-                version = 1,
-                name = "更新後の名前",
-                updatedBy = "OPERATOR",
-                updatedAt = OffsetDateTime.now(),
-            )
+        val updated = bump(account, name = "更新後の名前", updatedBy = "OPERATOR")
         val rows = repository.update(updated)
 
         assertEquals(1, rows, "1行更新されること")
@@ -153,11 +167,11 @@ class AccountRepositoryImplIntegrationTest {
         repository.save(account)
 
         // DB を version=1 に進める（別ユーザーが先に更新した状態を再現）
-        val firstUpdate = account.copy(version = 1, name = "先行更新", updatedAt = OffsetDateTime.now())
+        val firstUpdate = bump(account, name = "先行更新")
         assertEquals(1, repository.update(firstUpdate), "前提: 1件更新されること")
 
         // stale な version=1 で再度更新を試みる → prevVersion=0 だが DB は 1 → 0件更新
-        val staleUpdate = account.copy(version = 1, name = "古い更新", updatedAt = OffsetDateTime.now())
+        val staleUpdate = bump(account, name = "古い更新")
         val rows = repository.update(staleUpdate)
 
         assertEquals(0, rows, "version 不一致なら 0件更新")
@@ -169,7 +183,7 @@ class AccountRepositoryImplIntegrationTest {
         repository.save(account)
 
         val roleId = UUID.fromString("01970000-0000-7000-8000-000000000001")
-        val updated = account.copy(version = 1, updatedBy = "OPERATOR", updatedAt = OffsetDateTime.now())
+        val updated = bump(account, updatedBy = "OPERATOR")
         val rows =
             repository.assignRolesAndBumpVersion(
                 accountId = AccountId("AZ0005"),
@@ -189,7 +203,7 @@ class AccountRepositoryImplIntegrationTest {
         val account = buildAccount("AZ0006", version = 0)
         repository.save(account)
 
-        val updated = account.copy(version = 1, updatedBy = "OPERATOR", updatedAt = OffsetDateTime.now())
+        val updated = bump(account, updatedBy = "OPERATOR")
         repository.assignRolesAndBumpVersion(
             accountId = AccountId("AZ0006"),
             roleIds = emptyList(),

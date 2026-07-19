@@ -11,7 +11,6 @@ import com.kakehashi.usecase.account.exception.DomainNotAllowedException
 import com.kakehashi.usecase.account.exception.ForbiddenOperationException
 import com.kakehashi.usecase.account.exception.GoogleIdTokenVerificationException
 import com.kakehashi.usecase.account.exception.InvalidIdTokenFormatException
-import java.time.OffsetDateTime
 
 /**
  * UC-A1: Google SSO ログイン（仮登録・自動プロビジョニング・自前JWT発行）UseCase
@@ -86,20 +85,12 @@ class GoogleSsoCallbackUseCase(
                 // 初回ログイン: 仮登録（UC-A2 相当の内部処理）
                 val seq = accountRepository.nextAccountIdSequence()
                 val newAccountId = AccountId.fromSequence(seq)
-                val now = OffsetDateTime.now()
                 val newAccount =
-                    Account(
+                    Account.provision(
                         accountId = newAccountId,
                         googleSubHash = identity.googleSubHash,
                         email = identity.email,
                         name = identity.name,
-                        status = AccountStatus.PROVISIONAL,
-                        suspendedAt = null,
-                        version = 0,
-                        createdBy = newAccountId.value,
-                        updatedBy = newAccountId.value,
-                        createdAt = now,
-                        updatedAt = now,
                     )
                 accountRepository.save(newAccount)
                 newAccount
