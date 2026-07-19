@@ -34,17 +34,18 @@
 
 この課題に対し、ユーザーから次の解決策が提案された。Interface Adapter 層（`RepositoryImpl`）を「境界防波堤」とし、MyBatis 専用 DTO からドメインエンティティへの詰め替えを必ず `RepositoryImpl` 内で行うことで、Command 側も MyBatis 化できるのではないか、という提案である。
 
-議論の当初、Command 側が `JdbcClient` を使う理由を「`private constructor` を持つエンティティ（[APP-ADR-0015](APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md)）と MyBatis のリフレクション自動バインディングが根本的に相性が悪いため」と説明した。しかしこの説明は不正確だった。**MyBatis が直接リフレクションで触れる対象を、エンティティ本体ではなく中間 DTO（永続化フィールドと 1:1 対応する `class` / `data class`）に限定すれば、この非互換性は解消できる**、というのがユーザーとの議論での結論である。実際、Query 側はすでにこの中間 DTO パターンで MyBatis のリフレクションと `private constructor` 制約を無関係に共存させている。
+議論の当初、Command 側が `JdbcClient` を使う理由を「`private constructor` を持つエンティティ（[APP-ADR-0015](APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md)）と MyBatis のリフレクション自動バインディングが根本的に相性が悪いため」と説明した。しかしこの説明は不正確だった。**MyBatis が直接リフレクションで触れる対象を、エンティティ本体ではなく中間 DTO（永続化フィールドと 1:1 対応する `data class`）に限定すれば、この非互換性は解消できる**、というのがユーザーとの議論での結論である。実際、Query 側はすでにこの中間 DTO パターンで MyBatis のリフレクションと `private constructor` 制約を無関係に共存させている。
 
 ## 決定
 
 Repository 実装を **MyBatis に統一**し、MyBatis がリフレクションで触れる対象を **エンティティ本体ではなく中間 DTO に限定** する。具体的には、ユーザー提示の以下の 3 層構造で Repository 実装を統一する。
 
 ```
-MyBatis ←（リフレクションで）→ AccountRow（DTO、class/data class 可） ←（手書き変換、reconstruct()）→ Account（Entity、private constructor）
+MyBatis ←（リフレクションで）→ AccountRow（DTO、val プロパティのみを持つ不変な data class） ←（手書き変換、reconstruct()）→ Account（Entity、private constructor）
 ```
 
 - MyBatis は `@Mapper` インターフェース経由で、中間 DTO（例: `AccountRow`）にのみリフレクションでマッピングする。`Account`（エンティティ本体）には一度も直接触れない。
+- 中間 DTO は既存の Query 側 DTO（`AccountSummaryRow` / `AccountDetailRow` / `RoleRow`、いずれも `val` プロパティのみの `data class`）と同様に **不変（`val` プロパティのみ、setter を持たない）** とする。MyBatis はコンストラクタ経由の自動マッピングで不変な `data class` にも問題なくマッピングできることが Query 側で実証済みであり、`var` にして setter 経由の詰め替えを許す理由がない。DTO を可変にすると、DB 読み取り後から `reconstruct()` 呼び出しまでの間に意図せず値が書き換わる余地が生まれ、「読み取った行を安全にエンティティへ変換する」という中間 DTO の責務が曖昧になる。
 - [`AccountRepositoryImpl`](../../src/main/kotlin/com/kakehashi/infrastructure/account/AccountRepositoryImpl.kt)（`AccountRepository` の具象クラス、Interface Adapter 層）が MyBatis の `@Mapper` を DI する。読み取り方向は `AccountRow` を `Account.reconstruct(...)` ファクトリで明示的にエンティティへ変換する（この変換はリフレクションではなく手書きコード）。書き込み方向は `Account` のフィールドを `AccountRow` に詰め替えてから MyBatis の insert/update へ渡す。
 - この構成により Command 側も MyBatis で実装可能になり、Query 側（`AccountMapper` → `AccountSummaryRow` / `AccountDetailRow` / `RoleRow`）と技術スタックを統一できる。
 
@@ -74,7 +75,7 @@ MyBatis ←（リフレクションで）→ AccountRow（DTO、class/data class
 ## 影響
 
 - 本 ADR は将来 Command 側を MyBatis 化する際の **設計指針** であり、**現状の Command 側実装（`JdbcClient`・手書きマッピング）を今すぐ変更するものではない**。実際のリファクタリングは [APP-ADR-0015](APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md) の `Account` エンティティリファクタリング（`data class` → 通常 `class`）と合わせて、別ブランチで後日実施する。
-- 中間 DTO（`AccountRow` 等）の命名・配置は、既存の Query 側パターン（[`AccountMapper.kt`](../../src/main/kotlin/com/kakehashi/infrastructure/account/AccountMapper.kt) 内の `AccountSummaryRow` 等）に倣うこと。
+- 中間 DTO（`AccountRow` 等）の命名・配置・イミュータビリティ（`val` プロパティのみの `data class`）は、既存の Query 側パターン（[`AccountMapper.kt`](../../src/main/kotlin/com/kakehashi/infrastructure/account/AccountMapper.kt) 内の `AccountSummaryRow` 等）に倣うこと。
 - Command 側を MyBatis 化する際は、[`.claude/rules/mybatis-rules.md`](../../.claude/rules/mybatis-rules.md) のルール（`#{}` 使用・`@param` 必須・`<id>` タグ・`notNullColumn` 等）に従うこと。
 - 実装ガイドとして、[`kotlin-implementer`](../../.claude/agents/kotlin-implementer.md) など `.claude/agents/` 配下の関連エージェント定義が本方針（Repository 実装は MyBatis 統一・中間 DTO へのリフレクション限定・`RepositoryImpl` での詰め替え）を反映しているか、Command 側の永続化リファクタリングに着手する際に確認し、必要なら更新すること。
 
