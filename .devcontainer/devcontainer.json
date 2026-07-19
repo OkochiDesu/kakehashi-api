@@ -34,7 +34,14 @@
                 "vscjava.vscode-java-pack", // Javaツールパック（デバッガ・ビルドツール等）
                 "ryanluker.vscode-coverage-gutters", // テストカバレッジのガター表示
                 "anthropic.claude-code" // ClaudeCode拡張（リビルド後に消えるため明示的に指定）
-            ]
+            ],
+            // Gradle/Kotlinデーモン等が一時的に開くエフェメラルポートをVS Codeが自動検出し、
+            // 「ポート」パネルに残り続ける（otherPortsAttributes.onAutoForwardは自動転送を
+            // 抑制するだけでパネル表示自体は防げない）ため、自動検出そのものを無効化する。
+            // forwardPortsで明示した5432/8080/8090/5005は引き続き表示される。
+            "settings": {
+                "remote.autoForwardPorts": false
+            }
         }
     },
     // コンテナ内で使用するユーザー名
