@@ -83,6 +83,9 @@ class AccountRepositoryImpl(
      * account_roles を変更せずに即座に返す。先に account_roles を DELETE/INSERT してしまうと、
      * 後続の version 更新が競合で失敗した場合でも account_roles の変更だけがコミットされる
      * 中間不整合が発生するため、必ずこの順序を維持すること。
+     *
+     * @throws IllegalArgumentException accountId と account.accountId が一致しない場合
+     *   （別アカウントの account_roles を誤って書き換えるデータ不整合を防ぐため、DB 呼び出し前に検証する）
      */
     @Transactional
     override fun assignRolesAndBumpVersion(
@@ -91,6 +94,10 @@ class AccountRepositoryImpl(
         account: Account,
         operatorId: String,
     ): Int {
+        require(accountId == account.accountId) {
+            "accountIdとaccountパラメータのaccountIdが一致しません: accountId=${accountId.value}, account.accountId=${account.accountId.value}"
+        }
+
         // 1. accounts.version インクリメント（楽観ロック: WHERE version = prevVersion）
         val rows = accountMapper.updateAccountRow(account.toRow(), account.version - 1)
         if (rows == 0) {
