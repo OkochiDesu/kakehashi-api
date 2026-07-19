@@ -8,6 +8,23 @@ globs:
 `*Test.kt` ファイルを編集・作成するときに適用するルール。
 詳細なテスト方針は [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md) を参照。
 
+## 目次
+
+- [アサーション](#アサーション)
+- [TDD（テスト先行）](#tddテスト先行)
+  - [コンパイルレベルの変更（private constructor化等）でのred確認](#コンパイルレベルの変更private-constructor化等でのred確認)
+  - [Testcontainers統合テストのred確認（CI依存の制約）](#testcontainers統合テストのred確認ci依存の制約)
+- [正常系テストの観点](#正常系テストの観点)
+- [異常系テストの観点](#異常系テストの観点)
+- [バリデーション変更時](#バリデーション変更時)
+- [Testcontainers 統合テスト](#testcontainers-統合テスト)
+  - [テストクラス](#テストクラス)
+  - [設定ファイル（`application-integration-test.properties`）](#設定ファイルapplication-integration-testproperties)
+- [テストクラス KDoc（テストケース目次）](#テストクラス-kdocテストケース目次)
+  - [フォーマット](#フォーマット)
+  - [ルール](#ルール)
+- [テスト命名](#テスト命名)
+
 ## アサーション
 
 - **`assert()` を使わない**: JVM の `-ea` フラグが無効のとき評価されず常に成功する。`assertEquals` / `assertTrue` / `assertThrows` / `assertNull` 等 JUnit5 アサーションを使うこと（pre-commit でも検出する）
@@ -15,9 +32,34 @@ globs:
 
 ## TDD（テスト先行）
 
-新規実装・バグ修正ともに**テストを先に書いてから実装する**。
-- バグ修正: バグを再現する失敗テストを書く → 修正する → テストが通ることを確認する
-- 機能追加: 期待動作を定義するテストを書く → 実装する
+新規実装・バグ修正ともに**テストを先に書いてから実装する**。**実装前に必ず一度実行し、
+追加したテストが失敗（red）することを確認すること**。「テストを書いた」だけでは
+TDDのred確認を満たしたことにならない（アサーション自体が誤っていて常に成功する等の
+ケースを検出できないため）。
+
+- バグ修正: バグを再現する失敗テストを書く → `./gradlew test` 等で実行しfailingであることを確認する → 修正する → テストが通ることを確認する（green）
+- 機能追加: 期待動作を定義するテストを書く → `./gradlew test` 等で実行しfailing（red）であることを確認する → 実装する → テストが通ることを確認する（green）
+
+### コンパイルレベルの変更（private constructor化等）でのred確認
+
+`data class` → 通常 `class` 化、コンストラクタのvisibility変更等、**変更対象クラスの
+公開APIそのものを変える大規模リファクタリング**では、テストのみを追加した時点で
+プロジェクト全体がコンパイルできないことがある。この場合:
+
+- **コンパイルエラーは有効なred確認として扱ってよい**（アサーション実行前の失敗もTDDのredに含まれる）
+- ただし、コンパイルエラーが「追加したテストが期待する新しい振る舞い（新設メソッド呼び出し・
+  変更後のコンストラクタシグネチャ等）に起因するものである」ことを一度エラーメッセージで
+  確認すること。無関係な既存コードの破損によるエラーとred確認を混同しない
+
+### Testcontainers統合テストのred確認（CI依存の制約）
+
+devcontainer では Testcontainers がローカル実行できない制約があるため
+（[testcontainers-jvmstatic-kotlin.md](../../docs/troubleshooting/testcontainers-jvmstatic-kotlin.md)）、
+統合テストのみが対象の変更では実装前のローカルred確認ができない。この場合:
+
+- 単体テストで代替できる範囲は単体テストでred/green確認を完結させる
+- 統合テストでしか検証できない振る舞い（DBスキーマ・MyBatis Mapperのマッピング等）は、
+  「テストを先に書く」（test-first authorship）までを実装前に行い、red確認はCIでの実行結果で代替してよい
 
 ## 正常系テストの観点
 
