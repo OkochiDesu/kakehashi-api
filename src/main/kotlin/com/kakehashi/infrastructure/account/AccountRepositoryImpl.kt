@@ -54,7 +54,7 @@ class AccountRepositoryImpl(
     }
 
     /**
-     * APP-ADR-0005: WHERE version = :prevVersion で楽観ロックを実装する
+     * APP-ADR-0005: WHERE version = #{prevVersion} で楽観ロックを実装する
      * 更新件数 0 = version 不一致（呼び出し元で 409 Conflict に変換）
      */
     @Transactional
