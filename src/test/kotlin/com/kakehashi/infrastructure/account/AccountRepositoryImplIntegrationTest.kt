@@ -51,6 +51,7 @@ import java.util.UUID
  * 《観　点》ロール付与の DELETE/INSERT が正しく動作し version が更新されることの確認
  * 《テスト》正常系： assignRolesAndBumpVersion でロールが付与され version がインクリメントされる
  * 《テスト》正常系： assignRolesAndBumpVersion でロールを全剥奪できる
+ * 《テスト》異常系： assignRolesAndBumpVersion でversion不一致の場合account_rolesは変更されない（中間不整合防止）
  */
 @Testcontainers
 @SpringBootTest
@@ -212,5 +213,41 @@ class AccountRepositoryImplIntegrationTest {
         )
 
         assertTrue(repository.findRoleIdsByAccountId(AccountId("AZ0006")).isEmpty())
+    }
+
+    @Test
+    fun `異常系： assignRolesAndBumpVersion でversion不一致の場合account_rolesは変更されない（中間不整合防止）`() {
+        val account = buildAccount("AZ0007", version = 0)
+        repository.save(account)
+        val roleA = UUID.fromString("01970000-0000-7000-8000-000000000001")
+        val roleB = UUID.fromString("01970000-0000-7000-8000-000000000002")
+
+        // 前提: roleA を付与し version=1 にしておく
+        val firstUpdate = bump(account, updatedBy = "OPERATOR")
+        val firstRows =
+            repository.assignRolesAndBumpVersion(
+                accountId = AccountId("AZ0007"),
+                roleIds = listOf(roleA),
+                account = firstUpdate,
+                operatorId = "OPERATOR",
+            )
+        assertEquals(1, firstRows, "前提: 1件更新されること")
+
+        // stale な version=1 で再度呼び出す（prevVersion=0 だが DB は既に 1 のため 0件更新）
+        val staleUpdate = bump(account, updatedBy = "ATTACKER")
+        val rows =
+            repository.assignRolesAndBumpVersion(
+                accountId = AccountId("AZ0007"),
+                roleIds = listOf(roleB),
+                account = staleUpdate,
+                operatorId = "ATTACKER",
+            )
+
+        assertEquals(0, rows, "version 不一致なら 0件更新")
+        assertEquals(
+            setOf(roleA),
+            repository.findRoleIdsByAccountId(AccountId("AZ0007")),
+            "accounts.version の更新に失敗した場合、account_roles は変更されないこと（中間不整合防止）",
+        )
     }
 }

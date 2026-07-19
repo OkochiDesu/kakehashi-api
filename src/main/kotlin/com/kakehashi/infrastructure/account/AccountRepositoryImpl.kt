@@ -78,9 +78,11 @@ class AccountRepositoryImpl(
     /**
      * account_roles 全置換と accounts.version インクリメントを1トランザクションで実行する（UC-A6: 修正4）
      *
-     * 根拠: code-reviewer REQUIRES_CHANGES 修正4
-     * replaceRoles + update を別トランザクションで呼ぶと中間不整合が発生するため、
-     * このメソッド内でまとめて @Transactional を付与する。
+     * 根拠: code-reviewer REQUIRES_CHANGES 修正4、PR #23 Copilot Rv
+     * accounts.version の楽観ロック更新を先に行い、0件更新（version 不一致）の場合は
+     * account_roles を変更せずに即座に返す。先に account_roles を DELETE/INSERT してしまうと、
+     * 後続の version 更新が競合で失敗した場合でも account_roles の変更だけがコミットされる
+     * 中間不整合が発生するため、必ずこの順序を維持すること。
      */
     @Transactional
     override fun assignRolesAndBumpVersion(
@@ -89,12 +91,18 @@ class AccountRepositoryImpl(
         account: Account,
         operatorId: String,
     ): Int {
-        // 1. account_roles 全置換
+        // 1. accounts.version インクリメント（楽観ロック: WHERE version = prevVersion）
+        val rows = accountMapper.updateAccountRow(account.toRow(), account.version - 1)
+        if (rows == 0) {
+            return 0
+        }
+
+        // 2. version 更新が成功した場合のみ account_roles を全置換する
         accountMapper.deleteAccountRoles(accountId.value)
 
         if (roleIds.isNotEmpty()) {
             val now = OffsetDateTime.now()
-            val rows =
+            val insertRows =
                 roleIds.map { roleId ->
                     AccountRoleInsertRow(
                         accountRoleId = UUID.randomUUID().toString(),
@@ -106,11 +114,10 @@ class AccountRepositoryImpl(
                         updatedAt = now,
                     )
                 }
-            accountMapper.insertAccountRoles(rows)
+            accountMapper.insertAccountRoles(insertRows)
         }
 
-        // 2. accounts.version インクリメント（楽観ロック: WHERE version = prevVersion）
-        return accountMapper.updateAccountRow(account.toRow(), account.version - 1)
+        return rows
     }
 
     private fun AccountRow.toEntity(): Account =
