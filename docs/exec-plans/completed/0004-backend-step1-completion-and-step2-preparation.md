@@ -2,7 +2,7 @@
 
 > **このexec-planは解体済みです。**
 > PR単位の個別exec-planに分割しました:
-> Step1: [0005](../completed/0005-ci-integration-test-environment.md) / [0006](../active/0006-authentication-google-sso-jwt.md) / [0007](../pending/0007-authorization-access-control.md) / [0008](../pending/0008-deactivated-auto-transition-batch.md) / [0009](../pending/0009-skill-matrix-crud.md) / [0010](../pending/0010-resume-crud.md) / [0011](../pending/0011-resume-export-excel-pdf.md) / [0012](../pending/0012-test-strategy-step1-gate.md)
+> Step1: [0005](../completed/0005-ci-integration-test-environment.md) / [0006](../completed/0006-authentication-google-sso-jwt.md) / [0007](../pending/0007-authorization-access-control.md) / [0008](../pending/0008-deactivated-auto-transition-batch.md) / [0009](../pending/0009-skill-matrix-crud.md) / [0010](../pending/0010-resume-crud.md) / [0011](../pending/0011-resume-export-excel-pdf.md) / [0012](../pending/0012-test-strategy-step1-gate.md)
 > Step2: [0013](../pending/0013-career-sheet-dynamic-form.md) / [0014](../pending/0014-usage-analytics.md) / [0015](../pending/0015-contact-route-revision.md)
 
 ## 目次

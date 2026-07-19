@@ -25,6 +25,7 @@ APP-ADR-0015（DDDエンティティは通常classとして実装）・APP-ADR-0
 ## 意思決定ログ
 
 - 2026-07-17: exec-plan 0006（Google SSO実装）のPRレビュー中の議論から、`Account`エンティティの`data class`実装への懸念が提起され、APP-ADR-0015（エンティティ実装方針）・APP-ADR-0016（Repository実装方針）として方針を確定。実装はスコープを分離し、本exec-planとして別途起票した。
+- 2026-07-19: exec-plan 0006（PR #18/#19/#21）が全項目完了・マージ済みとなり`completed/`へ移動。次に着手するexec-planとして本0020をユーザーが選定し、`pending/`から`active/`へ移動して着手を決定した。
 
 ## 残課題・引き継ぎ事項
 
