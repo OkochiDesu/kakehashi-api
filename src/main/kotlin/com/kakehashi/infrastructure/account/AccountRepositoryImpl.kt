@@ -15,8 +15,8 @@ import java.util.UUID
  * MyBatis（AccountMapper）経由で DB アクセスする。MyBatis がリフレクションで直接触れる対象は
  * 中間 DTO（AccountRow）に限定し、Account（エンティティ本体、private constructor）には触れない。
  * このクラスが「境界防波堤」として AccountRow ↔ Account の詰め替え（reconstruct()/toRow()）を
- * 一手に引き受ける。UPDATE 時は WHERE version = ? を条件に含め、0件更新（version 不一致）の場合は
- * 呼び出し元で 409 Conflict に変換する。
+ * 一手に引き受ける。UPDATE 時は WHERE version = #{prevVersion} を条件に含め、0件更新（version 不一致）
+ * の場合は呼び出し元で 409 Conflict に変換する。
  *
  * 関連: docs/architecture/package-structure.md（infrastructure 層の責務）・APP-ADR-0005（楽観ロック）・
  * APP-ADR-0008（Command系の集約→Repository→DBの流れ）・APP-ADR-0016（Repository実装のMyBatis統一）
@@ -88,6 +88,8 @@ class AccountRepositoryImpl(
      *
      * @throws IllegalArgumentException accountId と account.accountId が一致しない場合
      *   （別アカウントの account_roles を誤って書き換えるデータ不整合を防ぐため、DB 呼び出し前に検証する）
+     * @throws IllegalArgumentException operatorId と account.updatedBy が一致しない場合
+     *   （accounts と account_roles で監査カラムの操作者が食い違うデータ不整合を防ぐため、DB 呼び出し前に検証する）
      */
     @Transactional
     override fun assignRolesAndBumpVersion(
@@ -98,6 +100,9 @@ class AccountRepositoryImpl(
     ): Int {
         require(accountId == account.accountId) {
             "accountIdとaccountパラメータのaccountIdが一致しません: accountId=${accountId.value}, account.accountId=${account.accountId.value}"
+        }
+        require(operatorId == account.updatedBy) {
+            "operatorIdとaccount.updatedByが一致しません: operatorId=$operatorId, account.updatedBy=${account.updatedBy}"
         }
 
         // 1. accounts.version インクリメント（楽観ロック: WHERE version = prevVersion）
