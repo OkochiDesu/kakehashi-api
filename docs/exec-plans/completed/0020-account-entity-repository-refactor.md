@@ -20,7 +20,7 @@ APP-ADR-0015（DDDエンティティは通常classとして実装）・APP-ADR-0
 - [x] `.claude/agents/kotlin-implementer.md`を更新（APP-ADR-0015のエンティティ実装方針・APP-ADR-0016のMyBatis統一方針を反映）。`account-domain-agent.md`は業務ルール専用で実装スタイルに触れないため変更不要と判断
 - [x] `docs/architecture/package-structure.md`にエンティティ実装方針（通常class、APP-ADR-0015）・Repository実装方針（MyBatis統一、APP-ADR-0016）を補記
 - [x] コードレビュー（`code-reviewer` → `test-reviewer`）: 両者ともAPPROVED（FAIL項目なし）
-- [ ] PR作成・マージ
+- [x] PR作成・マージ: PR #23作成。Copilot・人間レビューの指摘（中間不整合の順序修正・accountId/operatorId整合性検証追加・KDoc規約整備3件・TDD運用ルールの4ステップ明確化等）に全て対応・返信済み。レビューOKのため、ユーザーが本ブランチでマージする
 
 ## 意思決定ログ
 
@@ -29,6 +29,8 @@ APP-ADR-0015（DDDエンティティは通常classとして実装）・APP-ADR-0
 - 2026-07-19: 実装中、TDDのred確認（テスト追加後・実装前に実行して失敗を確認する）を怠っていたとユーザーから指摘を受けた。再発防止として`.claude/rules/test-rules.md`のTDDセクションにred確認の明示的ステップ・コンパイルレベル変更時の扱い・Testcontainers統合テストのCI依存の扱いを追記した。
 - 2026-07-19: `AssignRolesUseCase`の`copy()`呼び出し（version bumpのみ、ロール自体はAccountのフィールドではない）は、新規ドメインメソッド`assignRoles(updatedBy)`として`Account`に追加する設計とした。ガード不要な単純なversion bumpのため`check()`は付与していない。
 - 2026-07-19: 実装・テストともにcode-reviewer/test-reviewerでAPPROVED（FAIL項目なし）。作業中に発見した`usecase/account/README.md`の既存ドリフト（`AssignRolesUseCase_Input`のフィールド名不一致等、本exec-plan起因ではない）も同一コミットで解消した。
+- 2026-07-19: PR #23へのレビュー指摘に複数ラウンド対応した。(1) Copilot: `assignRolesAndBumpVersion`が先にaccount_rolesをDELETE/INSERTしてからaccounts.versionを更新していたため楽観ロック競合時に中間不整合が起こり得る指摘→順序を入れ替え。(2) Copilot: `accountId`引数と`account.accountId`の不一致検証がない指摘→`require()`追加。(3) 人間レビュー: `Account.kt`のprivate constructor・`AccountMapper.kt`のDTO群にプロパティKDoc（`@property`）が漏れていた指摘、`equals`/`hashCode`/`toString`の非自明な挙動説明が漏れていた指摘、`AccountRepositoryImpl`のクラスKDocがADR列挙中心で「このクラスが何をするか」が後景化していた指摘→いずれも修正し、再発防止として`kdoc-and-test-policy.md`・`kotlin-implementer.md`・`code-reviewer.md`にルール化。(4) 人間レビュー: TDDルールの記述が「修正前後どのテストが対象か」曖昧だった指摘→4ステップ（テスト作成→red確認→実装→全テストでgreen確認）として明確化。(5) Copilot: KDocに残っていたJdbcClient由来の`:paramName`表記の指摘→MyBatisの`#{}`表記に修正。(6) Copilot（confidence低・suppressed）: `operatorId`と`account.updatedBy`の不一致検証がない指摘→`accountId`と同様に`require()`追加（ユーザー判断で対応）。(7) Copilot: 新規テストのメソッド名とKDoc《テスト》記述の不一致（Kotlin backtick識別子が`.`を含められない制約由来）の指摘→表記統一。すべて返信投稿済み。
+- 2026-07-19: セッション終端でexec-plan 0020を完了・`completed/`へ移動。次のexec-planとして0021（ハーネス・ガードレール見直しとコーディングルール集約）を`pending/`から`active/`へ移動し着手可能な状態にした。
 
 ## 残課題・引き継ぎ事項
 
