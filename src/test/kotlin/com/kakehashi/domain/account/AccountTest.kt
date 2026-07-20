@@ -56,14 +56,14 @@ class AccountTest {
     ): Account =
         Account.reconstruct(
             accountId = AccountId(accountId),
-            googleSubHash = "hash_az0001",
+            googleSubHash = "hash_$accountId",
             email = "user@example.com",
             name = name,
             status = status,
             suspendedAt = null,
             version = 0,
-            createdBy = "AZ0001",
-            updatedBy = "AZ0001",
+            createdBy = accountId,
+            updatedBy = accountId,
             createdAt = OffsetDateTime.parse("2026-01-01T00:00:00+09:00"),
             updatedAt = OffsetDateTime.parse("2026-01-01T00:00:00+09:00"),
         )
