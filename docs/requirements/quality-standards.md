@@ -118,7 +118,7 @@ ui-flows.md / data-models.mdで定義した機能要件を正しく満たすこ�
 
 既存の方針をそのまま品質目標として引用する。
 
-- **モジュール性**: DDD & Clean Architectureに基づき、ドメイン層（エンティティ・値オブジェクト）をSpring/MyBatisから独立させる（[README.md 4章](README.md#4-アーキテクチャ原則adr化予定の方針)）。CQRSにより、更新系（ドメインモデル経由）と参照系（MyBatis直結）を分離する。
+- **モジュール性**: DDD & Clean Architectureに基づき、ドメイン層（エンティティ・値オブジェクト）をSpring/MyBatisから独立させる（[README.md 4章](README.md#4-アーキテクチャ原則)）。CQRSにより、更新系（ドメインモデル経由）と参照系（MyBatis直結）を分離する。
 - **修正性・解析性**:
   - ktlint（Spotless）によるコーディング規約の統一（[README.md 3章](README.md#3-技術スタック)）。
   - レイヤーごとのカバレッジ閾値（ドメイン層80%以上等）、複雑度しきい値（CCN上限10、仮値）の運用（[docs/TODO.md](../TODO.md)）。

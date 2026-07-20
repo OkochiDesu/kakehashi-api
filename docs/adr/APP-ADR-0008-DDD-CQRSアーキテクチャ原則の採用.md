@@ -22,9 +22,9 @@
 
 ## 背景
 
-DDD（ドメイン駆動設計）& Clean Architecture と CQRS の徹底は、要件定義フェーズの段階から「アーキテクチャ原則（ADR化予定の方針）」として [docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則adr化予定の方針) に記述され、「確定後は `docs/adr/` にADRとして記録する」と明記されていた。
+DDD（ドメイン駆動設計）& Clean Architecture と CQRS の徹底は、要件定義フェーズの段階から「アーキテクチャ原則（ADR化予定の方針）」として [docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則) に記述され、「確定後は `docs/adr/` にADRとして記録する」と明記されていた。
 
-Step1の実装フェーズ（API設計 → Kotlin実装）が進行し、アカウント・ロールドメインのAPI設計書 [docs/design/api/account-role.md](../design/api/account-role.md) では、CQRSの適用を前提に Command（更新系）と Query（参照系）の処理フローを分離して設計済みである。設計書はその根拠として [docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則adr化予定の方針) を参照している。
+Step1の実装フェーズ（API設計 → Kotlin実装）が進行し、アカウント・ロールドメインのAPI設計書 [docs/design/api/account-role.md](../design/api/account-role.md) では、CQRSの適用を前提に Command（更新系）と Query（参照系）の処理フローを分離して設計済みである。設計書はその根拠として [docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則) を参照している。
 
 また、永続化技術スタックを定めた [APP-ADR-0004](APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) でも、O/RマッパーにMyBatisを採用した理由として「参照系でJSONB/JOIN結果をDTOへ直接マッピングして高速に返すCQRS方針」を前提としており、本アーキテクチャ原則は既に複数の確定済み判断の土台となっている。
 
@@ -35,7 +35,7 @@ Step1の実装フェーズ（API設計 → Kotlin実装）が進行し、アカ�
 kakehashi-api のバックエンドアーキテクチャ原則として、以下を採用する。
 
 1. **DDD & Clean Architecture**
-   ドメイン層（エンティティ、値オブジェクト、集約）はSpring/MyBatis等のフレームワークから完全に独立させる。永続化・Webの技術的関心事をドメイン層に持ち込まない（[docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則adr化予定の方針)）。
+   ドメイン層（エンティティ、値オブジェクト、集約）はSpring/MyBatis等のフレームワークから完全に独立させる。永続化・Webの技術的関心事をドメイン層に持ち込まない（[docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則)）。
 
 2. **CQRS の徹底**
    Command（更新系）と Query（参照系）を明確に分離する。
@@ -46,7 +46,7 @@ kakehashi-api のバックエンドアーキテクチャ原則として、以下
    | Query（参照系） | Controller → MyBatis Mapper（JOINクエリ）→ DTO → レスポンス | ドメイン層をバイパスし、JSONB/JOIN結果を直接DTOへマッピングして高速に画面へ返す |
 
    - Command は集約を経由し、状態遷移（イベント）を伴う。
-   - Query はドメイン層・「イベント」「集約」を介在させず、MyBatisで直接DTOへマッピングする（[docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則adr化予定の方針)、[docs/design/api/account-role.md 設計方針](../design/api/account-role.md#cqrsの適用)）。
+   - Query はドメイン層・「イベント」「集約」を介在させず、MyBatisで直接DTOへマッピングする（[docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則)、[docs/design/api/account-role.md 設計方針](../design/api/account-role.md#cqrsの適用)）。
 
 本ADRは、認証・認可方式（Google SSO + JIT、`@PreAuthorize` でのロール制御）や単一情報源（JSONB + PostgreSQL）といった隣接方針そのものを規定するものではなく、ドメイン設計・処理フローの原則（DDD/Clean Architecture と CQRS）を対象とする。認可方式は [APP-ADR-0007](APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) ほかで、永続化技術は [APP-ADR-0004](APP-ADR-0004-永続化技術スタックの導入-Flyway-MyBatis-PostgreSQL.md) で扱う。
 
@@ -60,7 +60,7 @@ kakehashi-api のバックエンドアーキテクチャ原則として、以下
 ### 代替案B: 更新系・参照系とも単一のドメインモデル経由で処理する（CQRS不採用）
 
 - 長所: モデルが一つで済み、Command/Queryでモデルを二重に持つ必要がない。
-- 短所: 参照系（検索・一覧）でも集約のロード・組み立てを経由するため、JOIN/JSONBを活かした高速な画面応答が難しくなる。要件では検索画面の性能を重視しており（[docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則adr化予定の方針)）、Query側はMyBatisで直接DTOへマッピングするCQRSを採用した。
+- 短所: 参照系（検索・一覧）でも集約のロード・組み立てを経由するため、JOIN/JSONBを活かした高速な画面応答が難しくなる。要件では検索画面の性能を重視しており（[docs/requirements/README.md 4章](../requirements/README.md#4-アーキテクチャ原則)）、Query側はMyBatisで直接DTOへマッピングするCQRSを採用した。
 
 ### 代替案C: 本方針をADR化せず要件定義ドキュメントの記述のみで運用する
 

@@ -128,7 +128,7 @@ class Account private constructor(
 ## 影響
 
 - 本 ADR 確定後、`Account` を含む本リポジトリの DDD エンティティは通常 `class` として実装する。VO（識別子・enum・DTO・UseCase Input/Output）は引き続き `data class` / `value class` / `enum class` を用い、エンティティと明確に区別する。
-- **`Account` の実際のリファクタリング（`data class` → 通常 `class`）は本 ADR のスコープ外であり、別ブランチで後日実施する**。本 ADR は方針の確定のみを行い、`src/` 配下のコードは変更しない。
+- **`Account` の実際のリファクタリング（`data class` → 通常 `class`）は本 ADR 確定時点ではスコープ外とし、別ブランチで後日実施する方針とした**。本 ADR 自体は方針の確定のみを行い、確定時点では `src/` 配下のコードを変更していない。→ 実施済み: [exec-plan 0020](../exec-plans/completed/0020-account-entity-repository-refactor.md)（PR #23、2026-07-19マージ）で `Account.kt` を本方針に沿って通常 `class` 化した。
 - エンティティの `equals()` / `hashCode()` は ID のみで判定する（構造的等価性ではない）。`accountId` が同一なら `version` / `updatedAt` 等が異なっても等価と判定される点に注意する。全体比較アサーション（`assertEquals(expectedAccount, actualAccount)`）を書く場合はこの性質を前提に、必要なら個別フィールドを個別に検証すること。
 - エンティティは不変設計（全フィールド `val`・状態遷移は `withChanges()` 経由で新規インスタンスを返す）を維持する。in-place の書き換えメソッドを追加しないこと。
 - 状態更新は手書き private ヘルパー（`withChanges()` 等）に集約し、公開された無条件更新メソッド（`copy()` 相当）を作らないこと。全ての状態遷移は `check(...)` ガードを通す公開メソッド経由に限定する。

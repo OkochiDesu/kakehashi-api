@@ -42,32 +42,35 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 ### 3. 実装品質
 
 #### KDoc 品質
-- **`@throws` の正確性**: 説明文が実装の分岐条件と一致しているか。実際にスローされない例外を列挙していないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
+根拠・詳細ルールは [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md) を正本とする（本ファイルには転記しない）。以下の観点で実装が同ドキュメントに準拠しているかを確認する。
+
+- **`@throws` の正確性**: 説明文が実装の分岐条件と一致しているか。実際にスローされない例外を列挙していないか
 - **クラス KDoc と実装の一致**: 認可チェックを「呼び出し元で保証」と書いているのに UseCase 内で実際にチェックしている、ステータスの説明が実際の遷移先と矛盾している等、クラスレベルの記述が実装の実態と乖離していないか
-- **`@param` / `@return` 網羅性**: `private` / `internal` を含むすべての関数で省略されている引数・戻り値がないか（引数なし・戻り値 `Unit` の自明なシンプル関数は除く）。`interface` / リポジトリ公開メソッドは特に厳密に確認する（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）。ただし `override` メソッドで実装元 interface 側に既に明記されている場合の省略は指摘不要
-- **コンストラクタ・DTOのプロパティ網羅性**: `private constructor` を含む主コンストラクタや DTO（`data class` の Row 系等）のプロパティが、クラス KDoc の `@property` タグで説明されているか（PR #23 で `Account` の `private constructor` と `AccountRow` 系 DTO のプロパティ説明漏れが指摘された）
-- **非自明な override の説明**: `equals()` / `hashCode()` / `toString()` 等、言語標準の既定動作から意図的に逸脱する override に、その挙動を説明する KDoc（1〜2行）があるか
-- **パラメータ命名**: `repo` / `mgr` / `svc` 等の省略形を使っていないか。型から容易に推測できる具体名（`accountRepository` 等）になっているか
-- **クラス/メソッドKDocの簡潔さ**: 調査経緯・検討した代替案の詳細を書き込んでいないか。「なぜこの設計にしたか」は ADR / exec-plan への参照に置き換えられているか
+- **`@param` / `@return` 網羅性**: `private` / `internal` を含むすべての関数で省略されている引数・戻り値がないか（`override` メソッドで実装元 interface 側に既に明記されている場合の省略は指摘不要）
+- **コンストラクタ・DTOのプロパティ網羅性**: `@property` タグで説明されているか（PR #23 で `Account` の `private constructor` と `AccountRow` 系 DTO のプロパティ説明漏れが指摘された事例あり）
+- **非自明な override の説明**: `equals()` / `hashCode()` / `toString()` 等の意図的な逸脱に、その挙動を説明する KDoc があるか
+- **パラメータ命名**: `repo` / `mgr` / `svc` 等の省略形を使っていないか
+- **クラス/メソッドKDocの簡潔さ**: 調査経緯・検討した代替案の詳細を書き込んでいないか
 
 #### 型安全・null 安全
+根拠は [kotlin-implementer.md 厳守ルール](kotlin-implementer.md#厳守ルール) / [同 KDoc・コメントルール](kotlin-implementer.md#kdocコメントルール) を正本とする。
 - **Kotlin 慣用性**: `!!` の不用意な使用・null 安全の回避がないか
-- **Output DTO の型**: プロパティに `Nothing?` を使っていないか。意味のある具体的な型（`OffsetDateTime?` 等）になっているか
-- **正規表現のアンカー漏れ**: 文字列全体にマッチさせる `Regex` に `^` / `$` が付いているか（付いていないと部分一致で誤通過する）
+- **Output DTO の型**: プロパティに `Nothing?` を使っていないか
+- **正規表現のアンカー漏れ**: 文字列全体にマッチさせる `Regex` に `^` / `$` が付いているか
 
 #### レイヤー責務・トランザクション
 - **レイヤー責務**: Controller にビジネスロジックが混入していないか。Repository に SQL 以外のロジックがないか
 - **トランザクション管理**: Service 層の `@Transactional` が適切に付与されているか
 
 #### エラーハンドリング
-- **型変換の例外処理**: 外部入力の型変換（`RoleCode.fromCode()` 等）に `runCatching.getOrNull()` を使っていないか。不正値は例外スローで `GlobalExceptionHandler` に委ねているか
-- **エラーメッセージの日本語化**: `require()` / `check()` / `checkNotNull()` / `requireNotNull()` / RuntimeException のメッセージ文字列に英語が残っていないか（pre-commit でも検出するが、レビュー時にも確認する）
+- **型変換の例外処理**: 外部入力の型変換（`RoleCode.fromCode()` 等）に `runCatching.getOrNull()` を使っていないか（根拠: [kotlin-implementer.md 厳守ルール](kotlin-implementer.md#厳守ルール)）。不正値は例外スローで `GlobalExceptionHandler` に委ねているか
+- **エラーメッセージの日本語化**: `require()` / `check()` / `checkNotNull()` / `requireNotNull()` / RuntimeException のメッセージ文字列に英語が残っていないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)。pre-commit でも検出するが、レビュー時にも確認する）
 
 #### テストカバレッジ
 - **テストの存在確認**: Service 層の単体テスト・Controller 層の結合テストが作成されているか。テストコードの詳細品質は後続の `test-reviewer` が確認するため、ここでは「テストが存在するか」の確認にとどめる
 
 #### ステータスチェック特定性
-- **汎用チェックの範囲**: `canTransitionTo()` などの汎用遷移チェックを UseCase / ドメインメソッドで使う場合、設計書（UC-XX）が指定する **許可される元ステータス** と照合し、汎用チェックだけでは範囲が広すぎないかを確認すること（例: `register()` は PROVISIONAL のみ受け付けるべきだが `canTransitionTo(ACTIVE)` は SUSPENDED も true になる）
+- **汎用チェックの範囲**: `canTransitionTo()` などの汎用遷移チェックを UseCase / ドメインメソッドで使う場合、設計書（UC-XX）が指定する **許可される元ステータス** と照合し、汎用チェックだけでは範囲が広すぎないかを確認すること（例: `register()` は PROVISIONAL のみ受け付けるべきだが `canTransitionTo(ACTIVE)` は SUSPENDED も true になる。根拠: [kotlin-implementer.md KDoc・コメントルール](kotlin-implementer.md#kdocコメントルール)）
 
 #### MyBatis（`*Mapper.xml` / `*Mapper.kt` を含む diff のみ）
 - diff に Mapper ファイルが含まれる場合のみ [mybatis-rules.md](../../.claude/rules/mybatis-rules.md) を参照して確認する。含まれない場合は SKIP
