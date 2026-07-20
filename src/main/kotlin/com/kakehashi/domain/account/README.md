@@ -23,10 +23,17 @@ classDiagram
         +String updatedBy
         +OffsetDateTime createdAt
         +OffsetDateTime updatedAt
+        +equals(other) Boolean
+        +hashCode() Int
+        +toString() String
         +register(updatedBy) Account
         +editName(name, updatedBy) Account
         +suspend(updatedBy) Account
         +unsuspend(updatedBy) Account
+        +assignRoles(updatedBy) Account
+        -withChanges(status, suspendedAt, name, updatedBy) Account
+        +reconstruct(accountId, googleSubHash, email, name, status, suspendedAt, version, createdBy, updatedBy, createdAt, updatedAt)$ Account
+        +provision(accountId, googleSubHash, email, name)$ Account
     }
 
     class AccountId {
@@ -124,7 +131,7 @@ stateDiagram-v2
 
 | クラス | 種別 | 役割 |
 |--------|------|------|
-| `Account` | data class（集約ルート） | アカウントの状態と振る舞いを表現。ステータス遷移メソッドを持ち、変更のたびに `version` をインクリメントする（APP-ADR-0005 楽観ロック） |
+| `Account` | class（集約ルート） | アカウントの状態と振る舞いを表現。`private constructor` + companion object ファクトリ（`reconstruct()`＝永続化状態からの再構築、`provision()`＝新規発行）を持ち、ID 基準の `equals()`/`hashCode()`、PII 安全な `toString()`（`accountId`・`status` のみ出力）を実装する。ステータス遷移・`assignRoles()` 等の変更メソッドは全て private ヘルパー `withChanges()` を経由し、呼び出しのたびに `version` をインクリメントする（APP-ADR-0005 楽観ロック、APP-ADR-0015 通常 class 設計） |
 | `AccountId` | value class（値オブジェクト） | `AZ0001`〜`AZ9999` 形式の ID。PostgreSQL シーケンスから生成する |
 | `AccountStatus` | enum | 遷移規則（`canTransitionTo`）を自身が持つ。状態ごとのログイン可否（`canLogin`、APP-ADR-0014）・検索可視性もここで管理（APP-ADR-0006） |
 | `RoleCode` | enum | 権限コード（`admin` / `view_personal_info`）のマスタ。`roles` テーブルの `code` 列と対応（APP-ADR-0007） |
@@ -151,3 +158,4 @@ stateDiagram-v2
 - [APP-ADR-0007](../../../../../../../docs/adr/APP-ADR-0007-rolesをpermissionベースに再定義しvisibility_rulesを廃止.md) — 権限設計
 - [APP-ADR-0008](../../../../../../../docs/adr/APP-ADR-0008-DDD-CQRSアーキテクチャ原則の採用.md) — DDD / CQRS
 - [APP-ADR-0014](../../../../../../../docs/adr/APP-ADR-0014-JWT戦略-自前JWT発行を採用.md) — 認証基盤（Google SSO 検証・自前 JWT 発行戦略）
+- [APP-ADR-0015](../../../../../../../docs/adr/APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md) — DDD エンティティは通常 class として実装する方針

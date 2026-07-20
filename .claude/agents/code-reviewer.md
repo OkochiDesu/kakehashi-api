@@ -45,6 +45,8 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 - **`@throws` の正確性**: 説明文が実装の分岐条件と一致しているか。実際にスローされない例外を列挙していないか（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）
 - **クラス KDoc と実装の一致**: 認可チェックを「呼び出し元で保証」と書いているのに UseCase 内で実際にチェックしている、ステータスの説明が実際の遷移先と矛盾している等、クラスレベルの記述が実装の実態と乖離していないか
 - **`@param` / `@return` 網羅性**: `private` / `internal` を含むすべての関数で省略されている引数・戻り値がないか（引数なし・戻り値 `Unit` の自明なシンプル関数は除く）。`interface` / リポジトリ公開メソッドは特に厳密に確認する（根拠: [kdoc-and-test-policy.md](../../docs/conventions/kdoc-and-test-policy.md)）。ただし `override` メソッドで実装元 interface 側に既に明記されている場合の省略は指摘不要
+- **コンストラクタ・DTOのプロパティ網羅性**: `private constructor` を含む主コンストラクタや DTO（`data class` の Row 系等）のプロパティが、クラス KDoc の `@property` タグで説明されているか（PR #23 で `Account` の `private constructor` と `AccountRow` 系 DTO のプロパティ説明漏れが指摘された）
+- **非自明な override の説明**: `equals()` / `hashCode()` / `toString()` 等、言語標準の既定動作から意図的に逸脱する override に、その挙動を説明する KDoc（1〜2行）があるか
 - **パラメータ命名**: `repo` / `mgr` / `svc` 等の省略形を使っていないか。型から容易に推測できる具体名（`accountRepository` 等）になっているか
 - **クラス/メソッドKDocの簡潔さ**: 調査経緯・検討した代替案の詳細を書き込んでいないか。「なぜこの設計にしたか」は ADR / exec-plan への参照に置き換えられているか
 
@@ -100,6 +102,8 @@ APPROVED になるまで kotlin-implementer に差し戻す。APPROVED 後に人
 - @throws 条件と実装の一致: PASS / FAIL
 - クラス KDoc と実装の一致: PASS / FAIL
 - @param / @return 網羅性（private/internal含む）: PASS / FAIL
+- コンストラクタ・DTOのプロパティ網羅性（@propertyタグ）: PASS / FAIL
+- 非自明なoverride（equals/hashCode/toString等）の説明: PASS / FAIL
 - パラメータ命名（省略形回避）: PASS / FAIL
 - クラス/メソッドKDocの簡潔さ（ADR/exec-plan参照への集約）: PASS / FAIL
 

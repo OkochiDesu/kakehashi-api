@@ -45,6 +45,7 @@ exec-plan 0020（Account エンティティ・Repository リファクタリン�
 ## 意思決定ログ
 
 - 2026-07-19: ユーザーから「①ハーネス全体チェック→②その中でコーディングルール集約（プラン2）を含め順次対応」という進め方の合意を得て、1つの exec-plan として起票した。exec-plan 0020 完了後に着手する順序で合意した。
+- 2026-07-19: exec-plan 0020（PR #23）のレビュー対応完了に伴い、`pending/`から`active/`へ移動し着手可能な状態にした。exec-plan 0020対応中に、KDoc規約（`@property`タグ・非自明なoverrideの説明）を`kdoc-and-test-policy.md`・`kotlin-implementer.md`・`code-reviewer.md`の3ファイルへ同時反映する事象が再度発生しており（②コーディングルール集約の必要性を裏付ける追加事例）、①監査フェーズで参照すること。
 
 ## 残課題・引き継ぎ事項
 

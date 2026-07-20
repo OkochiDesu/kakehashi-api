@@ -15,7 +15,7 @@ object AccountTestFixtures {
         version: Int = 0,
         suspendedAt: OffsetDateTime? = null,
     ): Account =
-        Account(
+        Account.reconstruct(
             accountId = AccountId(accountId),
             googleSubHash = "hash_$accountId",
             email = "user@example.com",

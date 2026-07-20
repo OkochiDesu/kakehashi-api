@@ -6,7 +6,6 @@ import com.kakehashi.domain.account.RoleCode
 import com.kakehashi.usecase.account.exception.AccountNotFoundException
 import com.kakehashi.usecase.account.exception.ForbiddenOperationException
 import com.kakehashi.usecase.account.exception.OptimisticLockException
-import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
@@ -88,12 +87,7 @@ class AssignRolesUseCase(
             }
 
         // version をインクリメントした Account（トランザクション内で update する）
-        val versionBumped =
-            account.copy(
-                version = account.version + 1,
-                updatedBy = input.operatorAccountId,
-                updatedAt = OffsetDateTime.now(),
-            )
+        val versionBumped = account.assignRoles(input.operatorAccountId)
 
         // account_roles 全置換 + accounts.version インクリメントを1トランザクションで実行（修正4）
         val rows =

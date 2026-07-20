@@ -17,6 +17,20 @@
         <result property="status"    column="status"/>
     </resultMap>
 
+    <resultMap id="accountRowMap" type="com.kakehashi.infrastructure.account.AccountRow">
+        <id     property="accountId"     column="account_id"/>
+        <result property="googleSubHash" column="google_sub_hash"/>
+        <result property="email"         column="email"/>
+        <result property="name"          column="name"/>
+        <result property="status"        column="status"/>
+        <result property="suspendedAt"   column="suspended_at"/>
+        <result property="version"       column="version"/>
+        <result property="createdBy"     column="created_by"/>
+        <result property="updatedBy"     column="updated_by"/>
+        <result property="createdAt"     column="created_at"/>
+        <result property="updatedAt"     column="updated_at"/>
+    </resultMap>
+
     <resultMap id="accountDetailMap" type="com.kakehashi.infrastructure.account.AccountDetailRow">
         <id     property="accountId"  column="account_id"/>
         <result property="name"       column="name"/>
@@ -109,5 +123,66 @@
         WHERE a.account_id = #{accountId}
         ORDER BY r.role_id NULLS LAST
     </select>
+
+    <!-- ==================== Command系（APP-ADR-0016: 単一集約読み取り・書き込み） ==================== -->
+
+    <select id="findAccountRowById" resultMap="accountRowMap">
+        SELECT account_id, google_sub_hash, email, name, status, suspended_at,
+               version, created_by, updated_by, created_at, updated_at
+        FROM accounts
+        WHERE account_id = #{accountId}
+    </select>
+
+    <select id="findAccountRowByGoogleSubHash" resultMap="accountRowMap">
+        SELECT account_id, google_sub_hash, email, name, status, suspended_at,
+               version, created_by, updated_by, created_at, updated_at
+        FROM accounts
+        WHERE google_sub_hash = #{googleSubHash}
+    </select>
+
+    <insert id="insertAccountRow">
+        INSERT INTO accounts
+            (account_id, google_sub_hash, email, name, status, suspended_at,
+             version, created_by, updated_by, created_at, updated_at)
+        VALUES
+            (#{row.accountId}, #{row.googleSubHash}, #{row.email}, #{row.name}, #{row.status}, #{row.suspendedAt},
+             #{row.version}, #{row.createdBy}, #{row.updatedBy}, #{row.createdAt}, #{row.updatedAt})
+    </insert>
+
+    <!-- APP-ADR-0005: WHERE version = #{prevVersion} で楽観ロックを実装する（更新件数0 = version不一致） -->
+    <update id="updateAccountRow">
+        UPDATE accounts
+        SET email        = #{row.email},
+            name         = #{row.name},
+            status       = #{row.status},
+            suspended_at = #{row.suspendedAt},
+            version      = #{row.version},
+            updated_by   = #{row.updatedBy},
+            updated_at   = #{row.updatedAt}
+        WHERE account_id = #{row.accountId}
+          AND version    = #{prevVersion}
+    </update>
+
+    <select id="nextAccountIdSequence" resultType="long">
+        SELECT nextval('accounts_account_id_seq')
+    </select>
+
+    <select id="findRoleIdsByAccountId" resultType="string">
+        SELECT role_id FROM account_roles WHERE account_id = #{accountId}
+    </select>
+
+    <delete id="deleteAccountRoles">
+        DELETE FROM account_roles WHERE account_id = #{accountId}
+    </delete>
+
+    <insert id="insertAccountRoles">
+        INSERT INTO account_roles
+            (account_role_id, account_id, role_id, created_by, updated_by, created_at, updated_at)
+        VALUES
+        <foreach item="row" collection="rows" separator=",">
+            (#{row.accountRoleId}::uuid, #{row.accountId}, #{row.roleId}::uuid,
+             #{row.createdBy}, #{row.updatedBy}, #{row.createdAt}, #{row.updatedAt})
+        </foreach>
+    </insert>
 
 </mapper>

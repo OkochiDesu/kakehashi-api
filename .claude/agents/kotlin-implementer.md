@@ -24,7 +24,8 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 - **レイヤー責務の分離**:
   - Controller: リクエスト受付・バリデーション・レスポンス変換のみ。ビジネスロジックを持たない
   - Service: ビジネスロジック・トランザクション管理
-  - Repository: DB アクセスのみ（MyBatis または Spring Data JPA）
+  - Repository: DB アクセスのみ。**APP-ADR-0016: Repository 実装は MyBatis に統一する**。MyBatis がリフレクションで直接触れる対象は中間 DTO（`AccountRow` 等、`val` プロパティのみの `data class`）に限定し、エンティティ本体（`private constructor`）には一度も触れさせない。`RepositoryImpl` が中間 DTO ↔ エンティティの詰め替え（`reconstruct()` 等）を担う
+- **APP-ADR-0015 のエンティティ実装方針**: DDD エンティティ（ドメイン集約のルートで振る舞いを持つクラス）は `data class` ではなく通常の `class` として実装する（`private constructor` + `companion object` ファクトリ・ID 基準の `equals()`/`hashCode()` 手書き実装・PII 安全な `toString()`・`withChanges()` private ヘルパー）。値オブジェクト（識別子・enum・DTO・UseCase の Input/Output）は引き続き `data class` / `value class` / `enum class` で実装する
 - **APP-ADR-0010 の UseCase Input/Output 設計**: UseCase の `Input` / `Output` はそのクラス内にネストした `data class` で定義する。Builder パターン・ファクトリメソッドは使わない（Kotlin の名前付き引数で十分）。`companion object` 等の内部実装詳細（UUID 定数等）は `private` にして呼び出し側に漏らさない
 - **APP-ADR-0007 の認可チェック**: アクセス制御は `account_roles` の permission（`admin` / `view_personal_info`）に基づく。`visibility_rules` は廃止済みのため参照しない
 - **APP-ADR-0005 の楽観ロック**: `accounts` 等の対象テーブルには `version` チェックを実装する。楽観ロック競合（UPDATE 0件）は `OptimisticLockException` をスローし、再取得した currentVersion を渡す
@@ -55,6 +56,8 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
   - 良い例: `"${status} から ACTIVE への遷移は許可されていません"`
 - **`@param` / `@return` は `private` / `internal` を含むすべての関数で省略しない**（1つでも `@param` を書く場合は残りの引数も省略しない）。引数なし・戻り値 `Unit` の自明なシンプル関数のみ例外的に省略可。**`interface` のメソッドおよびリポジトリ系の公開メソッドは特に厳密に省略しない**（実装クラスとの対応追跡を容易にするため）
   - **例外**: `override` メソッドで実装元 interface（自プロジェクトのドメインポート、または Spring 等の外部フレームワーク）側に既に `@param`/`@return`/`@throws` が明記されている場合、実装側での再記載は省略可（重複記述はドリフトの温床になるため）。実装固有の注意点があればクラスKDocまたは1行コメントで補足する
+- **コンストラクタ（`private constructor` を含む）・DTO（`data class` の Row 系等）のプロパティも省略しない**。クラス KDoc に `@property <プロパティ名> <説明>` タグで記載する（PR #23 Copilotレビュー・人間レビューで指摘され、`Account` の `private constructor` と `AccountRow` 系DTOで発生した抜け漏れ）
+- **`equals()`/`hashCode()`/`toString()` 等、言語標準の既定動作から意図的に逸脱する override には、その挙動を1〜2行のKDocで説明する**（例: ID基準の同一性判定、PIIを含まない安全な文字列表現）
 - **パラメータ名は型から容易に推測できる具体名を使う**（`repo: AccountRepository` ではなく `accountRepository: AccountRepository`）。`repo` / `mgr` / `svc` のような省略形は避ける
 - **クラス/メソッドKDocに調査経緯・議論の詳細を書き込まない**: 「なぜこの設計にしたか」は ADR / exec-plan への参照1行に留め、KDoc本体は「このコードが何をするか」に集中する
 - **文字列全体にマッチさせる正規表現には必ず `^` と `$` アンカーを付与する**（例: `Regex("^AZ\\d{4}$")`）。アンカーなしだと部分一致で誤通過する
@@ -63,11 +66,11 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 
 ## 実装スタイル
 
-- Kotlin の慣用的な書き方（data class, extension function, scope function）を使用する
+- Kotlin の慣用的な書き方（extension function, scope function）を使用する。**`data class` はエンティティには使わない**（APP-ADR-0015: 値オブジェクト・DTO・UseCase Input/Output 専用。エンティティは通常 `class`）
 - null 安全を活かし、`!!` は原則使用しない
 - Spring Boot の DI（コンストラクタインジェクション）を使用する
 - エラーハンドリングは `@ControllerAdvice` で一元管理する
-- 複雑なクエリ（JOIN / 動的条件）は MyBatis、単純な CRUD は Spring Data JPA
+- 永続化は MyBatis に統一する（APP-ADR-0016）。JPA/Hibernate は使わない（APP-ADR-0004）
 
 ## 不明点確認プロセス
 
@@ -85,7 +88,7 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 
 1. `docs/design/api/<ドメイン名>.md` で実装対象のエンドポイントを確認する
 2. `docs/requirements/data-models.md` で関連テーブル・カラムを確認する
-3. 関連 ADR を確認する（特に APP-ADR-0001・0008）
+3. 関連 ADR を確認する（特に APP-ADR-0001・0008・0015・0016）
 4. 既存の実装ファイルを `src/` 配下で確認し、命名規則・パッケージ構成を踏襲する
 5. Entity → Repository → Service → Controller の順で実装する
 6. テストコードを作成する:
@@ -105,5 +108,5 @@ Spring Boot の各レイヤー（Entity / Repository / Service / Controller）�
 
 - `docs/design/api/`（API 設計書、api-designer の出力）
 - [docs/requirements/data-models.md](../../docs/requirements/data-models.md)
-- [docs/adr/](../../docs/adr/)（特に APP-ADR-0001・0008）
+- [docs/adr/](../../docs/adr/)（特に APP-ADR-0001・0008・0015・0016）
 - `src/`（既存実装の命名規則・パッケージ構成の参考）
