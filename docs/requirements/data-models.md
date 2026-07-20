@@ -268,6 +268,6 @@ RDBの厳密なカラムと、JSONBで柔軟に持つべきデータの境界を
 
 ### 補足
 
-- UC-F1（経歴書ファイル出力）は、`resumes` / `resume_qualifications` / `resume_projects`（4章）を基にExcel/PDFを動的に生成する処理であり、出力ファイル自体を永続化するデータモデルは現時点では想定しない（[README.md 4章](README.md#4-アーキテクチャ原則adr化予定の方針)のExcel正・PDF変換方針）。経歴書はJSONBスキーマ管理ではないため、フォーマットバージョン（キャリアシート4章想定）の概念は経歴書出力には適用しない。
+- UC-F1（経歴書ファイル出力）は、`resumes` / `resume_qualifications` / `resume_projects`（4章）を基にExcel/PDFを動的に生成する処理であり、出力ファイル自体を永続化するデータモデルは現時点では想定しない（[README.md 4章](README.md#4-アーキテクチャ原則)のExcel正・PDF変換方針）。経歴書はJSONBスキーマ管理ではないため、フォーマットバージョン（キャリアシート4章想定）の概念は経歴書出力には適用しない。
 - **出力対象**: 出力対象は経歴書（`resumes` / `resume_qualifications` / `resume_projects`）のみとし、星取表（`user_skills`、3章）は出力対象外とする。
 - **出力履歴**: 出力履歴（誰がいつ誰の経歴書を出力したか）を記録するテーブル（`resume_export_logs`等）はStep1では設けない。

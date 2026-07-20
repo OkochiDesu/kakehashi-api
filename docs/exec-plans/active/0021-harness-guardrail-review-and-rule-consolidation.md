@@ -20,21 +20,25 @@ exec-plan 0020（Account エンティティ・Repository リファクタリン�
 
 ### ① 全体チェック（監査フェーズ）
 
-- [ ] `doc-maintainer-structure` / `doc-maintainer-content` を全体スコープ（diffスコープではなくリポジトリ全体）で実行し、陳腐化・不整合・索引漏れを洗い出す
-- [ ] `.claude/agents/` 配下の各エージェント定義に、実装ルール（KDoc・エラーメッセージ・命名規則等）の重複記載がないか棚卸しする（`kotlin-implementer.md` / `code-reviewer.md` / `test-scenario-planner.md` 等）
-- [ ] `docs/agents/navigation-metrics.md` のナビゲーション指標を確認し、閾値超過があれば対応要否を判断する
-- [ ] 監査結果を本 exec-plan の「意思決定ログ」に一覧化し、対応する/しない項目をユーザーと合意する
+- [x] `doc-maintainer-structure` / `doc-maintainer-content` を全体スコープ（diffスコープではなくリポジトリ全体）で実行し、陳腐化・不整合・索引漏れを洗い出す
+- [x] `.claude/agents/` 配下の各エージェント定義に、実装ルール（KDoc・エラーメッセージ・命名規則等）の重複記載がないか棚卸しする（`kotlin-implementer.md` / `code-reviewer.md` / `test-scenario-planner.md` 等）
+- [x] `docs/agents/navigation-metrics.md` のナビゲーション指標を確認し、閾値超過があれば対応要否を判断する（直近5件は探索コスト1,0,1,2,1で閾値未超過。対応不要と判断）
+- [x] 監査結果を本 exec-plan の「意思決定ログ」に一覧化し、対応する/しない項目をユーザーと合意する
 
 ### ② コーディングルール集約（プラン2）
 
-- [ ] 実装ルールの集約先ドキュメントを決定する（新規作成 or 既存 `docs/conventions/kdoc-and-test-policy.md` の拡張、どちらが良いかユーザーと相談）
-- [ ] `kotlin-implementer.md` / `code-reviewer.md` 等に重複記載されている実装ルールを集約先への参照に置き換える
-- [ ] `mybatis-rules.md` / `test-rules.md` 等、既存 glob ルールとの役割分担を整理する
-- [ ] doc-maintainer チェックで重複・矛盾が解消されたことを確認する
+- [x] 実装ルールの集約先ドキュメントを決定する（新規作成 or 既存 `docs/conventions/kdoc-and-test-policy.md` の拡張、どちらが良いかユーザーと相談）→ 既存ドキュメントを正本化する方針で合意
+- [x] `kotlin-implementer.md` / `code-reviewer.md` 等に重複記載されている実装ルールを集約先への参照に置き換える
+- [x] `mybatis-rules.md` / `test-rules.md` 等、既存 glob ルールとの役割分担を整理する（調査の結果、`kotlin-implementer.md`/`code-reviewer.md`はどちらも本文転記なしで3項目程度の短い要約付きリンクに留まっており、KDocルールのような重複はなし。追加対応不要と判断）
+- [x] doc-maintainer チェックで重複・矛盾が解消されたことを確認する（`doc-maintainer-structure` をdiffスコープで再実行し指摘0件を確認）
 
 ### ③ その他監査で見つかった改善項目
 
-- [ ] （①の監査結果に応じて具体化する）
+- [x] S1: `README.md#4-アーキテクチャ原則adr化予定の方針` のリンク切れ（5ファイル・7箇所）を修正
+- [x] S2: `docs/references/harness-engineering/openai-harness-engineering.md`（196行）に目次がなかった問題を、見出し11箇所の`##`化＋ToC追加で解消
+- [x] C1/C2: APP-ADR-0015/0016の「影響」欄が exec-plan 0020 完了前提の未来形記述のまま陳腐化していた問題を修正
+- [x] C3: `navigation-metrics.md` の「チェック項目8」が doc-maintainer 分割後の現行番号（項目6）とずれていた問題を修正
+- [ ] T1（TODO.md「冪等性キーチェック基盤」のexec-plan昇格）は今回見送り。別セッションで判断する
 
 ### ④ 仕上げ
 
@@ -46,6 +50,14 @@ exec-plan 0020（Account エンティティ・Repository リファクタリン�
 
 - 2026-07-19: ユーザーから「①ハーネス全体チェック→②その中でコーディングルール集約（プラン2）を含め順次対応」という進め方の合意を得て、1つの exec-plan として起票した。exec-plan 0020 完了後に着手する順序で合意した。
 - 2026-07-19: exec-plan 0020（PR #23）のレビュー対応完了に伴い、`pending/`から`active/`へ移動し着手可能な状態にした。exec-plan 0020対応中に、KDoc規約（`@property`タグ・非自明なoverrideの説明）を`kdoc-and-test-policy.md`・`kotlin-implementer.md`・`code-reviewer.md`の3ファイルへ同時反映する事象が再度発生しており（②コーディングルール集約の必要性を裏付ける追加事例）、①監査フェーズで参照すること。
+- 2026-07-20: PR #23 マージ済み確認後、`feature/harness-guardrail-review` ブランチを origin/main から新規作成し着手。
+- 2026-07-20: ①監査フェーズを `doc-maintainer-structure` / `doc-maintainer-content` の全体スコープ並列実行で完了。指摘7件（structure 2件・content 3件・TODO昇格候補1件・KDocルール三重重複1件）をユーザーに提示し、対応方針を個別に合意した:
+  - S1（リンク切れ5ファイル）・S2（ToC欠落1件）・C1/C2（APP-ADR-0015/0016の影響欄陳腐化）・C3（navigation-metrics.mdのチェック項目番号ずれ）→ 全件今回対応
+  - T1（TODO.md「冪等性キーチェック基盤」のexec-plan昇格）→ 0021のスコープ外のため今回は見送り、TODO.mdのまま据え置き
+  - R1（KDocルールの三重重複）→ 既存 `docs/conventions/kdoc-and-test-policy.md` を正本とする方針で合意（新規ドキュメント作成は不採用）
+- 2026-07-20: R1対応として `kotlin-implementer.md`「KDoc・コメントルール」を全面圧縮し `kdoc-and-test-policy.md` への参照に置き換えた。合わせて `code-reviewer.md` 側で同じ内容が復元されていた「KDoc品質」「型安全・null安全」「エラーハンドリング」「ステータスチェック特定性」の各チェック項目も、`kotlin-implementer.md` / `kdoc-and-test-policy.md` への参照形式に圧縮した（R1で報告した3ファイル重複に加え、kotlin-implementer.md↔code-reviewer.md間の非KDoc実装ルール重複（正規表現アンカー・Output DTOのNothing?回避・runCatching.getOrNull()回避・ステータスチェック特定性）も同一パターンとして合わせて解消）。
+- 2026-07-20: C1/C2（ADR「影響」欄の鮮度修正）は、決定内容自体を変更するものではなく既存記述に完了事実を追記する性質のため、[adr-rules.md](../../.claude/rules/adr-rules.md) の「軽微な誤字・表現補足 → 既存ADRを直接修正してよい」の適用範囲と判断し、`adr-governance` を呼ばず直接編集した。
+- 2026-07-20: `mybatis-rules.md` / `test-rules.md` を調査した結果、`kotlin-implementer.md`/`code-reviewer.md`からの参照は本文転記のない短い要約リンクに留まっており、KDocルールで発生したような3ファイル間の重複はないと判断。追加対応なしで②を完了とした。
 
 ## 残課題・引き継ぎ事項
 
