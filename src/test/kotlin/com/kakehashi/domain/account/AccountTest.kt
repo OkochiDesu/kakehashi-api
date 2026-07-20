@@ -156,6 +156,6 @@ class AccountTest {
         assertTrue(result.contains("AZ0001"))
         assertTrue(result.contains("ACTIVE"))
         assertFalse(result.contains("user@example.com"))
-        assertFalse(result.contains("hash_az0001"))
+        assertFalse(result.contains(account.googleSubHash))
     }
 }
