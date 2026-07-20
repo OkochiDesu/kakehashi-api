@@ -87,9 +87,6 @@ kakehashi-api: Spring Boot (Kotlin/Gradle) で構築するAPIサーバー。Step
 2. フルexec-plan（`docs/exec-plans/pending/` に作成 → 着手時に `active/` へ移動）が必要か、軽量プラン（TodoWriteのみ）で十分かを人間に提案し、確認を取る。
 3. 判定基準・更新タイミングは [docs/exec-plans/README.md](docs/exec-plans/README.md) を参照。
 
-### 要件定義（準備中）
-マルチエージェント構成の詳細は [docs/exec-plans/completed/0001-requirements-definition-multiagent.md](docs/exec-plans/completed/0001-requirements-definition-multiagent.md) を参照。
-
 ### セッション終了時（ナビゲーション指標記録）
 ユーザーから明確な区切りがあったら、[docs/agents/navigation-metrics.md](docs/agents/navigation-metrics.md) に
 そのセッションの難易度・探索コストを1行追記する。閾値を超えた場合は同ファイルのルールに従い対応を提案する。
