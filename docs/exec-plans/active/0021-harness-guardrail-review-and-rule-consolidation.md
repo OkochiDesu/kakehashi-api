@@ -47,7 +47,7 @@ exec-plan 0020（Account エンティティ・Repository リファクタリン�
 
 - [x] AGENTS.md / docs/agents/README.md 等の索引更新（今回の変更はエージェント定義内部のルール記述圧縮のみで役割・責務は不変のため、索引側の更新は不要と判断）
 - [x] doc-maintainer チェック実施（全体スコープ2回・diffスコープ2回、最終的に指摘0件を確認）
-- [ ] PR 作成・マージ
+- [ ] PR 作成・マージ: [PR #24](https://github.com/OkochiDesu/kakehashi-api/pull/24) 作成済み。レビュー・マージはユーザーが行う
 
 ## 意思決定ログ
 
@@ -62,6 +62,7 @@ exec-plan 0020（Account エンティティ・Repository リファクタリン�
 - 2026-07-20: C1/C2（ADR「影響」欄の鮮度修正）は、決定内容自体を変更するものではなく既存記述に完了事実を追記する性質のため、[adr-rules.md](../../.claude/rules/adr-rules.md) の「軽微な誤字・表現補足 → 既存ADRを直接修正してよい」の適用範囲と判断し、`adr-governance` を呼ばず直接編集した。
 - 2026-07-20: `mybatis-rules.md` / `test-rules.md` を調査した結果、`kotlin-implementer.md`/`code-reviewer.md`からの参照は本文転記のない短い要約リンクに留まっており、KDocルールで発生したような3ファイル間の重複はないと判断。追加対応なしで②を完了とした。
 - 2026-07-20: コミット f953f30 後、④仕上げの一環としてPR作成前の定期チェック（doc-maintainer-structure/content 全体スコープ）を実施。今回のコミット自体には新たな不整合はなかったが、コミット対象外の既存ファイルで新規3件（N1: DOC-ADR-0001のリンク切れ、N2: AI-ADR-0003のリンク切れ、N3: exec-plan-rules.mdのToC欠落）を検出。ユーザーと合意の上、いずれも今回のセッションで対応した（N1/N2はAI-ADR-0011で分割済みの`doc-maintainer.md`への参照修正のため、決定内容を変更しない軽微な修正としてadr-governanceを呼ばず直接編集）。
+- 2026-07-20: N1〜N3をコミット（f72526d）後、`feature/harness-guardrail-review`をpushし [PR #24](https://github.com/OkochiDesu/kakehashi-api/pull/24) を作成した。ソースコード変更を含まないため「動作確認（手動）」セクションは省略。①〜③および④の索引確認・doc-maintainerチェックは全項目完了、残るはPRレビュー・マージのみ。
 
 ## 残課題・引き継ぎ事項
 
