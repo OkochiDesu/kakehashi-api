@@ -53,6 +53,6 @@ Spring Security で Google SSO 認証を実装する。認可（exec-plan 0007�
 
 ## 残課題・引き継ぎ事項
 
-- 認可（ロールベースの `@PreAuthorize` 等、UC-A1 以外のエンドポイントでの `SecurityContextHolder` 利用）は exec-plan 0007 のスコープ。JWTのprincipal（accountId）と`X-Account-Id`/`X-Is-Admin`ヘッダーの不整合によるなりすましリスク（PR #21 Copilot指摘、2026-07-18）を含め、詳細は[exec-plan 0007](../pending/0007-authorization-access-control.md)を参照。
+- 認可（ロールベースの `@PreAuthorize` 等、UC-A1 以外のエンドポイントでの `SecurityContextHolder` 利用）は exec-plan 0007 のスコープ。JWTのprincipal（accountId）と`X-Account-Id`/`X-Is-Admin`ヘッダーの不整合によるなりすましリスク（PR #21 Copilot指摘、2026-07-18）を含め、詳細は[exec-plan 0007](../active/0007-authorization-access-control.md)を参照。
 - `GoogleIdTokenVerifierImpl` / `JwtTokenIssuerImpl` の infrastructure 層実装は、実際の Google JWKS 疎通を伴う統合テストを持たない（ユニットテストは `GoogleSsoCallbackUseCase` 側でポートをモックして検証、フィルターは自前JWTの実発行・検証のみ実体で検証）。Google 側との実疎通確認は手動確認 or 別途統合テストで補うことを検討する。
 - `AuthStartupValidator`（`@Profile("!test & !integration-test")`）は、プロファイル未指定のフルコンテキスト `@SpringBootTest` では有効化される。現在 `@Disabled` の `KakehashiApiApplicationTests`（Testcontainers導入後に有効化予定）を再有効化する際は、`@ActiveProfiles("integration-test")` の指定または有効な `JWT_SECRET`/`GOOGLE_ALLOWED_DOMAINS` の設定が必要（未対応のまま再有効化するとコンテキストロードに失敗する）。
