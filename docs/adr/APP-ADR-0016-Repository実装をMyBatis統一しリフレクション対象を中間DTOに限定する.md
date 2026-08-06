@@ -74,7 +74,7 @@ MyBatis ←（リフレクションで）→ AccountRow（DTO、val プロパテ
 
 ## 影響
 
-- 本 ADR は将来 Command 側を MyBatis 化する際の **設計指針** であり、**現状の Command 側実装（`JdbcClient`・手書きマッピング）を今すぐ変更するものではない**。実際のリファクタリングは [APP-ADR-0015](APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md) の `Account` エンティティリファクタリング（`data class` → 通常 `class`）と合わせて、別ブランチで後日実施する。
+- 本 ADR は確定時点では将来 Command 側を MyBatis 化する際の **設計指針** であり、**確定時点の Command 側実装（`JdbcClient`・手書きマッピング）を即座に変更するものではなかった**。実際のリファクタリングは [APP-ADR-0015](APP-ADR-0015-DDDエンティティは振る舞いを持つ通常classとして実装し値オブジェクトのdataclassと区別する.md) の `Account` エンティティリファクタリング（`data class` → 通常 `class`）と合わせて、別ブランチで後日実施する方針とした。→ 実施済み: [exec-plan 0020](../exec-plans/completed/0020-account-entity-repository-refactor.md)（PR #23、2026-07-19マージ）で `AccountRepositoryImpl` を `AccountMapper`（MyBatis `@Mapper`）経由の実装に統一し、中間DTO（`AccountRow`・`AccountRoleInsertRow`）へのリフレクション限定を実現した。
 - 中間 DTO（`AccountRow` 等）の命名・配置・イミュータビリティ（`val` プロパティのみの `data class`）は、既存の Query 側パターン（[`AccountMapper.kt`](../../src/main/kotlin/com/kakehashi/infrastructure/account/AccountMapper.kt) 内の `AccountSummaryRow` 等）に倣うこと。
 - Command 側を MyBatis 化する際は、[`.claude/rules/mybatis-rules.md`](../../.claude/rules/mybatis-rules.md) のルール（`#{}` 使用・`@param` 必須・`<id>` タグ・`notNullColumn` 等）に従うこと。
 - 実装ガイドとして、[`kotlin-implementer`](../../.claude/agents/kotlin-implementer.md) など `.claude/agents/` 配下の関連エージェント定義が本方針（Repository 実装は MyBatis 統一・中間 DTO へのリフレクション限定・`RepositoryImpl` での詰め替え）を反映しているか、Command 側の永続化リファクタリングに着手する際に確認し、必要なら更新すること。

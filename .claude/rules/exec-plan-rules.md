@@ -7,6 +7,17 @@ globs:
 
 > 出典: [Harness Engineering（OpenAI記事）](../../docs/references/harness-engineering/openai-harness-engineering.md) の「計画は第一級の成果物として扱う」という考え方を採用する。
 
+## 目次
+
+- [ディレクトリ構成](#ディレクトリ構成)
+- [ファイル命名規則](#ファイル命名規則)
+- [粒度ポリシー（PR 単位）](#粒度ポリシーpr-単位)
+- [TODO と exec-plan のすみ分け](#todo-と-exec-plan-のすみ分け)
+- [TODO → exec-plan 昇格基準](#todo--exec-plan-昇格基準)
+- [フルexec-plan / 軽量プランの判定](#フルexec-plan--軽量プランの判定)
+- [更新タイミング（ワークフロー）](#更新タイミングワークフロー)
+- [テンプレート](#テンプレート)
+
 ## ディレクトリ構成
 
 - `pending/` - 計画済みだが未着手の実行計画（PR バックログ）

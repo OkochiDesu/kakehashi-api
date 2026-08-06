@@ -26,7 +26,7 @@
 
 ## 決定
 
-[doc-maintainer](../../.claude/agents/doc-maintainer.md) を読み取り専用のチェッカーとして設計する。
+doc-maintainer（当時は単一エージェント。現在は [AI-ADR-0011](AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md) により [doc-maintainer-structure](../../.claude/agents/doc-maintainer-structure.md) / [doc-maintainer-content](../../.claude/agents/doc-maintainer-content.md) に分割済み）を読み取り専用のチェッカーとして設計する。
 
 - ツールを **Read / Grep / Glob のみ** に限定し、Write / Edit 権限は付与しない。
 - 出力はチェック結果（**OK** / **要対応リスト**）と具体的な修正案のみとし、ファイルの作成・編集・削除は行わない。

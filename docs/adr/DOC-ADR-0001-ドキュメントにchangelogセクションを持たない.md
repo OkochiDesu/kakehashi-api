@@ -20,7 +20,7 @@
 
 `docs/requirements/` や `docs/design/` 配下のドキュメントが更新された際、「いつ・なぜ変わったか」を時系列で把握したいというニーズがあった。これに対し、ドキュメント末尾に「変更履歴」テーブル（変更日・変更理由・関連ADR）を設ける案を検討した。
 
-一方で、本リポジトリには [doc-maintainer](../../.claude/agents/doc-maintainer.md) サブエージェントによる陳腐化チェックが存在するため、changelog の鮮度を一定程度保つ仕組みは手元にある。changelog を持つべきかどうかを決定する必要があった。
+一方で、本リポジトリには [doc-maintainer-structure](../../.claude/agents/doc-maintainer-structure.md) / [doc-maintainer-content](../../.claude/agents/doc-maintainer-content.md) サブエージェント（[AI-ADR-0011](AI-ADR-0011-doc-maintainerの構造チェックと内容チェックへの分割.md) により分割）による陳腐化チェックが存在するため、changelog の鮮度を一定程度保つ仕組みは手元にある。changelog を持つべきかどうかを決定する必要があった。
 
 ## 決定
 
